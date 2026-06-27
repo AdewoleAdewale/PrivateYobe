@@ -1,0 +1,411 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:renderers1="clr-namespace:YIRS.Renderers" 
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             x:Class="YIRS.Views.Home.Enumerate"
+             BackgroundColor="#004225"
+             NavigationPage.HasNavigationBar="True">
+
+    <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <StackLayout Spacing="0">
+
+            <!-- Header Section -->
+            <StackLayout Margin="20,20,20,0" Spacing="10">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="24"
+                    Text="Business Registration"
+                    TextColor="White"
+                    HorizontalTextAlignment="Center"
+                    VerticalOptions="Center" />
+
+                <Label
+                    FontSize="13"
+                    Text="Complete all required fields to register a new business"
+                    TextColor="#B8E6D5"
+                    HorizontalTextAlignment="Center"
+                    Margin="0,0,0,10" />
+            </StackLayout>
+
+            <!-- Main Form Container -->
+            <yummy:PancakeView
+                Margin="10,10,10,20"
+                Padding="20,25,20,25"
+                BackgroundColor="White"
+                CornerRadius="20,20,20,20"
+                HasShadow="True"
+                Elevation="5"
+                VerticalOptions="FillAndExpand">
+
+                <StackLayout Spacing="18">
+
+                    <!-- Info Banner -->
+                    <yummy:PancakeView
+                        Padding="15,12"
+                        BackgroundColor="#FFF3CD"
+                        CornerRadius="10"
+                        BorderColor="#FFC107"
+                        BorderThickness="1">
+                        <StackLayout Orientation="Horizontal" Spacing="10">
+                            <Label Text="ℹ️" FontSize="18" VerticalOptions="Center"/>
+                            <Label 
+                                Text="Fields marked with * are mandatory"
+                                TextColor="#856404"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                VerticalOptions="Center"
+                                HorizontalOptions="FillAndExpand"/>
+                        </StackLayout>
+                    </yummy:PancakeView>
+
+                    <!-- Section: Business Information -->
+                    <Label Text="📋 Business Information" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#004225" 
+                           Margin="0,10,0,5"/>
+
+                    <!-- Business Name -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Business Name *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Keyboard="Text"
+                                Placeholder="Enter business name"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="BusinessName"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- RC Number -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="RC Number"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Placeholder="Enter RC number (optional)"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="RegistrationNumber"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Category -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Business Category *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <Picker x:Name="picker" 
+                                    Title="Select business category" 
+                                    FontSize="14" 
+                                    TitleColor="#999" 
+                                    TextColor="Black"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Description -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Business Description *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,10"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="100">
+                            <renderers1:Wide
+                                FontSize="14"
+                                Placeholder="Describe the business activities"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="Description"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Section: Owner Information -->
+                    <Label Text="👤 Owner Information" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#004225" 
+                           Margin="0,15,0,5"/>
+
+                    <!-- Business Owner -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Business Owner *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Placeholder="Enter owner's full name"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="BusinessOwner"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- TIN -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Tax Identification Number (TIN)"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Placeholder="Enter TIN (optional)"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="TIN"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Section: Contact Information -->
+                    <Label Text="📞 Contact Information" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#004225" 
+                           Margin="0,15,0,5"/>
+
+                    <!-- Owner Phone -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Owner Phone Number *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Keyboard="Telephone"
+                                MaxLength="11"
+                                Placeholder="Enter phone number"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="OwnerPhone"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Email -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Email Address"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Keyboard="Email"
+                                Placeholder="Enter email address (optional)"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="EmailAddress"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Section: Location Details -->
+                    <Label Text="📍 Location Details" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="#004225" 
+                           Margin="0,15,0,5"/>
+
+                    <!-- Business Address -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Business Address *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,10"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="100">
+                            <renderers1:Wide
+                                FontSize="14"
+                                Placeholder="Enter full business address (minimum 20 characters)"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="BusinessAddress"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- LGA -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Local Government Area *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <Picker x:Name="picker2" 
+                                    Title="Select LGA" 
+                                    FontSize="14" 
+                                    TitleColor="#999"
+                                    TextColor="Black">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>Bade</x:String>
+                                        <x:String>Bursari</x:String>
+                                        <x:String>Damaturu</x:String>
+                                        <x:String>Fika</x:String>
+                                        <x:String>Fune</x:String>
+                                        <x:String>Geidam</x:String>
+                                        <x:String>Gujba</x:String>
+                                        <x:String>Gulani</x:String>
+                                        <x:String>Jakuso</x:String>
+                                        <x:String>Karasuwa</x:String>
+                                        <x:String>Machina</x:String>
+                                        <x:String>Nangere</x:String>
+                                        <x:String>Nguru</x:String>
+                                        <x:String>Potiskum</x:String>
+                                        <x:String>Tarmuwa</x:String>
+                                        <x:String>Yunusari</x:String>
+                                        <x:String>Yusufari</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Location -->
+                    <StackLayout Spacing="8">
+                        <Label
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            Text="Specific Location/Landmark *"
+                            TextColor="#004225" />
+                        <yummy:PancakeView
+                            Padding="15,0"
+                            BackgroundColor="#F8F9FA"
+                            BorderThickness="2"
+                            BorderColor="#E0E0E0"
+                            CornerRadius="12"
+                            HeightRequest="50">
+                            <renderers1:BorderlessEntry
+                                FontSize="14"
+                                ClearButtonVisibility="WhileEditing"
+                                Placeholder="Enter location/landmark"
+                                PlaceholderColor="#999"
+                                TextColor="Black"
+                                x:Name="Location"/>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Submit Button -->
+                    <yummy:PancakeView
+                        Margin="0,20,0,0"
+                        BackgroundColor="#004225"
+                        CornerRadius="12"
+                        HasShadow="True"
+                        Elevation="4"
+                        HeightRequest="55"
+                        HorizontalOptions="FillAndExpand">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="Center"
+                            Text="REGISTER BUSINESS"
+                            TextColor="White"
+                            VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <yummy:PancakeView.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                        </yummy:PancakeView.GestureRecognizers>
+                    </yummy:PancakeView>
+
+                    <!-- Help Text -->
+                    <Label 
+                        Text="Need help? Contact support for assistance"
+                        FontSize="12"
+                        TextColor="#6C757D"
+                        HorizontalTextAlignment="Center"
+                        Margin="0,10,0,0"/>
+
+                </StackLayout>
+            </yummy:PancakeView>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

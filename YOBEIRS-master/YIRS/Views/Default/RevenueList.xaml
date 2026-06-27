@@ -1,0 +1,477 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design" xmlns:local="clr-namespace:YIRS.Converters"
+             x:Class="YIRS.Views.Default.RevenueList"   
+             Padding="0"
+             BackgroundColor="#F3F5F9"
+             NavigationPage.HasNavigationBar="True">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- String to Bool Converter -->
+            <local:StringToBoolConverter x:Key="StringToBoolConverter"/>
+
+            <!-- Animation for list items -->
+            <Style x:Key="FadeInStyle" TargetType="yummy:PancakeView">
+                <Setter Property="Opacity" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowSpacing="0" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section with Gradient Effect -->
+        <Grid Grid.Row="0" BackgroundColor="#004225" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <BoxView BackgroundColor="#003520" Opacity="0.3" VerticalOptions="End" HeightRequest="100"/>
+
+            <!-- Decorative circles -->
+            <BoxView BackgroundColor="#FFFFFF" 
+                     Opacity="0.1" 
+                     WidthRequest="150" 
+                     HeightRequest="150" 
+                     CornerRadius="75"
+                     HorizontalOptions="End" 
+                     VerticalOptions="Start"
+                     Margin="0,-50,-50,0"/>
+
+            <BoxView BackgroundColor="#FFFFFF" 
+                     Opacity="0.05" 
+                     WidthRequest="100" 
+                     HeightRequest="100" 
+                     CornerRadius="50"
+                     HorizontalOptions="Start" 
+                     VerticalOptions="End"
+                     Margin="-30,0,0,20"/>
+
+            <StackLayout Margin="20,40,20,20" HorizontalOptions="Center" VerticalOptions="Center" Spacing="5">
+                <Label TextColor="White" FontSize="28" HorizontalTextAlignment="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <FormattedString.Spans>
+                                <Span Text="MY" FontSize="28" FontAttributes="Bold"/>
+                                <Span Text="SERVICES" FontSize="28"/>
+                            </FormattedString.Spans>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label Text="YOBE STATE INTERNAL REVENUE SERVICE (YIRS)" 
+                       TextColor="White" 
+                       FontSize="11" 
+                       HorizontalTextAlignment="Center" 
+                       Opacity="0.9"/>
+            </StackLayout>
+        </Grid>
+
+        <!-- User Info Card -->
+        <yummy:PancakeView Grid.Row="1" 
+                          HasShadow="True" 
+                          Elevation="8"
+                          HeightRequest="60" 
+                          Margin="20,-30,20,0"  
+                          BackgroundColor="White" 
+                          CornerRadius="15"
+                          HorizontalOptions="FillAndExpand" 
+                          VerticalOptions="Start">
+
+            <Grid Padding="15,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Frame BackgroundColor="#004225" 
+                       CornerRadius="20" 
+                       Padding="0" 
+                       HasShadow="False"
+                       WidthRequest="40" 
+                       HeightRequest="40"
+                       VerticalOptions="Center">
+                    <Image Source="yobe" 
+                           HeightRequest="50" 
+                           Aspect="AspectFit"
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center"/>
+                </Frame>
+
+                <StackLayout Grid.Column="1" 
+                            Margin="10,0,0,0" 
+                            VerticalOptions="Center">
+                    <Label Text="Collection Point" 
+                           TextColor="#666666" 
+                           FontSize="11"/>
+                    <Label x:Name="Fullname" 
+                           TextColor="#004225" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           LineBreakMode="TailTruncation"/>
+                </StackLayout>
+            </Grid>
+        </yummy:PancakeView>
+
+        <!-- Search Bar Section -->
+        <yummy:PancakeView Grid.Row="2" 
+                          HasShadow="True" 
+                          Elevation="4"
+                          Margin="20,15,20,10"  
+                          BackgroundColor="White" 
+                          CornerRadius="15"
+                          HorizontalOptions="FillAndExpand">
+
+            <Grid Padding="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <SearchBar x:Name="searchBar" 
+                          Placeholder="Search by name, description, or amount..." 
+                          PlaceholderColor="#999999"
+                          TextColor="#333333"
+                          BackgroundColor="Transparent"
+                          TextChanged="SearchBar_TextChanged"
+                          CancelButtonColor="#004225"/>
+
+                <Frame Grid.Column="1" 
+                       BackgroundColor="#F0F0F0" 
+                       CornerRadius="20" 
+                       Padding="0" 
+                       HasShadow="False"
+                       WidthRequest="40" 
+                       HeightRequest="40"
+                       Margin="5"
+                       VerticalOptions="Center">
+                    <Label Text="🔍" 
+                           FontSize="18" 
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center"/>
+                </Frame>
+            </Grid>
+        </yummy:PancakeView>
+
+        <!-- Services List with RefreshView -->
+        <RefreshView Grid.Row="3" 
+                     x:Name="refreshView"
+                     IsRefreshing="{Binding IsLoading}"
+                     RefreshColor="#004225"
+                     Refreshing="RefreshView_Refreshing">
+            <Grid Margin="0,5,0,0">
+                <ListView x:Name="listView"  
+                         ItemsSource="{Binding FilteredServices}"
+                         SeparatorVisibility="None"
+                         HasUnevenRows="True" 
+                         HorizontalOptions="FillAndExpand" 
+                         VerticalOptions="FillAndExpand" 
+                         BackgroundColor="Transparent"   
+                         SelectionMode="None"
+                         CachingStrategy="RecycleElement">
+
+                    <ListView.Header>
+                        <StackLayout Padding="20,10,20,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Text="AVAILABLE SERVICES" 
+                                       TextColor="#333333" 
+                                       FontSize="20" 
+                                       FontAttributes="Bold"
+                                       VerticalOptions="Center"/>
+
+                                <Frame Grid.Column="1" 
+                                       BackgroundColor="#E8F5E9" 
+                                       CornerRadius="12" 
+                                       Padding="8,4" 
+                                       HasShadow="False">
+                                    <Label x:Name="serviceCount" 
+                                           TextColor="#004225" 
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           Text="0 services"/>
+                                </Frame>
+                            </Grid>
+
+                            <BoxView BackgroundColor="#E0E0E0" 
+                                    HeightRequest="1" 
+                                    Margin="0,10,0,5"/>
+                        </StackLayout>
+                    </ListView.Header>
+
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <yummy:PancakeView HasShadow="True" 
+                                                 Elevation="6"
+                                                 BackgroundColor="White" 
+                                                 CornerRadius="15"
+                                                 Margin="20,5,20,10"
+                                                 VerticalOptions="StartAndExpand" 
+                                                 HorizontalOptions="FillAndExpand">
+
+                                    <Grid Padding="0" VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Colored Accent Bar with Gradient Effect -->
+                                        <BoxView BackgroundColor="#004225" 
+                                                CornerRadius="15,0,0,15"
+                                                HorizontalOptions="Start" 
+                                                VerticalOptions="FillAndExpand"/>
+
+                                        <!-- Content Area -->
+                                        <Grid Grid.Column="1" Padding="15" RowSpacing="10">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Service Icon and Name -->
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Frame BackgroundColor="#E8F5E9" 
+                                                       CornerRadius="15" 
+                                                       Padding="8" 
+                                                       HasShadow="False"
+                                                       WidthRequest="45" 
+                                                       HeightRequest="45">
+                                                    <Label Text="YIRS" 
+                                                           FontSize="22" 
+                                                           HorizontalOptions="Center" 
+                                                           VerticalOptions="Center"/>
+                                                </Frame>
+
+                                                <Label Grid.Column="1" 
+                                                       Text="{Binding ServiceName}" 
+                                                       TextColor="#004225" 
+                                                       FontSize="17"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"
+                                                       Margin="10,0,0,0"
+                                                       LineBreakMode="WordWrap"/>
+                                            </Grid>
+
+                                            <!-- Divider -->
+                                            <BoxView Grid.Row="1" 
+                                                    BackgroundColor="#E0E0E0" 
+                                                    HeightRequest="1" 
+                                                    Margin="0,5"/>
+
+                                            <!-- Description -->
+                                            <StackLayout Grid.Row="2" Spacing="3">
+                                                <Label Text="SERVICE DESCRIPTION" 
+                                                       FontSize="10" 
+                                                       TextColor="#666666"
+                                                       FontAttributes="Bold"/>
+                                                <Label Text="{Binding ServiceDescription}" 
+                                                       TextColor="#333333" 
+                                                       FontSize="14"
+                                                       LineBreakMode="WordWrap"
+                                                       MaxLines="3"/>
+                                            </StackLayout>
+
+                                            <!-- Amount -->
+                                            <StackLayout Grid.Row="3" Spacing="3" Margin="0,5,0,0">
+                                                <Label Text="SERVICE AMOUNT" 
+                                                       FontSize="10" 
+                                                       TextColor="#666666"
+                                                       FontAttributes="Bold"/>
+                                                <Frame BackgroundColor="#FFEBEE" 
+                                                       CornerRadius="10" 
+                                                       Padding="10,5" 
+                                                       HasShadow="False"
+                                                       HorizontalOptions="Start">
+                                                    <Label TextColor="#D32F2F" 
+                                                           FontSize="20"
+                                                           FontAttributes="Bold">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="₦ "/>
+                                                                <Span Text="{Binding Samount}"/>
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </Frame>
+                                            </StackLayout>
+
+                                            <!-- Payment Button -->
+                                            <Button Grid.Row="4" 
+                                                   Text="MAKE PAYMENT" 
+                                                   BackgroundColor="#004225"
+                                                   TextColor="White"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   CornerRadius="10"
+                                                   HeightRequest="45"
+                                                   Margin="0,10,0,0"
+                                                   Clicked="PaymentButton_Clicked"
+                                                   CommandParameter="{Binding .}"/>
+                                        </Grid>
+                                    </Grid>
+                                </yummy:PancakeView>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                    <ListView.Footer>
+                        <StackLayout Padding="20,10,20,30">
+                            <BoxView BackgroundColor="#E0E0E0" 
+                                    HeightRequest="1" 
+                                    Margin="0,0,0,10"/>
+                            <Label x:Name="footerLabel" 
+                                   Text="{Binding Summary}" 
+                                   TextColor="#666666" 
+                                   FontSize="13" 
+                                   HorizontalTextAlignment="Center"
+                                   FontAttributes="Italic"/>
+                            <Label Text="Swipe down to refresh" 
+                                   TextColor="#999999" 
+                                   FontSize="11" 
+                                   HorizontalTextAlignment="Center"
+                                   Margin="0,5,0,0"/>
+                        </StackLayout>
+                    </ListView.Footer>
+                </ListView>
+
+                <!-- Empty State -->
+                <StackLayout x:Name="emptyStateView" 
+                            IsVisible="False"
+                            VerticalOptions="Center" 
+                            HorizontalOptions="Center"
+                            Padding="40">
+                    <Frame BackgroundColor="White" 
+                           CornerRadius="20" 
+                           Padding="30" 
+                           HasShadow="True">
+                        <StackLayout Spacing="15">
+                            <Frame BackgroundColor="#F3F5F9" 
+                                   CornerRadius="40" 
+                                   Padding="20" 
+                                   HasShadow="False"
+                                   HorizontalOptions="Center">
+                                <Label Text="📋" 
+                                       FontSize="60" 
+                                       HorizontalOptions="Center"/>
+                            </Frame>
+
+                            <Label Text="No Services Found" 
+                                   FontSize="20" 
+                                   FontAttributes="Bold"
+                                   TextColor="#333333"
+                                   HorizontalTextAlignment="Center"/>
+
+                            <Label Text="Try adjusting your search criteria or pull down to refresh" 
+                                   FontSize="14" 
+                                   TextColor="#999999"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap"/>
+
+                            <Button Text="Clear Search" 
+                                    BackgroundColor="#004225"
+                                    TextColor="White"
+                                    CornerRadius="20"
+                                    Margin="0,10,0,0"
+                                    Clicked="ClearSearch_Clicked"/>
+                        </StackLayout>
+                    </Frame>
+                </StackLayout>
+
+                <!-- Loading Overlay -->
+                <Grid x:Name="loadingOverlay" 
+                      IsVisible="False"
+                      BackgroundColor="#80000000"
+                      VerticalOptions="FillAndExpand"
+                      HorizontalOptions="FillAndExpand">
+                    <Frame BackgroundColor="White" 
+                           CornerRadius="20" 
+                           Padding="30" 
+                           HasShadow="True"
+                           WidthRequest="200"
+                           HeightRequest="150"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <StackLayout Spacing="20" 
+                                    HorizontalOptions="Center" 
+                                    VerticalOptions="Center">
+                            <ActivityIndicator x:Name="loadingIndicator" 
+                                             IsRunning="False"
+                                             Color="#004225"
+                                             WidthRequest="50"
+                                             HeightRequest="50"/>
+                            <Label Text="Loading services..." 
+                                   TextColor="#333333" 
+                                   FontSize="16"
+                                   HorizontalTextAlignment="Center"
+                                   FontAttributes="Bold"/>
+                            <Label Text="Please wait" 
+                                   TextColor="#666666" 
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center"/>
+                        </StackLayout>
+                    </Frame>
+                </Grid>
+            </Grid>
+        </RefreshView>
+
+        <!-- Error Banner (slides from top) -->
+        <Frame x:Name="errorBanner" 
+               Grid.Row="0"
+               BackgroundColor="#D32F2F"
+               CornerRadius="0"
+               Padding="15,10"
+               HasShadow="True"
+               IsVisible="False"
+               TranslationY="-100"
+               VerticalOptions="Start"
+               Margin="0,0,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Text="⚠️" 
+                       FontSize="20" 
+                       VerticalOptions="Center"
+                       Margin="0,0,10,0"/>
+
+                <Label x:Name="errorMessage" 
+                       Grid.Column="1"
+                       Text="An error occurred" 
+                       TextColor="White" 
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       LineBreakMode="WordWrap"/>
+
+                <Label Grid.Column="2"
+                       Text="✕" 
+                       TextColor="White" 
+                       FontSize="20"
+                       VerticalOptions="Center"
+                       Margin="10,0,0,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="CloseErrorBanner_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentPage>

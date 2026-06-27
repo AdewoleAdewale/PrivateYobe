@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView" xmlns:local="clr-namespace:YIRS.Views.Default"
+             x:Class="YIRS.Views.Yorata_Ops.ServiceList"
+             BackgroundColor="#F3F5F9"
+             NavigationPage.HasNavigationBar="True">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:StringToBoolConverter x:Key="StringToBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Main Content -->
+        <ScrollView>
+            <StackLayout Spacing="0">
+
+                <!-- Modern Header -->
+                <Grid BackgroundColor="#003d27" HeightRequest="200">
+                    <BoxView BackgroundColor="#002a19" Opacity="0.5" VerticalOptions="End" HeightRequest="100"/>
+
+                    <BoxView BackgroundColor="#FFFFFF" 
+                             Opacity="0.1" 
+                             WidthRequest="150" 
+                             HeightRequest="150" 
+                             CornerRadius="75"
+                             HorizontalOptions="End" 
+                             VerticalOptions="Start"
+                             Margin="0,-40,-40,0"/>
+
+                    <StackLayout Margin="20,50,20,20" Spacing="12" VerticalOptions="Center">
+                        <Frame BackgroundColor="White"
+                               CornerRadius="5"
+                               Padding="0"
+                               HasShadow="True"
+                               WidthRequest="70"
+                               HeightRequest="70"
+                               HorizontalOptions="Center">
+                            <Label Text="YIRS" TextColor="#003d27"
+                                   FontSize="20"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+
+                        <Label x:Name="Fullname"
+                               Text="Revenue Services"
+                               TextColor="White"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center"/>
+
+                        <Label Text="Select a service to proceed"
+                               TextColor="White"
+                               FontSize="14"
+                               Opacity="0.9"
+                               HorizontalTextAlignment="Center"/>
+                    </StackLayout>
+                </Grid>
+
+                <!-- Search Section -->
+                <yummy:PancakeView Margin="20,-40,20,0"
+                                  Padding="0"
+                                  BackgroundColor="White"
+                                  CornerRadius="15"
+                                  HasShadow="True"
+                                  Elevation="10">
+                    <StackLayout Spacing="0">
+                        <Grid Padding="15,15,15,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+
+                            <SearchBar x:Name="searchBar"
+                                      Grid.Column="1"
+                                      Placeholder="Search services..."
+                                      PlaceholderColor="#95A5A6"
+                                      TextColor="#2C3E50"
+                                      BackgroundColor="Transparent"
+                                      TextChanged="SearchBar_TextChanged"/>
+
+                            <Button x:Name="clearSearchButton"
+                                   Grid.Column="2"
+                                   Text="✕"
+                                   FontSize="18"
+                                   TextColor="#E74C3C"
+                                   BackgroundColor="Transparent"
+                                   WidthRequest="40"
+                                   HeightRequest="40"
+                                   CornerRadius="20"
+                                   Clicked="ClearSearch_Clicked"
+                                   IsVisible="{Binding Source={x:Reference searchBar}, Path=Text, Converter={StaticResource StringToBoolConverter}}"/>
+                        </Grid>
+
+                        <BoxView BackgroundColor="#E0E0E0" HeightRequest="1" Margin="15,0"/>
+
+                        <Label x:Name="serviceCount"
+                               Text="Loading services..."
+                               TextColor="#7F8C8D"
+                               FontSize="12"
+                               Margin="20,10,20,12"
+                               HorizontalTextAlignment="Center"/>
+                    </StackLayout>
+                </yummy:PancakeView>
+
+                <!-- Services List -->
+                <RefreshView x:Name="refreshView"
+                            IsRefreshing="False"
+                            Refreshing="RefreshView_Refreshing"
+                            Margin="0,15,0,0">
+                    <ListView x:Name="listView"
+                             ItemsSource="{Binding FilteredServices}"
+                             HasUnevenRows="True"
+                             SeparatorVisibility="None"
+                             SelectionMode="None"
+                             BackgroundColor="Transparent"
+                             Margin="10,0">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <yummy:PancakeView Margin="10,8"
+                                                      Padding="0"
+                                                      BackgroundColor="White"
+                                                      CornerRadius="15"
+                                                      HasShadow="True"
+                                                      Elevation="5">
+                                        <Grid Padding="20" RowSpacing="15">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Service Name -->
+                                            <Label Grid.Row="0"
+                                                   Text="{Binding ServiceName}"
+                                                   TextColor="#2C3E50"
+                                                   FontSize="18"
+                                                   FontAttributes="Bold"
+                                                   LineBreakMode="WordWrap"/>
+
+                                            <!-- Service Description -->
+                                            <Label Grid.Row="1"
+                                                   Text="{Binding ServiceDescription}"
+                                                   TextColor="#7F8C8D"
+                                                   FontSize="13"
+                                                   LineBreakMode="WordWrap"
+                                                   MaxLines="2"/>
+
+                                            <!-- Amount Section -->
+                                            <Frame Grid.Row="2"
+                                                   BackgroundColor="#E8F5E9"
+                                                   CornerRadius="10"
+                                                   Padding="15,10"
+                                                   HasShadow="False"
+                                                   HorizontalOptions="Start">
+                                                <StackLayout Orientation="Horizontal" Spacing="5">
+                                                    <Label Text="₦"
+                                                           TextColor="#2E7D32"
+                                                           FontSize="16"
+                                                           FontAttributes="Bold"
+                                                           VerticalOptions="Center"/>
+                                                    <Label Text="{Binding Samount}"
+                                                           TextColor="#2E7D32"
+                                                           FontSize="20"
+                                                           FontAttributes="Bold"
+                                                           VerticalOptions="Center"/>
+                                                </StackLayout>
+                                            </Frame>
+
+                                            <!-- Action Buttons -->
+                                            <Grid Grid.Row="3" ColumnSpacing="10" Margin="0,5,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Make Payment Button -->
+                                                <yummy:PancakeView Grid.Column="0"
+                                                                  BackgroundColor="#2E7D32"
+                                                                  CornerRadius="12"
+                                                                  HeightRequest="50"
+                                                                  HasShadow="True"
+                                                                  Elevation="3">
+                                                    <Button Text="PAY NOW"
+                                                           TextColor="White"
+                                                           FontSize="13"
+                                                           FontAttributes="Bold"
+                                                           BackgroundColor="Transparent"
+                                                           CommandParameter="{Binding .}"
+                                                           Clicked="PaymentButton_Clicked"/>
+                                                </yummy:PancakeView>
+
+                                                <!-- Generate Invoice Button -->
+                                                <yummy:PancakeView Grid.Column="1"
+                                                                  BackgroundColor="#003d27"
+                                                                  CornerRadius="12"
+                                                                  HeightRequest="50"
+                                                                  HasShadow="True"
+                                                                  Elevation="3">
+                                                    <Button Text="INVOICE"
+                                                           TextColor="White"
+                                                           FontSize="13"
+                                                           FontAttributes="Bold"
+                                                           BackgroundColor="Transparent"
+                                                           CommandParameter="{Binding .}"
+                                                           Clicked="GenerateInvoiceButton_Clicked"/>
+                                                </yummy:PancakeView>
+                                            </Grid>
+                                        </Grid>
+                                    </yummy:PancakeView>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </RefreshView>
+
+                <!-- Empty State -->
+                <StackLayout x:Name="emptyStateView"
+                            IsVisible="False"
+                            Padding="40"
+                            VerticalOptions="CenterAndExpand"
+                            HorizontalOptions="Center"
+                            Spacing="20"
+                            Margin="0,50,0,0">
+                    <Frame BackgroundColor="#E3F2FD"
+                           CornerRadius="60"
+                           Padding="0"
+                           HasShadow="False"
+                           WidthRequest="120"
+                           HeightRequest="120"
+                           HorizontalOptions="Center">
+                        <Label Text="📋"
+                               FontSize="60"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Frame>
+
+                    <Label Text="No Services Available"
+                           TextColor="#34495E"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Label Text="There are no services to display at the moment. Pull down to refresh."
+                           TextColor="#7F8C8D"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap"/>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator x:Name="loadingIndicator"
+                          IsRunning="False"
+                          IsVisible="False"
+                          Color="#2196F3"
+                          WidthRequest="50"
+                          HeightRequest="50"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+
+        <!-- Error Banner -->
+        <Frame x:Name="errorBanner"
+               IsVisible="False"
+               BackgroundColor="#E74C3C"
+               CornerRadius="0"
+               Padding="15,10"
+               HasShadow="True"
+               VerticalOptions="Start"
+               TranslationY="-100">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="errorMessage"
+                       Grid.Column="0"
+                       Text="An error occurred"
+                       TextColor="White"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       LineBreakMode="WordWrap"/>
+
+                <Label Grid.Column="1"
+                       Text="✕"
+                       TextColor="White"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       Margin="10,0,0,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="CloseErrorBanner_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Grid>
+        </Frame>
+    </Grid>
+</ContentPage>

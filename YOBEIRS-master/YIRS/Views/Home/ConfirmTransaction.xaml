@@ -1,0 +1,257 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             x:Class="YIRS.Views.Home.ConfirmTransaction"    
+             Padding="0"
+             BackgroundColor="#F5F5F5"
+             NavigationPage.HasNavigationBar="True">
+
+    <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <StackLayout Spacing="0">
+
+            <!-- Header Section -->
+            <yummy:PancakeView BackgroundColor="#004225" 
+                               CornerRadius="0,0,30,30"
+                               Padding="20,40,20,30">
+                <StackLayout Spacing="15">
+                    <Image Source="checkmark_circle.png" 
+                           HeightRequest="60" 
+                           WidthRequest="60"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,10"/>
+
+                    <Label Text="Transaction Receipt" 
+                           TextColor="White" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center"/>
+
+                    <Label x:Name="lblStatus" 
+                           Text="Success" 
+                           TextColor="#4CAF50" 
+                           FontSize="16" 
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           BackgroundColor="White"
+                           Padding="15,5"
+                           Margin="0,5,0,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </StackLayout>
+            </yummy:PancakeView>
+
+            <!-- Receipt Card -->
+            <yummy:PancakeView Margin="20,30,20,20" 
+                               BackgroundColor="White"
+                               CornerRadius="15"
+                               HasShadow="True"
+                               Elevation="8">
+                <StackLayout Spacing="0">
+
+                    <!-- Company Logo Section -->
+                    <StackLayout Padding="20,25,20,20" 
+                                 HorizontalOptions="Center">
+                        <Grid HorizontalOptions="Center" ColumnSpacing="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <yummy:PancakeView BackgroundColor="#004225" 
+                                               CornerRadius="8"
+                                               Padding="10,8"
+                                               Grid.Column="0">
+                                <Label Text="||" 
+                                       TextColor="White" 
+                                       FontSize="28" 
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </yummy:PancakeView>
+
+                            <StackLayout Grid.Column="1" 
+                                         VerticalOptions="Center" 
+                                         Spacing="0"
+                                         Margin="5,0,0,0">
+                                <Label Text="YIRS" 
+                                       TextColor="#004225" 
+                                       FontSize="22" 
+                                       FontAttributes="Bold"/>
+                                <Label Text="Payment System" 
+                                       TextColor="#666666" 
+                                       FontSize="10"/>
+                            </StackLayout>
+                        </Grid>
+                    </StackLayout>
+
+                    <!-- Dashed Line -->
+                    <BoxView HeightRequest="1" 
+                             BackgroundColor="#E0E0E0" 
+                             Margin="20,0"/>
+
+                    <!-- Transaction Details -->
+                    <StackLayout Padding="25,20" Spacing="18">
+
+                        <!-- Transaction Number -->
+                        <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                            <Label Text="Transaction No." 
+                                   TextColor="#666666" 
+                                   FontSize="13"
+                                   Grid.Row="0"/>
+                            <Label x:Name="transactionNo" 
+                                   Text="---" 
+                                   TextColor="#004225" 
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   Grid.Row="1"
+                                   LineBreakMode="TailTruncation"/>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#F0F0F0"/>
+
+                        <!-- Service Name -->
+                        <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                            <Label Text="Service" 
+                                   TextColor="#666666" 
+                                   FontSize="13"
+                                   Grid.Row="0"/>
+                            <Label x:Name="serviceName" 
+                                   Text="---" 
+                                   TextColor="#212121" 
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   Grid.Row="1"
+                                   LineBreakMode="WordWrap"/>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#F0F0F0"/>
+
+                        <!-- Amount -->
+                        <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                            <Label Text="Amount Paid" 
+                                   TextColor="#666666" 
+                                   FontSize="13"
+                                   Grid.Row="0"/>
+                            <Label x:Name="amount" 
+                                   Text="₦0.00" 
+                                   TextColor="#004225" 
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   Grid.Row="1"/>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#F0F0F0"/>
+
+                        <!-- Payer Info -->
+                        <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                            <Label Text="Payer ID" 
+                                   TextColor="#666666" 
+                                   FontSize="13"
+                                   Grid.Row="0"/>
+                            <Label x:Name="payer" 
+                                   Text="---" 
+                                   TextColor="#212121" 
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   Grid.Row="1"
+                                   LineBreakMode="TailTruncation"/>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#F0F0F0"/>
+
+                        <!-- Payer Contact -->
+                        <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                            <Label Text="Contact" 
+                                   TextColor="#666666" 
+                                   FontSize="13"
+                                   Grid.Row="0"/>
+                            <Label x:Name="payerContact" 
+                                   Text="---" 
+                                   TextColor="#212121" 
+                                   FontSize="15"
+                                   Grid.Row="1"
+                                   LineBreakMode="TailTruncation"/>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" 
+                                 BackgroundColor="#F0F0F0"/>
+
+                        <!-- Transaction Date -->
+                        <Grid ColumnDefinitions="*,Auto" RowSpacing="5">
+                            <Label Text="Date and Time" 
+                                   TextColor="#666666" 
+                                   FontSize="13"
+                                   Grid.Row="0"/>
+                            <Label x:Name="transactionDate" 
+                                   Text="---" 
+                                   TextColor="#212121" 
+                                   FontSize="15"
+                                   Grid.Row="1"
+                                   LineBreakMode="WordWrap"/>
+                        </Grid>
+                    </StackLayout>
+
+                    <!-- Dashed Line -->
+                    <BoxView HeightRequest="1" 
+                             BackgroundColor="#E0E0E0" 
+                             Margin="20,0"/>
+
+                    <!-- Footer -->
+                    <StackLayout Padding="25,20" 
+                                 Spacing="8"
+                                 HorizontalOptions="Center">
+                        <Label Text="Thank you for your payment" 
+                               TextColor="#666666" 
+                               FontSize="12"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Keep this receipt for your records" 
+                               TextColor="#999999" 
+                               FontSize="10"
+                               HorizontalOptions="Center"/>
+                    </StackLayout>
+
+                </StackLayout>
+            </yummy:PancakeView>
+
+            <!-- Action Buttons -->
+            <StackLayout Padding="20,0,20,30" Spacing="12">
+
+                <yummy:PancakeView BackgroundColor="#004225" 
+                                   CornerRadius="12"
+                                   HasShadow="True"
+                                   Elevation="4">
+                    <Button Text="DOWNLOAD RECEIPT" 
+                            TextColor="White"
+                            BackgroundColor="Transparent"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Padding="0,15"
+                            Clicked="OnDownloadClicked"/>
+                </yummy:PancakeView>
+
+                <yummy:PancakeView BackgroundColor="White" 
+                                   CornerRadius="12"
+                                   BorderColor="#004225"
+                                   BorderThickness="2"
+                                   HasShadow="True"
+                                   Elevation="2">
+                    <Button Text="SHARE RECEIPT" 
+                            TextColor="#004225"
+                            BackgroundColor="Transparent"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Padding="0,15"
+                            Clicked="OnShareClicked"/>
+                </yummy:PancakeView>
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

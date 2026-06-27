@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             x:Class="YIRS.Views.Default.Gazettet2"   
+             Padding="0,20,0,0"
+    BackgroundColor="#004225"
+    NavigationPage.HasNavigationBar="True">
+
+
+    <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+
+
+        <StackLayout>
+            <Grid Margin="0,0,0,0">
+                <StackLayout Margin="20,0,20,0" Spacing="20">
+
+                    <Label Text="SERVICES DETAILS AND PRICES" TextColor="White" FontSize="18" FontAttributes="Bold" BackgroundColor="Transparent" HorizontalOptions="CenterAndExpand"/>
+                </StackLayout>
+
+            </Grid>
+
+
+            <yummy:PancakeView  Margin="20,10,20,20" Padding="10,0,10,10" BackgroundColor="White" CornerRadius="10,10,0,0" VerticalOptions="FillAndExpand">
+                <StackLayout>
+
+
+                    <ListView x:Name="listView" SeparatorColor="Purple"  HasUnevenRows="True" HeightRequest="{Binding Size}">
+                        <ListView.HeaderTemplate >
+                            <DataTemplate>
+                                <StackLayout Orientation="Horizontal" Padding="10,5,5,10" BackgroundColor="Transparent">
+
+
+
+                                </StackLayout>
+                            </DataTemplate>
+                        </ListView.HeaderTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+
+                                    <yummy:PancakeView HasShadow="True" BackgroundColor="White" VerticalOptions="StartAndExpand"  
+                                    HorizontalOptions="FillAndExpand">
+                                        <Grid VerticalOptions="StartAndExpand" HorizontalOptions="FillAndExpand">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <BoxView BackgroundColor="#004225" WidthRequest="5" HorizontalOptions="Start" VerticalOptions="FillAndExpand"/>
+
+                                            <Grid HorizontalOptions="FillAndExpand">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="3.5*"/>
+
+                                                </Grid.ColumnDefinitions>
+                                                <StackLayout HorizontalOptions="Center" VerticalOptions="Center" Padding="10">
+                                                    <Label Text="||" TextColor="#004225" FontSize="27" FontAttributes="Bold"
+                                                   HorizontalOptions="Center"/>
+                                                    <Label Text="YIRS" TextColor="#004225" FontSize="10" FontAttributes="Bold"
+                                                   HorizontalOptions="Center" Margin="0,-10,0,0"/>
+                                                </StackLayout>
+                                                <BoxView Grid.Column="1" BackgroundColor="Transparent" WidthRequest="1" HorizontalOptions="Start"  VerticalOptions="FillAndExpand"/>
+                                                <StackLayout Grid.Column="2" HorizontalOptions="Start" VerticalOptions="Center" Margin="5">
+
+                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,*,*">
+
+                                                        <Label Grid.Row="0" LineBreakMode="NoWrap"  Text="BUSINESS NAME:"   FontSize="12" FontAttributes="Bold" TextColor="#004225"></Label>
+
+                                                        <Label   Grid.Row="0" LineBreakMode="NoWrap"  Grid.Column="1" Text="{Binding businessName}" TextColor="Red" FontSize="12"/>
+
+                                                        <Label Grid.Row="1" LineBreakMode="NoWrap"  Text="RENEWAL AMOUNT:"   FontSize="12" FontAttributes="Bold" TextColor="#004225"></Label>
+
+                                                        <Label   Grid.Row="1" LineBreakMode="NoWrap"  Grid.Column="1" Text="{Binding renewal}" TextColor="Black" FontSize="12" FontAttributes="Bold"/>
+
+                                                        <Label Grid.Row="2" LineBreakMode="NoWrap"  Text="REG AMOUNT:"   FontSize="12" FontAttributes="Bold" TextColor="#004225"></Label>
+
+                                                        <Label   Grid.Row="2" LineBreakMode="NoWrap"  Grid.Column="1" Text="{Binding regAmt}" TextColor="Red" FontSize="12" FontAttributes="Bold"/>
+
+
+                                                    </Grid>
+
+
+                                                </StackLayout>
+                                            </Grid>
+
+                                        </Grid>
+                                    </yummy:PancakeView>
+
+
+
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+
+
+                </StackLayout>
+
+            </yummy:PancakeView>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

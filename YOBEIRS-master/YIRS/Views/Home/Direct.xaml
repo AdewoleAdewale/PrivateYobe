@@ -1,0 +1,312 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView" 
+             xmlns:renderers1="clr-namespace:YIRS.Renderers"
+             x:Class="YIRS.Views.Home.Direct"    
+             NavigationPage.HasNavigationBar="True"
+             BackgroundColor="#004225">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Animations will be triggered from code-behind -->
+            <Style x:Key="CardStyle" TargetType="yummy:PancakeView">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="20"/>
+                <Setter Property="Elevation" Value="8"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <!-- Background Gradient Effect -->
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#004225" Offset="0.0" />
+                    <GradientStop Color="#005a33" Offset="0.5" />
+                    <GradientStop Color="#003d1f" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <!-- Decorative Circles -->
+        <yummy:PancakeView 
+            BackgroundColor="ForestGreen"
+            WidthRequest="300"
+            HeightRequest="300"
+            CornerRadius="150"
+            HorizontalOptions="Start"
+            VerticalOptions="Start"
+            Margin="-100,-100,0,0"/>
+
+        <yummy:PancakeView 
+            BackgroundColor="White"
+            WidthRequest="200"
+            HeightRequest="200"
+            CornerRadius="100"
+            HorizontalOptions="End"
+            VerticalOptions="End"
+            Margin="0,0,-50,-50"/>
+
+        <ScrollView HorizontalOptions="FillAndExpand" 
+                    VerticalOptions="FillAndExpand"
+                    Padding="0,40,0,0">
+            <StackLayout Spacing="0">
+
+                <!-- Header Section -->
+                <StackLayout Margin="30,20,30,0" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="32"
+                        Text="Direct Payment"
+                        TextColor="White" 
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        FontSize="14"
+                        Text="Verify your Payer ID to proceed with payment"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center"
+                        Margin="0,0,0,10"/>
+
+                    <!-- Status Indicator -->
+                    <StackLayout Orientation="Horizontal" 
+                                 HorizontalOptions="Center"
+                                 Spacing="8"
+                                 Margin="0,10,0,0">
+                        <yummy:PancakeView 
+                            BackgroundColor="#4CAF50"
+                            WidthRequest="8"
+                            HeightRequest="8"
+                            CornerRadius="4"/>
+                        <Label
+                            FontSize="12"
+                            Text="Service Online"
+                            TextColor="Red"/>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Main Card Container -->
+                <yummy:PancakeView
+                    Margin="0,30,0,0"
+                    Padding="0"
+                    BackgroundColor="White"
+                    CornerRadius="40,40,0,0"
+                    VerticalOptions="FillAndExpand"
+                    Elevation="20">
+
+                    <StackLayout Spacing="0" Padding="0">
+
+                        <!-- Decorative Top Bar -->
+                        <BoxView 
+                            HeightRequest="4"
+                            WidthRequest="60"
+                            CornerRadius="2"
+                            BackgroundColor="ForestGreen"
+                            HorizontalOptions="Center"
+                            Margin="0,15,0,0"/>
+
+                        <StackLayout Spacing="25" Padding="30,35,30,40">
+
+                            <!-- Info Card -->
+                            <yummy:PancakeView
+                                BackgroundColor="#F8F9FA"
+                                CornerRadius="15"
+                                Padding="20,15">
+                                <StackLayout Orientation="Horizontal" Spacing="12">
+                                    <Label
+                                        FontFamily="FontAwesome"
+                                        Text="+"
+                                        FontSize="20"
+                                        TextColor="#004225"
+                                        VerticalOptions="Center"/>
+                                    <Label
+                                        FontSize="13"
+                                        TextColor="#5F6368"
+                                        VerticalOptions="Center"
+                                        LineBreakMode="WordWrap">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Enter your registered " FontAttributes="None"/>
+                                                <Span Text="Payer ID" FontAttributes="Bold"/>
+                                                <Span Text=" to verify your account details" FontAttributes="None"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <!-- Payer ID Input Section -->
+                            <StackLayout Spacing="12">
+                                <Label
+                                    Margin="5,0,0,0"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    Text="Payer ID"
+                                    TextColor="#1F2937" />
+
+                                <yummy:PancakeView
+                                    BackgroundColor="White"
+                                    BorderThickness="2"
+                                    BorderColor="#E5E7EB"
+                                    CornerRadius="12"
+                                    Elevation="2"
+                                    Padding="15,0">
+
+                                    <Grid ColumnSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Icon -->
+                                        <Label
+                                            Grid.Column="0"
+                                            Text="👤"
+                                            FontSize="20"
+                                            VerticalOptions="Center"/>
+
+                                        <!-- Entry Field -->
+                                        <renderers1:BorderlessEntry
+                                            Grid.Column="1"
+                                            FontSize="16"
+                                            ClearButtonVisibility="WhileEditing"
+                                            IsPassword="False"     
+                                            Placeholder="Enter your Payer ID"
+                                            PlaceholderColor="#9CA3AF"
+                                            TextColor="#1F2937" 
+                                            VerticalOptions="Center"
+                                            HeightRequest="55"
+                                            x:Name="PayerId"/>
+                                    </Grid>
+                                </yummy:PancakeView>
+
+                                <!-- Helper Text -->
+                                <Label
+                                    Margin="5,0,0,0"
+                                    FontSize="12"
+                                    Text="Your unique identifier for tax payments"
+                                    TextColor="#9CA3AF"/>
+                            </StackLayout>
+
+                            <!-- Verify Button -->
+                            <yummy:PancakeView
+                                x:Name="VerifyButton"
+                                BackgroundColor="#004225"
+                                CornerRadius="12"
+                                Elevation="4"
+                                HeightRequest="56"
+                                HorizontalOptions="FillAndExpand"
+                                Margin="0,15,0,0">
+
+                          
+
+                                <Grid>
+                                    <StackLayout 
+                                        Orientation="Horizontal" 
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        Spacing="10">
+
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="18"
+                                            Text="Verify Payer ID"
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+
+                                       
+                                    </StackLayout>
+
+                                    
+                                    
+                                </Grid>
+                                <yummy:PancakeView.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1"/>
+
+                                </yummy:PancakeView.GestureRecognizers>
+                            </yummy:PancakeView>
+
+                            <!-- Security Note -->
+                            <StackLayout Orientation="Horizontal" 
+                                         HorizontalOptions="Center"
+                                         Spacing="6"
+                                         Margin="0,15,0,0">
+                                <Label
+                                    Text="🔒"
+                                    FontSize="14"/>
+                                <Label
+                                    FontSize="12"
+                                    TextColor="#6B7280">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="Secure payment powered by " FontAttributes="None"/>
+                                            <Span Text="YIRS" FontAttributes="Bold" TextColor="#004225"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </StackLayout>
+
+                            <!-- Features Grid -->
+                            <Grid ColumnSpacing="15" RowSpacing="15" Margin="0,20,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Feature 1 -->
+                                <yummy:PancakeView
+                                    Grid.Column="0"
+                                    BackgroundColor="#F0FDF4"
+                                    CornerRadius="12"
+                                    Padding="15">
+                                    <StackLayout Spacing="5">
+                                        <Label
+                                            Text="⚡"
+                                            FontSize="24"
+                                            HorizontalOptions="Start"/>
+                                        <Label
+                                            Text="Instant"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            TextColor="#166534"/>
+                                        <Label
+                                            Text="Verification"
+                                            FontSize="11"
+                                            TextColor="#16a34a"/>
+                                    </StackLayout>
+                                </yummy:PancakeView>
+
+                                <!-- Feature 2 -->
+                                <yummy:PancakeView
+                                    Grid.Column="1"
+                                    BackgroundColor="#EFF6FF"
+                                    CornerRadius="12"
+                                    Padding="15">
+                                    <StackLayout Spacing="5">
+                                        <Label
+                                            Text="🛡️"
+                                            FontSize="24"
+                                            HorizontalOptions="Start"/>
+                                        <Label
+                                            Text="Secure"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            TextColor="#1e40af"/>
+                                        <Label
+                                            Text="Transaction"
+                                            FontSize="11"
+                                            TextColor="#3b82f6"/>
+                                    </StackLayout>
+                                </yummy:PancakeView>
+                            </Grid>
+
+                        </StackLayout>
+                    </StackLayout>
+                </yummy:PancakeView>
+            </StackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

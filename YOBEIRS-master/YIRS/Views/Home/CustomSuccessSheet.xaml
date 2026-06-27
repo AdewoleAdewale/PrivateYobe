@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Home.CustomSuccessSheet"
+             BackgroundColor="Transparent">
+
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <!-- Semi-transparent overlay -->
+            <BoxView AbsoluteLayout.LayoutBounds="0,0,1,1"
+                     AbsoluteLayout.LayoutFlags="All"
+                     Color="Black"
+                     Opacity="0.6">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackgroundTapped" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <!-- Bottom Sheet Container -->
+            <Frame x:Name="SheetContainer"
+                   AbsoluteLayout.LayoutBounds="0,1,1,AutoSize"
+                   AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
+                  CornerRadius="15"
+                   BackgroundColor="White"
+                   Padding="0"
+                   HasShadow="True"
+                   Margin="0">
+
+                <Grid RowSpacing="0" Padding="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Drag Handle -->
+                    <BoxView Grid.Row="0"
+                             WidthRequest="50"
+                             HeightRequest="5"
+                             CornerRadius="2.5"
+                             BackgroundColor="#BDBDBD"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center" />
+
+                    <!-- Header with Success Icon -->
+                    <StackLayout Grid.Row="1" 
+                                 Padding="25,10,25,20" 
+                                 Spacing="15">
+                        <!-- Success Icon -->
+                        <Frame BackgroundColor="#4CAF50"
+                             
+                               WidthRequest="100"
+                               HeightRequest="100"
+                               Padding="0"
+                               HorizontalOptions="Center"
+                               HasShadow="True"
+                               BorderColor="#388E3C"
+                               CornerRadius="50">
+                            <Label Text="✓"
+                                   FontSize="60"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   FontAttributes="Bold" />
+                        </Frame>
+
+                        <Label Text="PAYMENT SUCCESSFUL"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               TextColor="#2E7D32"
+                               HorizontalTextAlignment="Center" />
+                    </StackLayout>
+
+                    <!-- Content -->
+                    <StackLayout Grid.Row="2" 
+                                 Padding="25,0,25,20" 
+                                 Spacing="15">
+                        <!-- Transaction Details Card -->
+                        <Frame BackgroundColor="#F5F5F5"
+                            
+                               Padding="20"
+                               HasShadow="False"
+                               BorderColor="#E0E0E0"
+                               CornerRadius="15">
+                            <StackLayout Spacing="15">
+                                <!-- Transaction Reference -->
+                                <StackLayout Spacing="5">
+                                    <Label Text="Transaction Reference"
+                                           FontSize="13"
+                                           TextColor="#757575"
+                                           FontAttributes="Bold" />
+                                    <Label x:Name="TransactionNoLabel"
+                                           FontSize="16"
+                                           TextColor="#212121"
+                                           FontAttributes="Bold" />
+                                </StackLayout>
+
+                                <BoxView HeightRequest="1"
+                                         BackgroundColor="#E0E0E0" />
+
+                                <!-- Amount -->
+                                <Grid ColumnSpacing="15" RowSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="Amount Paid"
+                                           FontSize="13"
+                                           TextColor="#757575" />
+                                    <Label x:Name="AmountLabel"
+                                           Grid.Row="0" Grid.Column="1"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="#4CAF50"
+                                           HorizontalTextAlignment="End" />
+
+                                    <Label Grid.Row="1" Grid.Column="0"
+                                           Text="Service"
+                                           FontSize="13"
+                                           TextColor="#757575" />
+                                    <Label x:Name="ServiceLabel"
+                                           Grid.Row="1" Grid.Column="1"
+                                           FontSize="13"
+                                           TextColor="#212121"
+                                           HorizontalTextAlignment="End"
+                                           LineBreakMode="TailTruncation" />
+
+                                    <Label Grid.Row="2" Grid.Column="0"
+                                           Text="Business"
+                                           FontSize="13"
+                                           TextColor="#757575" />
+                                    <Label x:Name="BusinessLabel"
+                                           Grid.Row="2" Grid.Column="1"
+                                           FontSize="13"
+                                           TextColor="#212121"
+                                           HorizontalTextAlignment="End"
+                                           LineBreakMode="TailTruncation" />
+
+                                    <Label Grid.Row="3" Grid.Column="0"
+                                           Text="Date Time"
+                                           FontSize="13"
+                                           TextColor="#757575" />
+                                    <Label x:Name="DateLabel"
+                                           Grid.Row="3" Grid.Column="1"
+                                           FontSize="13"
+                                           TextColor="#212121"
+                                           HorizontalTextAlignment="End" />
+                                </Grid>
+                            </StackLayout>
+                        </Frame>
+
+                        <!-- Message -->
+                        <Frame BackgroundColor="#E8F5E9"
+                             
+                               Padding="15"
+                               HasShadow="False"
+                               BorderColor="#C8E6C9"
+                               CornerRadius="12">
+                            <Label x:Name="MessageLabel"
+                                   FontSize="13"
+                                   TextColor="#2E7D32"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                        </Frame>
+
+                        <Label Text="Thank you for choosing IC!"
+                               FontSize="13"
+                               FontAttributes="Italic"
+                               TextColor="#9E9E9E"
+                               HorizontalTextAlignment="Center" />
+                    </StackLayout>
+
+                    <!-- Action Buttons -->
+                    <StackLayout Grid.Row="3" 
+                                 Padding="25,0,25,30" 
+                                 Spacing="12">
+                        <Button x:Name="PrintButton"
+                                Text="Print Receipt"
+                                BackgroundColor="#2196F3"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                Clicked="OnPrintClicked" />
+
+                        <Button x:Name="DoneButton"
+                                Text="Done"
+                                BackgroundColor="#4CAF50"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="50"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                Clicked="OnDoneClicked" />
+                    </StackLayout>
+                </Grid>
+            </Frame>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</ContentPage>

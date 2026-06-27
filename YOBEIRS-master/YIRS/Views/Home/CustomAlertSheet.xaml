@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Home.CustomAlertSheet"
+             BackgroundColor="Transparent">
+
+    <StackLayout>
+        <!-- Semi-transparent overlay -->
+        <BoxView AbsoluteLayout.LayoutBounds="0,0,1,1"
+                 AbsoluteLayout.LayoutFlags="All"
+                 Color="Black"
+                 Opacity="0.5">
+           
+        </BoxView>
+
+        <!-- Alert Dialog Container -->
+        <Frame x:Name="AlertContainer"
+               AbsoluteLayout.LayoutBounds="0.5,0.5,0.85,AutoSize"
+               AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
+               CornerRadius="20"
+               BackgroundColor="White"
+               Padding="0"
+               HasShadow="True">
+
+            <StackLayout Spacing="0">
+                <!-- Header with colored bar -->
+                <BoxView x:Name="HeaderBar"
+                         HeightRequest="5"
+                         BackgroundColor="#2196F3"
+                         CornerRadius="20,20,0,0" />
+
+                <!-- Content -->
+                <StackLayout Padding="25,20" Spacing="15">
+                    <!-- Icon -->
+                    <Frame x:Name="IconFrame"
+                           BackgroundColor="#E3F2FD"
+                           CornerRadius="30"
+                           WidthRequest="60"
+                           HeightRequest="60"
+                           Padding="0"
+                           HorizontalOptions="Center"
+                           HasShadow="False">
+                        <Label x:Name="IconLabel"
+                               Text="ℹ️"
+                               FontSize="32"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Frame>
+
+                    <!-- Title -->
+                    <Label x:Name="TitleLabel"
+                           Text="NOTIFICATION"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="#212121"
+                           HorizontalTextAlignment="Center" />
+
+                    <!-- Message -->
+                    <Label x:Name="MessageLabel"
+                           FontSize="14"
+                           TextColor="#666666"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap"
+                           Margin="0,5,0,0" />
+                </StackLayout>
+
+                <!-- Button -->
+                <Button x:Name="ActionButton"
+                        Text="OK"
+                        BackgroundColor="#2196F3"
+                        TextColor="White"
+                        CornerRadius="20"
+                        HeightRequest="50"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        Margin="25,0,25,25"
+                        Clicked="OnActionClicked" />
+            </StackLayout>
+        </Frame>
+    </StackLayout>
+</ContentPage>

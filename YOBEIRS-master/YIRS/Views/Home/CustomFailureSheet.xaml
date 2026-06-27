@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Home.CustomFailureSheet"
+             Padding="10"
+            
+             BackgroundColor="Transparent">
+
+    <StackLayout >
+        <!-- Semi-transparent overlay -->
+        <BoxView AbsoluteLayout.LayoutBounds="0,0,1,1"
+                 AbsoluteLayout.LayoutFlags="All"
+                 Color="Black"
+                 Opacity="0.5">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnBackgroundTapped" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- Bottom Sheet Container -->
+        <Frame x:Name="SheetContainer"
+               AbsoluteLayout.LayoutBounds="0,1,1,0.5"
+               AbsoluteLayout.LayoutFlags="PositionProportional,WidthProportional"
+               CornerRadius="30"
+               BackgroundColor="White"
+               Padding="0"
+               HasShadow="True">
+
+            <Grid RowSpacing="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Drag Handle -->
+                <BoxView Grid.Row="0"
+                         WidthRequest="40"
+                         HeightRequest="4"
+                         CornerRadius="2"
+                         BackgroundColor="#E0E0E0"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center"
+                         Margin="0,15,0,0" />
+
+                <!-- Header -->
+                <StackLayout Grid.Row="1" Padding="30,20,30,0">
+                    <!-- Error Icon -->
+                    <Frame BackgroundColor="#F44336"
+                           CornerRadius="40"
+                           WidthRequest="80"
+                           HeightRequest="80"
+                           Padding="0"
+                           HorizontalOptions="Center"
+                           HasShadow="False">
+                        <Label Text="✕"
+                               FontSize="48"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               FontAttributes="Bold" />
+                    </Frame>
+
+                    <Label x:Name="TitleLabel"
+                           Text="TRANSACTION FAILED"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="#C62828"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,15,0,0" />
+                </StackLayout>
+
+                <!-- Content -->
+                <ScrollView Grid.Row="2" Padding="30,20">
+                    <StackLayout Spacing="15">
+                        <!-- Error Message Card -->
+                        <Frame BackgroundColor="#FFEBEE"
+                               CornerRadius="15"
+                               Padding="20"
+                               HasShadow="False">
+                            <Label x:Name="MessageLabel"
+                                   FontSize="14"
+                                   TextColor="#C62828"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="WordWrap" />
+                        </Frame>
+
+                        <!-- Info Message -->
+                        <Frame BackgroundColor="#FFF3E0"
+                               CornerRadius="12"
+                               Padding="15"
+                               HasShadow="False">
+                            <StackLayout Spacing="8">
+                                <Label Text="ℹ️  What to do next:"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#E65100" />
+                                <Label Text="• Check your transaction history to verify if payment was processed"
+                                       FontSize="12"
+                                       TextColor="#E65100" />
+                                <Label Text="• Ensure you have stable internet connection"
+                                       FontSize="12"
+                                       TextColor="#E65100" />
+                                <Label Text="• Contact support if the issue persists"
+                                       FontSize="12"
+                                       TextColor="#E65100" />
+                            </StackLayout>
+                        </Frame>
+
+                        <Label x:Name="DateLabel"
+                               FontSize="12"
+                               TextColor="#999999"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,5,0,0" />
+                    </StackLayout>
+                </ScrollView>
+
+                <!-- Action Buttons -->
+                <StackLayout Grid.Row="3" Padding="30,10,30,30" Spacing="12">
+                    <Button x:Name="RetryButton"
+                            Text="Try Again"
+                            BackgroundColor="#FF9800"
+                            TextColor="White"
+                            CornerRadius="15"
+                            HeightRequest="55"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            Clicked="OnRetryClicked" />
+
+                    <Button x:Name="CloseButton"
+                            Text="Close"
+                            BackgroundColor="#757575"
+                            TextColor="White"
+                            CornerRadius="15"
+                            HeightRequest="55"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            Clicked="OnCloseClicked" />
+                </StackLayout>
+            </Grid>
+        </Frame>
+    </StackLayout>
+</ContentPage>

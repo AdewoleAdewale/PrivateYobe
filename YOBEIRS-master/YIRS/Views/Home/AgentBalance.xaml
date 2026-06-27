@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView" 
+             xmlns:local="clr-namespace:YIRS.Renderers"
+             x:Class="YIRS.Views.Home.AgentBalance"   
+             Padding="0"
+             BackgroundColor="#F5F7FA"
+             NavigationPage.HasNavigationBar="True">
+    <ContentPage.Content>
+        <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <StackLayout Spacing="0">
+
+                <!-- Header Section with Gradient -->
+                <yummy:PancakeView
+                    HeightRequest="180"
+                    CornerRadius="0,0,30,30"
+                    Padding="20,40,20,30">
+                    <yummy:PancakeView.BackgroundGradientStops>
+                        <yummy:GradientStopCollection>
+                            <yummy:GradientStop Color="#004225" Offset="0" />
+                            <yummy:GradientStop Color="#006837" Offset="1" />
+                        </yummy:GradientStopCollection>
+                    </yummy:PancakeView.BackgroundGradientStops>
+
+                    <StackLayout Spacing="10">
+                        <Label Text="Agent Balance"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Start"/>
+                        <Label Text="Manage your cashout transactions"
+                               FontSize="14"
+                               TextColor="#B0E0C8"
+                               HorizontalOptions="Start"/>
+                    </StackLayout>
+                </yummy:PancakeView>
+
+                <!-- Main Content Container -->
+                <StackLayout Padding="20" Spacing="20" Margin="0,-30,0,20">
+
+                    <!-- Agent Information Card -->
+                    <yummy:PancakeView 
+                        CornerRadius="20" 
+                        Elevation="8"
+                        Padding="0"
+                        BackgroundColor="White">
+                     
+
+                        <Grid Padding="0" RowSpacing="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Card Header with Gradient -->
+                            <yummy:PancakeView 
+                                Grid.Row="0"
+                                CornerRadius="20,20,0,0"
+                                Padding="20,20,20,25">
+                                <yummy:PancakeView.BackgroundGradientStops>
+                                    <yummy:GradientStopCollection>
+                                        <yummy:GradientStop Color="#004225" Offset="0" />
+                                        <yummy:GradientStop Color="#005530" Offset="1" />
+                                    </yummy:GradientStopCollection>
+                                </yummy:PancakeView.BackgroundGradientStops>
+
+                                <Grid ColumnSpacing="15" RowSpacing="15">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Logo -->
+                                    <Image Source="yobe"
+                                           HeightRequest="45"
+                                           WidthRequest="45"
+                                           Aspect="AspectFit"
+                                           Grid.Row="0"
+                                           Grid.Column="1"
+                                           HorizontalOptions="End"/>
+
+                                    <!-- Super Agent Section -->
+                                    <StackLayout Grid.Row="0" Grid.Column="0" Spacing="5">
+                                        <Label Text="SUPER AGENT"
+                                               FontSize="10"
+                                               FontAttributes="Bold"
+                                               TextColor="#B0E0C8"
+                                              />
+                                        <Label x:Name="AgentSupervisor"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="White"/>
+                                    </StackLayout>
+
+                                    <!-- Divider -->
+                                    <BoxView Grid.Row="1" Grid.ColumnSpan="2" 
+                                             HeightRequest="1" 
+                                             Color="#FFFFFF" 
+                                             Opacity="0.2"
+                                             Margin="0,5"/>
+
+                                    <!-- Agent Details -->
+                                    <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnSpacing="20">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Agent Name -->
+                                        <StackLayout Grid.Column="0" Spacing="5">
+                                            <Label Text="AGENT NAME"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#B0E0C8"
+                                                  />
+                                            <Label x:Name="Agentname"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   LineBreakMode="TailTruncation"/>
+                                        </StackLayout>
+
+                                        <!-- Balance -->
+                                        <StackLayout Grid.Column="1" Spacing="5">
+                                            <Label Text="BALANCE"
+                                                   FontSize="10"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#B0E0C8"
+                                                  />
+                                            <Label x:Name="CashoutBalance"
+                                                   FontSize="16"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"/>
+                                        </StackLayout>
+                                    </Grid>
+                                </Grid>
+                            </yummy:PancakeView>
+
+                            <!-- Card Info Footer -->
+                            <StackLayout Grid.Row="1" Padding="20,15" Spacing="5">
+                                <Label Text="Available for withdrawal"
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Grid>
+                    </yummy:PancakeView>
+
+                    <!-- Cashout Form Card -->
+                    <yummy:PancakeView 
+                        CornerRadius="20" 
+                        Elevation="8"
+                        Padding="25"
+                        BackgroundColor="White">
+                     
+
+                        <StackLayout Spacing="20">
+                            <!-- Form Header -->
+                            <StackLayout Spacing="5">
+                                <Label Text="Cashout Request"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="#1F2937"/>
+                                <Label Text="Select method and enter your PIN to proceed"
+                                       FontSize="13"
+                                       TextColor="#6B7280"/>
+                            </StackLayout>
+
+                            <!-- Cashout Method Picker -->
+                            <StackLayout Spacing="8">
+                                <Label Text="Cashout Method"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#374151"/>
+                                <yummy:PancakeView
+                                    BackgroundColor="White"
+                                    BorderColor="#E5E7EB"
+                                    BorderThickness="1.5"
+                                    CornerRadius="12"
+                                    HeightRequest="55">
+                                    <Picker x:Name="picker" 
+                                            Title="Select cashout method" 
+                                            TextColor="#1F2937" 
+                                            TitleColor="#9CA3AF" 
+                                            FontSize="14"
+                                            Margin="15,0">
+                                        <Picker.ItemsSource>
+                                            <x:Array Type="{x:Type x:String}">
+                                                <x:String>Super Agent</x:String>
+                                                <x:String>Commercial Account</x:String>
+                                            </x:Array>
+                                        </Picker.ItemsSource>
+                                    </Picker>
+                                </yummy:PancakeView>
+                            </StackLayout>
+
+                            <!-- PIN Entry -->
+                            <StackLayout Spacing="8">
+                                <Label Text="Account PIN"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="#374151"/>
+                                <yummy:PancakeView
+                                    BackgroundColor="White"
+                                    BorderColor="#E5E7EB"
+                                    BorderThickness="1.5"
+                                    CornerRadius="12"
+                                    HeightRequest="55">
+                                    <Grid ColumnSpacing="0" Padding="15,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="40"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <local:BorderlessEntry
+                                            Grid.Column="0"
+                                            FontSize="15"
+                                            Placeholder="Enter 4-digit PIN"
+                                            x:Name="Password"  
+                                            Keyboard="Numeric"
+                                            MaxLength="4"
+                                            PlaceholderColor="#9CA3AF"
+                                            TextColor="#1F2937"
+                                            VerticalOptions="Center"
+                                            IsPassword="{Binding Source={x:Reference ShowPasswordActualTrigger}, Path=HidePassword}"/>
+
+                                        <ImageButton 
+                                            Grid.Column="1"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="Center"
+                                            HeightRequest="24"
+                                            WidthRequest="24"
+                                            Source="icons8eyes"
+                                            BackgroundColor="Transparent">
+                                            <ImageButton.Triggers>
+                                                <EventTrigger Event="Clicked">
+                                                    <local:ShowPasswordTriggerAction 
+                                                        ShowIcon="Openeyes"
+                                                        HideIcon="icons8eyes"
+                                                        x:Name="ShowPasswordActualTrigger"/>
+                                                </EventTrigger>
+                                            </ImageButton.Triggers>
+                                        </ImageButton>
+                                    </Grid>
+                                </yummy:PancakeView>
+                            </StackLayout>
+
+                            <!-- Submit Button -->
+                            <yummy:PancakeView
+                                Margin="0,10,0,0"
+                                CornerRadius="12"
+                                Elevation="4"
+                                HeightRequest="55"
+                                HorizontalOptions="FillAndExpand">
+                                <yummy:PancakeView.BackgroundGradientStops>
+                                    <yummy:GradientStopCollection>
+                                        <yummy:GradientStop Color="#004225" Offset="0" />
+                                        <yummy:GradientStop Color="#005530" Offset="1" />
+                                    </yummy:GradientStopCollection>
+                                </yummy:PancakeView.BackgroundGradientStops>
+                            
+
+                                <Button                     
+                                    Text="PROCESS CASHOUT"
+                                    FontAttributes="Bold"
+                                    FontSize="15"
+                                    CornerRadius="12"
+                                    BackgroundColor="Transparent" 
+                                    TextColor="White" 
+                                    Clicked="Button_Clicked"/>
+                            </yummy:PancakeView>
+
+                            <!-- Security Notice -->
+                            <StackLayout Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                                <Label Text="🔒" FontSize="14"/>
+                                <Label Text="Your transaction is secure and encrypted"
+                                       FontSize="11"
+                                       TextColor="#6B7280"
+                                       VerticalOptions="Center"/>
+                            </StackLayout>
+                        </StackLayout>
+                    </yummy:PancakeView>
+
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

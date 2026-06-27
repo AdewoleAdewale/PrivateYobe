@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "YIRS": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

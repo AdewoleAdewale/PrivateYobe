@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView" xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             x:Class="YIRS.Views.StateLine.Routelist"    
+             Padding="0"
+             BackgroundColor="#F3F5F9"
+             NavigationPage.HasNavigationBar="True">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="CardStyle" TargetType="yummy:PancakeView">
+                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="Elevation" Value="4"/>
+                <Setter Property="CornerRadius" Value="16"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowSpacing="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="240"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Enhanced Header with Modern Gradient -->
+        <Grid Grid.Row="0">
+            <yummy:PancakeView BackgroundGradientStartColor="#004225"
+                             BackgroundGradientEndColor="#006838"
+                             BackgroundGradientAngle="135">
+
+                <!-- Decorative Elements -->
+                <Grid>
+                    <yummy:PancakeView WidthRequest="220" HeightRequest="220" 
+                                     BackgroundColor="#00532E" 
+                                     CornerRadius="110"
+                                     HorizontalOptions="End" 
+                                     VerticalOptions="Start"
+                                     Margin="-60,-60,0,0"
+                                     Opacity="0.25"/>
+
+                    <yummy:PancakeView WidthRequest="160" HeightRequest="160" 
+                                     BackgroundColor="#008040" 
+                                     CornerRadius="80"
+                                     HorizontalOptions="Start" 
+                                     VerticalOptions="End"
+                                     Margin="0,0,0,-50"
+                                     Opacity="0.3"/>
+
+                    <StackLayout Spacing="16" Padding="20,15" VerticalOptions="Center">
+                        <!-- Modern App Title -->
+                        <Frame BackgroundColor="#006838" 
+                               CornerRadius="25" 
+                               Padding="18,12"
+                               HasShadow="True"
+                               HorizontalOptions="Center">
+                            <StackLayout Orientation="Horizontal" Spacing="10">
+                                <Image Source="yobe.png" HeightRequest="40" WidthRequest="40" Aspect="AspectFit"></Image>
+                       
+                                <Label TextColor="White" FontSize="24" VerticalOptions="Center">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="YOBE STATE " FontSize="24" FontAttributes="Bold"/>
+                                            <Span Text="LINE" FontSize="24" FontAttributes="Bold"/>
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </StackLayout>
+                        </Frame>
+
+                        <Label Text="YOBE INTERNAL REVENUE SERVICE" 
+                               TextColor="White" 
+                               FontSize="11" 
+                               HorizontalTextAlignment="Center"
+                               Opacity="0.95"
+                               FontAttributes="Bold"/>
+
+                        <!-- Enhanced Collection Point Card -->
+                        <yummy:PancakeView HasShadow="True" 
+                                         BackgroundColor="White" 
+                                         CornerRadius="22"
+                                         Padding="18,14"
+                                         BorderColor="White"
+                                         BorderThickness="2"
+                                         Elevation="8"
+                                         HorizontalOptions="FillAndExpand">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Frame Grid.Column="0" 
+                                       BackgroundColor="#004225" 
+                                       CornerRadius="22" 
+                                       Padding="11,9"
+                                       HasShadow="False">
+                                    <Image Source="yobe.png" HeightRequest="20" WidthRequest="20" Aspect="AspectFit"></Image>
+                                </Frame>
+
+                                <StackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                    <Label Text="Collection Point" 
+                                           TextColor="#888" 
+                                           FontSize="10"
+                                           FontAttributes="Bold"/>
+                                    <Label x:Name="Fullname" 
+                                           TextColor="#004225" 
+                                           FontSize="15" 
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1"/>
+                                </StackLayout>
+
+                                <Frame Grid.Column="2" 
+                                       BackgroundColor="#E8F5E9" 
+                                       CornerRadius="16" 
+                                       Padding="10,7"
+                                       HasShadow="False"
+                                       VerticalOptions="Center">
+                                    <Label Text="✓ Active" 
+                                           TextColor="#4CAF50" 
+                                           FontSize="10"
+                                           FontAttributes="Bold"/>
+                                </Frame>
+                            </Grid>
+                        </yummy:PancakeView>
+                    </StackLayout>
+                </Grid>
+            </yummy:PancakeView>
+        </Grid>
+
+        <!-- Main Content with Rounded Top -->
+        <yummy:PancakeView Grid.Row="1" 
+                         BackgroundColor="White" 
+                         CornerRadius="32,32,0,0"
+                         Margin="0,-32,0,0"
+                         HasShadow="True"
+                         Elevation="10"
+                         Padding="0">
+
+            <Grid RowDefinitions="Auto,*" RowSpacing="0">
+                <!-- Statistics Dashboard -->
+                <yummy:PancakeView Grid.Row="0" 
+                                 Margin="20,22,20,16"
+                                 CornerRadius="18"
+                                 Padding="16,14"
+                                 HasShadow="True"
+                                 Elevation="3">
+                    <yummy:PancakeView.BackgroundGradientStops>
+                        <yummy:GradientStop Color="#F8F9FA" Offset="0"/>
+                        <yummy:GradientStop Color="#E9ECEF" Offset="1"/>
+                    </yummy:PancakeView.BackgroundGradientStops>
+
+                    <Grid ColumnDefinitions="*,1,*" ColumnSpacing="16">
+                        <StackLayout Grid.Column="0" Spacing="4">
+                            <Label Text="+ Available Routes" 
+                                   FontSize="11" 
+                                   TextColor="#666"
+                                   FontAttributes="Bold"/>
+                            <Label x:Name="TotalServicesLabel" 
+                                   Text="0" 
+                                   FontSize="28" 
+                                   FontAttributes="Bold"
+                                   TextColor="#004225"/>
+                        </StackLayout>
+
+                        <BoxView Grid.Column="1" 
+                                 BackgroundColor="#CED4DA" 
+                                 WidthRequest="1.5"
+                                 VerticalOptions="FillAndExpand"
+                                 Margin="0,8"/>
+
+                        <StackLayout Grid.Column="2" Spacing="4">
+                            <Label Text="+ Payment Status" 
+                                   FontSize="11" 
+                                   TextColor="#666"
+                                   FontAttributes="Bold"/>
+                            <Label Text="Ready" 
+                                   FontSize="16" 
+                                   FontAttributes="Bold"
+                                   TextColor="#28A745"/>
+                        </StackLayout>
+                    </Grid>
+                </yummy:PancakeView>
+
+                <!-- Enhanced Services ListView -->
+                <ListView x:Name="listView"  
+                         Grid.Row="1"
+                         ItemTapped="listView_ItemTapped"  
+                         SeparatorVisibility="None"
+                         Margin="20,0,20,20"
+                         HasUnevenRows="True" 
+                         BackgroundColor="Transparent"   
+                         ItemsSource="{Binding HD}"
+                         CachingStrategy="RecycleElement"
+                         Footer="{Binding Summary}">
+
+                    <ListView.Header>
+                        <StackLayout Spacing="6" Margin="0,0,0,18">
+                            <Label Text="Available Routes" 
+                                   TextColor="#004225" 
+                                   FontSize="24" 
+                                   FontAttributes="Bold"/>
+                            <BoxView BackgroundColor="#FFD700" 
+                                     HeightRequest="4" 
+                                     WidthRequest="70" 
+                                     HorizontalOptions="Start"
+                                     CornerRadius="2"/>
+                            <Label Text="Select a route to make payment" 
+                                   TextColor="#6C757D" 
+                                   FontSize="13"
+                                   Margin="0,4,0,0"/>
+                        </StackLayout>
+                    </ListView.Header>
+
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <yummy:PancakeView HasShadow="True" 
+                                                 BackgroundColor="White" 
+                                                 CornerRadius="20"
+                                                 Margin="0,10"
+                                                 BorderThickness="1.5"
+                                                 BorderColor="#E8E8E8"
+                                                 Padding="0"
+                                                 Elevation="4">
+
+                                    <Grid Padding="0" RowSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="6"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Accent Bar -->
+                                        <BoxView Grid.Column="0">
+                                            <BoxView.GestureRecognizers>
+                                                <TapGestureRecognizer/>
+                                            </BoxView.GestureRecognizers>
+                                            <BoxView.Triggers>
+                                                <DataTrigger TargetType="BoxView" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="#FFD700"/>
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="BoxView" Binding="{Binding IsSelected}" Value="False">
+                                                    <Setter Property="BackgroundColor" Value="#004225"/>
+                                                </DataTrigger>
+                                            </BoxView.Triggers>
+                                        </BoxView>
+
+                                        <!-- Card Content -->
+                                        <Grid Grid.Column="1" Padding="18,16" RowSpacing="14">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Header Section -->
+                                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                                <Frame Grid.Column="0" 
+                                                       BackgroundColor="#E8F5E9" 
+                                                       CornerRadius="28" 
+                                                       Padding="14,11"
+                                                       HasShadow="False">
+                                                    <Image Source="yobe.png" HeightRequest="40" WidthRequest="40" Aspect="AspectFit"></Image>
+                                                </Frame>
+
+                                                <Label Grid.Column="1" 
+                                                       Text="YIRS Transport" 
+                                                       TextColor="#6C757D" 
+                                                       FontSize="11"
+                                                       FontAttributes="Bold"
+                                                       VerticalOptions="Center"/>
+
+                                                <Frame Grid.Column="2" 
+                                                       BackgroundColor="Transparent" 
+                                                       CornerRadius="14" 
+                                                       Padding="10,6"
+                                                       HasShadow="False">
+                                                    <Label Text="Pay Now" 
+                                                           TextColor="#FF9800" 
+                                                           FontSize="10"
+                                                           FontAttributes="Bold"/>
+                                                </Frame>
+                                            </Grid>
+
+                                            <!-- Route Name -->
+                                            <StackLayout Grid.Row="1" Spacing="5">
+                                                <Label Text="Route Name" 
+                                                       FontSize="11" 
+                                                       TextColor="Black"
+                                                       FontAttributes="Bold"/>
+                                                <Label Text="{Binding route}" 
+                                                       FontSize="17" 
+                                                       FontAttributes="Bold"
+                                                       TextColor="#212529"
+                                                       LineBreakMode="WordWrap"/>
+                                            </StackLayout>
+
+                                            <!-- Action Button -->
+                                            <Frame Grid.Row="2" 
+                                                   BackgroundColor="#004225" 
+                                                   CornerRadius="16" 
+                                                   Padding="0"
+                                                   HasShadow="True"
+                                                   HeightRequest="44">
+                                                <Label Text="PROCEED TO PAYMENT →" 
+                                                       TextColor="White" 
+                                                       FontSize="13"
+                                                       FontAttributes="Bold"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"/>
+                                            </Frame>
+                                        </Grid>
+                                    </Grid>
+                                </yummy:PancakeView>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                    <d:ListView.Footer>
+                        <StackLayout Padding="0,10,0,30">
+                            <Label Text="{Binding Summary}" 
+                                   TextColor="#6C757D" 
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center"
+                                   FontAttributes="Italic"/>
+                        </StackLayout>
+                    </d:ListView.Footer>
+                </ListView>
+            </Grid>
+        </yummy:PancakeView>
+
+        <!-- Payment Bottom Sheet Overlay -->
+        <BoxView x:Name="OverlayBackground"
+                 Grid.RowSpan="2"
+                 BackgroundColor="Black"
+                 Opacity="0"
+                 IsVisible="False"
+                 InputTransparent="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="CloseBottomSheet"/>
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- Payment Bottom Sheet -->
+        <yummy:PancakeView x:Name="PaymentBottomSheet"
+                         Grid.RowSpan="2"
+                         BackgroundColor="White"
+                         CornerRadius="28,28,0,0"
+                         VerticalOptions="End"
+                         TranslationY="1000"
+                         Padding="0"
+                         HasShadow="True"
+                         Elevation="24">
+
+            <ScrollView>
+                <StackLayout Spacing="0">
+                    <!-- Handle Bar -->
+                    <BoxView BackgroundColor="#DEE2E6"
+                             WidthRequest="50"
+                             HeightRequest="5"
+                             CornerRadius="2.5"
+                             HorizontalOptions="Center"
+                             Margin="0,12,0,20"/>
+
+                    <!-- Sheet Content -->
+                    <StackLayout Padding="24,0,24,24" Spacing="20">
+                        <!-- Header -->
+                        <StackLayout Spacing="8">
+                            <Label Text="+ Payment Details" 
+                                   FontSize="26" 
+                                   FontAttributes="Bold"
+                                   TextColor="#212529"/>
+                            <BoxView BackgroundColor="#FFD700" 
+                                     HeightRequest="4" 
+                                     WidthRequest="60" 
+                                     HorizontalOptions="Start"
+                                     CornerRadius="2"/>
+                        </StackLayout>
+
+                        <!-- Selected Route Display -->
+                        <Frame BackgroundColor="#F8F9FA" 
+                               CornerRadius="5" 
+                               Padding="16"
+                               HasShadow="False"
+                               BorderColor="#DEE2E6">
+                            <StackLayout Spacing="6">
+                                <Label Text="Selected Route" 
+                                       FontSize="11" 
+                                       TextColor="#6C757D"
+                                       FontAttributes="Bold"/>
+                                <Label x:Name="SelectedRouteLabel" 
+                                       Text="Route Name" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold"
+                                       TextColor="#004225"/>
+                            </StackLayout>
+                        </Frame>
+
+                        <!-- Vehicle Type Picker -->
+                        <StackLayout Spacing="8">
+                            <Label Text="Vehicle Type *" 
+                                   FontSize="13" 
+                                   TextColor="#495057"
+                                   FontAttributes="Bold"/>
+                            <Frame BackgroundColor="White" 
+                                   CornerRadius="5" 
+                                   Padding="4"
+                                   HasShadow="False"
+                                   BorderColor="#CED4DA">
+                                <Picker x:Name="VehicleTypePicker"
+                                        Title="Select Vehicle Type"
+                                        FontSize="15"
+                                        TextColor="#212529"
+                                        TitleColor="#6C757D"
+                                        SelectedIndexChanged="VehicleTypePicker_SelectedIndexChanged"/>
+                            </Frame>
+                        </StackLayout>
+
+                        <!-- Number of Seats -->
+                        <StackLayout Spacing="8">
+                            <Label Text="Number of Seats *" 
+                                   FontSize="13" 
+                                   TextColor="#495057"
+                                   FontAttributes="Bold"/>
+                            <Frame BackgroundColor="White" 
+                                   CornerRadius="5" 
+                                   Padding="4"
+                                   HasShadow="False"
+                                   BorderColor="#CED4DA">
+                                <Entry x:Name="NoOfSeatsEntry"
+                                       Placeholder="Enter number of seats"
+                                       Keyboard="Numeric"
+                                       FontSize="15"
+                                       TextColor="#212529"
+                                       PlaceholderColor="#ADB5BD"/>
+                            </Frame>
+                        </StackLayout>
+
+                        <!-- Amount Collected -->
+                        <StackLayout Spacing="8">
+                            <Label Text="Amount Collected (₦) *" 
+                                   FontSize="13" 
+                                   TextColor="#495057"
+                                   FontAttributes="Bold"/>
+                            <Frame BackgroundColor="White" 
+                                   CornerRadius="5" 
+                                   Padding="4"
+                                   HasShadow="False"
+                                   BorderColor="#CED4DA">
+                                <Entry x:Name="AmountCollectedEntry"
+                                       Placeholder="0.00"
+                                       Keyboard="Numeric"
+                                       FontSize="15"
+                                       TextColor="#212529"
+                                       PlaceholderColor="#ADB5BD"
+                                       TextChanged="AmountCollectedEntry_TextChanged"/>
+                            </Frame>
+                        </StackLayout>
+
+                        <!-- Amount Remitted -->
+                        <StackLayout Spacing="8">
+                            <Label Text="Amount Remitted (₦) *" 
+                                   FontSize="13" 
+                                   TextColor="#495057"
+                                   FontAttributes="Bold"/>
+                            <Frame BackgroundColor="White" 
+                                   CornerRadius="5" 
+                                   Padding="4"
+                                   HasShadow="False"
+                                   BorderColor="#CED4DA">
+                                <Entry x:Name="AmountRemittedEntry"
+                                       Placeholder="0.00"
+                                       Keyboard="Numeric"
+                                       FontSize="15"
+                                       TextColor="#212529"
+                                       PlaceholderColor="#ADB5BD"/>
+                            </Frame>
+                            <Label x:Name="AmountValidationLabel"
+                                   Text="Must be less than or equal to amount collected"
+                                   FontSize="11"
+                                   TextColor="#6C757D"
+                                   IsVisible="True"/>
+                        </StackLayout>
+
+                        <!-- PIN Entry -->
+                        <StackLayout Spacing="8">
+                            <Label Text="Transaction PIN *" 
+                                   FontSize="13" 
+                                   TextColor="#495057"
+                                   FontAttributes="Bold"/>
+                            <Frame BackgroundColor="White" 
+                                   CornerRadius="5" 
+                                   Padding="4"
+                                   HasShadow="False"
+                                   BorderColor="#CED4DA">
+                                <Entry x:Name="PinEntry"
+                                       Placeholder="Enter your PIN"
+                                       IsPassword="True"
+                                       Keyboard="Numeric"
+                                       MaxLength="4"
+                                       FontSize="15"
+                                       TextColor="#212529"
+                                       PlaceholderColor="#ADB5BD"/>
+                            </Frame>
+                        </StackLayout>
+
+                        <!-- Action Buttons -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12,0,0">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    BackgroundColor="#E9ECEF"
+                                    TextColor="#495057"
+                                    CornerRadius="14"
+                                    HeightRequest="50"
+                                    FontSize="15"
+                                    FontAttributes="Bold"
+                                    Clicked="CancelPayment_Clicked"/>
+
+                            <Button Grid.Column="1"
+                                    x:Name="ConfirmPaymentButton"
+                                    Text="Confirm Payment"
+                                    BackgroundColor="#004225"
+                                    TextColor="White"
+                                    CornerRadius="14"
+                                    HeightRequest="50"
+                                    FontSize="15"
+                                    FontAttributes="Bold"
+                                    Clicked="ConfirmPayment_Clicked"/>
+                        </Grid>
+
+                        <StackLayout x:Name="MessageContainer" IsVisible="False">
+                            <Frame x:Name="MessageFrame"
+CornerRadius="12"
+HasShadow="True"
+Padding="15"
+Margin="0,5">
+                                <StackLayout Orientation="Horizontal" Spacing="10">
+                                    <Label x:Name="MessageIcon"
+        FontSize="18"
+        VerticalOptions="Center" />
+                                    <Label x:Name="MessageLabel"
+        FontSize="14"
+        VerticalOptions="Center"
+        HorizontalOptions="FillAndExpand"
+        LineBreakMode="WordWrap" />
+                                </StackLayout>
+                            </Frame>
+                        </StackLayout>
+
+
+                    </StackLayout>
+                </StackLayout>
+            </ScrollView>
+        </yummy:PancakeView>
+    </Grid>
+</ContentPage>

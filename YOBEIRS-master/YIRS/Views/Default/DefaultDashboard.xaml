@@ -1,0 +1,785 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:dxui="http://dips.xamarin.ui.com" 
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             xmlns:controls="clr-namespace:CarouselView.FormsPlugin.Abstractions;assembly=CarouselView.FormsPlugin.Abstractions"
+             x:Class="YIRS.Views.Default.DefaultDashboard"   
+             NavigationPage.HasNavigationBar="False">
+
+    <dxui:ModalityLayout Opacity="10" OverlayColor="Transparent">
+
+        <RefreshView x:Name="refreshView" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" RefreshColor="White">
+            <ScrollView>
+                <StackLayout Orientation="Vertical" Spacing="15" Padding="0,20,0,30">
+
+                    <!-- Premium Header Section -->
+                    <yummy:PancakeView BackgroundGradientStartColor="#002a19" 
+                                       BackgroundGradientEndColor="#003d27"
+                                       BackgroundGradientAngle="90"
+                                       Padding="20,15" 
+                                       Margin="15,0"
+                                       CornerRadius="20"
+                                       Elevation="20"
+                                       HasShadow="True"
+                                       BorderColor="#90EE90"
+                                       BorderThickness="1">
+                        <Grid ColumnSpacing="15" RowSpacing="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="45" />
+                                <ColumnDefinition Width="45" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Profile Avatar with Ring -->
+                            <yummy:PancakeView Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                               BackgroundGradientStartColor="#90EE90"
+                                               BackgroundGradientEndColor="#32CD32"
+                                               BackgroundGradientAngle="135"
+                                               WidthRequest="55" 
+                                               HeightRequest="55"
+                                               CornerRadius="27.5"
+                                               Padding="3"
+                                               VerticalOptions="Center">
+                                <yummy:PancakeView BackgroundColor="#002a19" CornerRadius="25">
+                                    <Image Source="yobe.png"
+                                           WidthRequest="45" 
+                                           HeightRequest="45"
+                                           Aspect="AspectFit"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="Center" />
+                                </yummy:PancakeView>
+                            </yummy:PancakeView>
+
+                            <StackLayout Grid.Row="0" Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                <Label Text="Welcome Back,"
+                                       FontSize="11"
+                                       TextColor="#90EE90"
+                                       Opacity="0.7" />
+                                <Label x:Name="WelcomeMessage"
+                                       FontAttributes="Bold"
+                                       FontSize="20"
+                                       TextColor="White"
+                                       LineBreakMode="TailTruncation" />
+                            </StackLayout>
+
+                            <!-- User Profile Icon -->
+                            <yummy:PancakeView Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                               BackgroundColor="Transparent"
+                                               WidthRequest="42" 
+                                               HeightRequest="42"
+                                               CornerRadius="10"
+                                               VerticalOptions="Center"
+                                               Padding="9">
+                                <Image Source="user.png"
+                                       Aspect="AspectFit">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnProfileTapped" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </yummy:PancakeView>
+
+                            <!-- Logo Icon -->
+                            <yummy:PancakeView Grid.Row="0" Grid.Column="3" Grid.RowSpan="2"
+                                               BackgroundColor="Transparent"
+                                               WidthRequest="42" 
+                                               HeightRequest="42"
+                                               CornerRadius="10"
+                                               VerticalOptions="Center"
+                                               Padding="9">
+                                <Image Source="Osoft.png"
+                                       Aspect="AspectFit" />
+                            </yummy:PancakeView>
+                        </Grid>
+                    </yummy:PancakeView>
+
+                    <!-- Hero Balance Card with Glassmorphism Effect -->
+                    <yummy:PancakeView Margin="15,10"
+                                       Padding="0"
+                                       BackgroundGradientStartColor="#006837"
+                                       BackgroundGradientEndColor="#004d29"
+                                       BackgroundGradientAngle="135"
+                                       BorderThickness="1"
+                                       Elevation="25"
+                                       HasShadow="True"
+                                       CornerRadius="15">
+
+                        <Grid RowSpacing="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Top Section with Agent Info -->
+                            <Grid Grid.Row="0" Padding="25,20,25,15" ColumnSpacing="15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout Grid.Column="0" Spacing="5">
+                                    <Label Text="CATEGORY" 
+                                           FontSize="9" 
+                                           TextColor="White" 
+                                           Opacity="0.6"/>
+                                    <yummy:PancakeView BackgroundColor="Transparent" 
+                                                       CornerRadius="10" 
+                                                       Padding="12,6"
+                                                       HorizontalOptions="Start">
+                                        <Label x:Name="cat" 
+                                               TextColor="White" 
+                                               FontSize="12" 
+                                               FontAttributes="Bold" />
+                                    </yummy:PancakeView>
+                                </StackLayout>
+
+                                <StackLayout Grid.Column="1" Spacing="5">
+                                    <Label Text="SUPER AGENT" 
+                                           FontSize="9" 
+                                           TextColor="White" 
+                                           Opacity="0.6"
+                                           HorizontalTextAlignment="End" />
+                                    <yummy:PancakeView BackgroundColor="Transparent" 
+                                                       CornerRadius="10" 
+                                                       Padding="12,6"
+                                                       HorizontalOptions="End">
+                                        <Label x:Name="agent2" 
+                                               TextColor="White" 
+                                               FontSize="11" 
+                                               MaxLines="1"
+                                               LineBreakMode="TailTruncation" />
+                                    </yummy:PancakeView>
+                                </StackLayout>
+                            </Grid>
+
+                            <!-- Balance Display -->
+                            <StackLayout Grid.Row="1" Padding="25,10,25,20" Spacing="10">
+                                <Label Text="CASHOUT BALANCE" 
+                                       FontSize="11" 
+                                       TextColor="White" 
+                                       Opacity="0.7"
+                                       HorizontalTextAlignment="Center" />
+
+                                <yummy:PancakeView BackgroundColor="White"   
+                                                   CornerRadius="15" 
+                                                   HorizontalOptions="Center" 
+                                                   Padding="35,15"
+                                                   Elevation="10"
+                                                   HasShadow="True">
+                                    <Label x:Name="cashoutB"  
+                                           TextColor="#004225" 
+                                           FontSize="28"
+                                           FontAttributes="Bold"
+                                           HorizontalTextAlignment="Center" />
+                                </yummy:PancakeView>
+                            </StackLayout>
+
+                            <!-- Bottom Action Strip -->
+                            <Grid Grid.Row="2" 
+                                  BackgroundColor="#e8f5e9"
+                                  Padding="0"
+                                  ColumnSpacing="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackLayout Grid.Column="0" 
+                                             Padding="15,12" 
+                                             Spacing="5"
+                                             HorizontalOptions="Center">
+                                    <Image Source="BIRSHistory.png"
+                                           WidthRequest="28" 
+                                           HeightRequest="28"
+                                           Aspect="AspectFit"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="HISTORY"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           TextColor="#004225"
+                                           HorizontalTextAlignment="Center" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_4" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+
+                                <StackLayout Grid.Column="1" 
+                                             Padding="15,12" 
+                                             Spacing="5"
+                                             HorizontalOptions="Center">
+                                    <Image Source="TenementList.png"
+                                           WidthRequest="28" 
+                                           HeightRequest="28"
+                                           Aspect="AspectFit"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="SERVICES"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           TextColor="#004225"
+                                           HorizontalTextAlignment="Center" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+
+                                <StackLayout Grid.Column="2" 
+                                             Padding="15,12" 
+                                             Spacing="5"
+                                             HorizontalOptions="Center">
+                                    <Image Source="YobeCollection.png"
+                                           WidthRequest="28" 
+                                           HeightRequest="28"
+                                           Aspect="AspectFit"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="SUMMARY"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           TextColor="#004225"
+                                           HorizontalTextAlignment="Center" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_2" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+                            </Grid>
+                        </Grid>
+                    </yummy:PancakeView>
+
+                    <!-- Collection Point Badge -->
+                    <yummy:PancakeView x:Name="Jbutton"
+                                       Margin="15,0"
+                                       Padding="18,12"
+                                       BackgroundGradientStartColor="#006837"
+                                       BackgroundGradientEndColor="#004d29"
+                                       BackgroundGradientAngle="135"
+                                       BorderThickness="1"
+                                       Elevation="5"
+                                       CornerRadius="10">
+                        <Label x:Name="cllpoint"
+                               FontAttributes="Bold"
+                               FontSize="12"
+                               TextColor="White"
+                               HorizontalTextAlignment="Center"/>
+                    </yummy:PancakeView>
+
+                    <!-- Main Services - Premium Card Grid -->
+                    <yummy:PancakeView x:Name="servicesbutton"
+                                       Margin="15,5"
+                                       Padding="20"
+                                       BackgroundGradientStartColor="#006837"
+                                       BackgroundGradientEndColor="#004d29"
+                                       BackgroundGradientAngle="135"
+                                       BorderThickness="1"
+                                       Elevation="15"
+                                       HasShadow="True"
+                                       CornerRadius="10">
+
+                        <Grid RowSpacing="15" ColumnSpacing="15">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Verify Card -->
+                            <yummy:PancakeView Grid.Row="0" Grid.Column="0"
+                                               BackgroundGradientStartColor="White"
+                                               BackgroundGradientEndColor="#f5f5f5"
+                                               BackgroundGradientAngle="135"
+                                               Elevation="8"
+                                               BorderThickness="0"
+                                               HasShadow="True"
+                                               HeightRequest="110"
+                                               CornerRadius="10">
+                                <StackLayout Spacing="8" 
+                                             VerticalOptions="Center" 
+                                             HorizontalOptions="Center"
+                                             Padding="15">
+                                    <yummy:PancakeView BackgroundColor="#e8f5e9"
+                                                       WidthRequest="50"
+                                                       HeightRequest="50"
+                                                       CornerRadius="25"
+                                                       Padding="10">
+                                        <Image Source="WHTax.png"
+                                               Aspect="AspectFit" />
+                                    </yummy:PancakeView>
+                                    <Label Text="VERIFY"
+                                           FontAttributes="Bold"
+                                           FontSize="13"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#004225" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_5" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <!-- Register Card -->
+                            <yummy:PancakeView Grid.Row="0" Grid.Column="1"
+                                               BackgroundGradientStartColor="White"
+                                               BackgroundGradientEndColor="#f5f5f5"
+                                               BackgroundGradientAngle="135"
+                                               Elevation="8"
+                                               HasShadow="True"
+                                               HeightRequest="110"
+                                               CornerRadius="10">
+                                <StackLayout Spacing="8" 
+                                             VerticalOptions="Center" 
+                                             HorizontalOptions="Center"
+                                             Padding="15">
+                                    <yummy:PancakeView BackgroundColor="#e8f5e9"
+                                                       WidthRequest="50"
+                                                       HeightRequest="50"
+                                                       CornerRadius="25"
+                                                       Padding="10">
+                                        <Image Source="enumerate.png"
+                                               Aspect="AspectFit" />
+                                    </yummy:PancakeView>
+                                    <Label Text="REGISTER"
+                                           FontAttributes="Bold"
+                                           FontSize="13"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#004225" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_6" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <!-- Payment Card -->
+                            <yummy:PancakeView Grid.Row="1" Grid.Column="0"
+                                               BackgroundGradientStartColor="White"
+                                               BackgroundGradientEndColor="#f5f5f5"
+                                               BackgroundGradientAngle="135"
+                                               Elevation="8"
+                                               HasShadow="True"
+                                               HeightRequest="110"
+                                               CornerRadius="10">
+                                <StackLayout Spacing="8" 
+                                             VerticalOptions="Center" 
+                                             HorizontalOptions="Center"
+                                             Padding="15">
+                                    <yummy:PancakeView BackgroundColor="#e8f5e9"
+                                                       WidthRequest="50"
+                                                       HeightRequest="50"
+                                                       CornerRadius="25"
+                                                       Padding="10">
+                                        <Image Source="BIRSPayment.png"
+                                               Aspect="AspectFit" />
+                                    </yummy:PancakeView>
+                                    <Label Text="PAYMENT"
+                                           FontAttributes="Bold"
+                                           FontSize="13"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#004225" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <!-- Others Card -->
+                            <yummy:PancakeView Grid.Row="1" Grid.Column="1"
+                                               BackgroundGradientStartColor="White"
+                                               BackgroundGradientEndColor="#f5f5f5"
+                                               BackgroundGradientAngle="135"
+                                               Elevation="8"
+                                               HasShadow="True"
+                                               HeightRequest="110"
+                                               CornerRadius="10">
+                                <StackLayout Spacing="8" 
+                                             VerticalOptions="Center" 
+                                             HorizontalOptions="Center"
+                                             Padding="15">
+                                    <yummy:PancakeView BackgroundColor="#e8f5e9"
+                                                       WidthRequest="50"
+                                                       HeightRequest="50"
+                                                       CornerRadius="25"
+                                                       Padding="10">
+                                        <Image Source="YobeOther.png"
+                                               Aspect="AspectFit" />
+                                    </yummy:PancakeView>
+                                    <Label Text="OTHERS"
+                                           FontAttributes="Bold"
+                                           FontSize="13"
+                                           HorizontalTextAlignment="Center"
+                                           TextColor="#004225" />
+                                    <StackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_3" />
+                                    </StackLayout.GestureRecognizers>
+                                </StackLayout>
+                            </yummy:PancakeView>
+                        </Grid>
+                    </yummy:PancakeView>
+
+                    <!-- Recent Transactions Section Header -->
+                    <Grid Margin="15,15,15,0" ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <BoxView Grid.Column="0" 
+                                 BackgroundColor="#004225" 
+                                 WidthRequest="4" 
+                                 HeightRequest="24" 
+                                 CornerRadius="2"
+                                 VerticalOptions="Center" />
+
+                        <Label Grid.Column="1"
+                               Text="Recent Transactions"
+                               FontAttributes="Bold"
+                               FontSize="18"
+                               TextColor="#004225"
+                               VerticalOptions="Center" />
+
+                        <Label Grid.Column="2"
+                               Text="View All >"
+                               FontSize="12"
+                               TextColor="#004225"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_4" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+
+                    <!-- Enhanced Search Bar -->
+                    <yummy:PancakeView x:Name="searchBar" 
+                                       Margin="15,5,15,0" 
+                                       Padding="0"
+                                       BackgroundColor="White"
+                                       BorderColor="#e8f5e9"
+                                       BorderThickness="2"
+                                       CornerRadius="12"
+                                       Elevation="5"
+                                       HasShadow="True"
+                                       IsVisible="True">
+                        <Grid Padding="15,10" ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label Grid.Column="0" 
+                                   Text="🔍" 
+                                   FontSize="18"
+                                   VerticalOptions="Center" />
+
+                            <SearchBar Grid.Column="1"
+                                   x:Name="searchEntry"
+                                   Placeholder="Search transactions..."
+                                   PlaceholderColor="#999999"
+                                   TextColor="#004225"
+                                   FontSize="14"
+                                   BackgroundColor="Transparent"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    </yummy:PancakeView>
+
+                    <!-- Premium Transaction List -->
+                    <StackLayout x:Name="transactionContainer" Margin="15,5,15,0" Spacing="12">
+                        <ListView x:Name="listView"  
+                                  BackgroundColor="Transparent"  
+                                  ItemsSource="{Binding HD}" 
+                                  HeightRequest="300"    
+                                  HorizontalOptions="FillAndExpand" 
+                                  HasUnevenRows="True" 
+                                  SeparatorVisibility="None"  
+                                  VerticalOptions="FillAndExpand"
+                                  CachingStrategy="RecycleElement">
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <yummy:PancakeView HasShadow="True" 
+                                                           BackgroundColor="White" 
+                                                           BorderColor="#e8f5e9" 
+                                                           BorderThickness="1"
+                                                           Padding="0" 
+                                                           Margin="0,6" 
+                                                           Elevation="10"
+                                                           CornerRadius="18" 
+                                                           IsClippedToBounds="True">
+                                            <Grid RowSpacing="0" ColumnSpacing="0">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="1" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Main Content Area -->
+                                                <Grid Grid.Row="0" Padding="18,16" ColumnSpacing="15">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Icon Container with Premium Badge -->
+                                                    <Grid Grid.Column="0">
+                                                        <yummy:PancakeView BackgroundGradientStartColor="#e8f5e9"
+                                                                           BackgroundGradientEndColor="#c8e6c9"
+                                                                           BackgroundGradientAngle="135"
+                                                                           WidthRequest="58"
+                                                                           HeightRequest="58"
+                                                                           CornerRadius="16"
+                                                                           Padding="12"
+                                                                           VerticalOptions="Center">
+                                                            <Image Source="yobe.png"  
+                                                                   Aspect="AspectFit" />
+                                                        </yummy:PancakeView>
+
+                                                        <!-- Status Indicator -->
+                                                        <yummy:PancakeView BackgroundColor="#4CAF50"
+                                                                           WidthRequest="16"
+                                                                           HeightRequest="16"
+                                                                           CornerRadius="8"
+                                                                           HorizontalOptions="End"
+                                                                           VerticalOptions="Start"
+                                                                           BorderColor="White"
+                                                                           BorderThickness="2" />
+                                                    </Grid>
+
+                                                    <!-- Transaction Details - Adaptive to Category -->
+                                                    <StackLayout Grid.Column="1" 
+                                                                 Spacing="6"
+                                                                 VerticalOptions="Center">
+                                                        <!-- Service Name -->
+                                                        <Label Text="{Binding serviceName}"  
+                                                               FontAttributes="Bold" 
+                                                               FontSize="15" 
+                                                               TextColor="#004225" 
+                                                               LineBreakMode="TailTruncation"
+                                                               MaxLines="1" />
+
+                                                        <!-- Primary Field (Business Name or Vehicle Type) -->
+                                                        <Label Text="{Binding primaryField}"  
+                                                               FontSize="13" 
+                                                               TextColor="Black" 
+                                                               LineBreakMode="TailTruncation"
+                                                               MaxLines="1" />
+
+                                                        <!-- Secondary Field (Payer ID or Vehicle No) -->
+                                                        <Label Text="{Binding secondaryField}" 
+                                                               FontSize="11" 
+                                                               TextColor="Black"
+                                                               LineBreakMode="TailTruncation" />
+
+                                                        <!-- Transaction ID -->
+                                                        <Label Text="{Binding transactionId}" 
+                                                               FontSize="10" 
+                                                               TextColor="Blue"
+                                                               LineBreakMode="TailTruncation" />
+                                                    </StackLayout>
+
+                                                    <!-- Amount Badge -->
+                                                    <yummy:PancakeView Grid.Column="2"
+                                                                       BackgroundGradientStartColor="#004225" 
+                                                                       BackgroundGradientEndColor="#006837"
+                                                                       BackgroundGradientAngle="135"
+                                                                       Elevation="5"
+                                                                       Padding="16,10"
+                                                                       CornerRadius="12"
+                                                                       VerticalOptions="Center"
+                                                                       HorizontalOptions="End">
+                                                        <Label Text="{Binding amount, StringFormat='₦{0:N2}'}"
+                                                               FontAttributes="Bold"
+                                                               FontSize="15"
+                                                               TextColor="White"
+                                                               VerticalTextAlignment="Center" />
+                                                    </yummy:PancakeView>
+                                                </Grid>
+
+                                                <!-- Separator Line -->
+                                                <BoxView Grid.Row="1" 
+                                                         BackgroundColor="#f0f0f0" 
+                                                         HeightRequest="1" 
+                                                         Margin="18,0" />
+
+                                                <!-- Footer with Date/Time and Category Badge -->
+                                                <Grid Grid.Row="2" Padding="18,12" ColumnSpacing="10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <yummy:PancakeView Grid.Column="0"
+                                                                       BackgroundColor="#fff3e0"
+                                                                       Padding="8,4"
+                                                                       CornerRadius="6">
+                                                        <Label Text="{Binding dateRecorded, StringFormat='{}{0:MMM d}'}"  
+                                                               FontSize="10" 
+                                                               FontAttributes="Bold"
+                                                               TextColor="#FF6B35" />
+                                                    </yummy:PancakeView>
+
+                                                    <Label Grid.Column="2"
+                                                           Text="{Binding dateRecorded, StringFormat='{}{0:h:mm tt}'}"  
+                                                           FontSize="11" 
+                                                           TextColor="#999999"
+                                                           VerticalOptions="Center" />
+                                                </Grid>
+                                            </Grid>
+                                        </yummy:PancakeView>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <!-- Premium Empty State -->
+                        <yummy:PancakeView x:Name="emptyState" 
+                                           IsVisible="False" 
+                                           Padding="40,60" 
+                                           BackgroundGradientStartColor="#006837"
+                                           BackgroundGradientEndColor="#004d29"
+                                           BackgroundGradientAngle="135"
+                                           BorderColor="#90EE90"
+                                           BorderThickness="1"
+                                           CornerRadius="20"
+                                           Elevation="10"
+                                           HasShadow="True"
+                                           Margin="0,20">
+                            <StackLayout Spacing="15" 
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center">
+                                <yummy:PancakeView 
+                                                   WidthRequest="80"
+                                                   HeightRequest="80"
+                                                   CornerRadius="40"
+                                                   Padding="20"
+                                                   HorizontalOptions="Center">
+                                    <Label Text="📊" 
+                                           FontSize="40" 
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
+                                </yummy:PancakeView>
+
+                                <Label Text="No Transactions Yet" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold"
+                                       TextColor="White" 
+                                       HorizontalTextAlignment="Center" />
+
+                                <Label Text="Your transaction history will appear here once you make your first payment" 
+                                       FontSize="13" 
+                                       TextColor="White" 
+                                       Opacity="0.8"
+                                       HorizontalTextAlignment="Center"
+                                       LineBreakMode="WordWrap" />
+                            </StackLayout>
+                        </yummy:PancakeView>
+                    </StackLayout>
+
+                    <!-- Gallery Section -->
+                    <yummy:PancakeView Margin="15,10,15,5"
+                                       Padding="15"
+                                       BackgroundGradientStartColor="#004225" 
+                                       BackgroundGradientEndColor="#006837"
+                                       BackgroundGradientAngle="135"
+                                       Elevation="5"
+                                       BorderThickness="1"
+                                       BorderColor="#90EE90"
+                                       HasShadow="True"
+                                       CornerRadius="10">
+                        <Label Text="YOBE INTERNAL REVENUE SERVICES [YIRS] STATE GALLERY"
+                               FontAttributes="Bold"
+                               FontSize="13"
+                               TextColor="White"
+                               HorizontalTextAlignment="Center" />
+                    </yummy:PancakeView>
+
+                    <yummy:PancakeView HeightRequest="180" 
+                                       CornerRadius="15" 
+                                       Margin="10,5" 
+                                       BackgroundColor="White"
+                                       Elevation="5"
+                                       HasShadow="True">
+                        <controls:CarouselViewControl x:Name="carousel"
+                                                      ItemsSource="{Binding MyItemsSource}"
+                                                      VerticalOptions="FillAndExpand"
+                                                      HorizontalOptions="FillAndExpand"
+                                                      HeightRequest="170"
+                                                      BackgroundColor="Transparent"
+                                                      ShowIndicators="True"
+                                                      PositionSelectedCommand="{Binding PositionSelectedCommand}"
+                                                      ScrolledCommand="{Binding ScrolledCommand}"
+                                                      Orientation="Horizontal"
+                                                      InfiniteScrolling="True"
+                                                      AutoplayInterval="3"
+                                                      IsSwipeEnabled="True"
+                                                      SelectedItem="{Binding SelectedItem}" />
+                    </yummy:PancakeView>
+
+                    <!-- Footer -->
+                    <StackLayout BackgroundColor="Transparent" 
+                                 HorizontalOptions="Center" 
+                                 Padding="0,20,0,10" 
+                                 Spacing="5">
+                        <Label Text="POWERED BY" 
+                               TextColor="#004225" 
+                               Opacity="0.6"
+                               FontSize="11" 
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="OSOFTPAY" 
+                               TextColor="#004225" 
+                               FontSize="18" 
+                               FontAttributes="Bold" 
+                               HorizontalTextAlignment="Center" />
+                    </StackLayout>
+
+                </StackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <dxui:ModalityLayout.Behaviors>
+            <dxui:FloatingActionMenuBehaviour Size="60"
+                                              ExpandButtonBackgroundColor="#004225"
+                                              ExpandButtonText="MENU"
+                                              ExpandButtonFontSize="12"
+                                              Source="plus.png"
+                                              ExpandButtonTextColor="White"
+                                              XPosition=".9"
+                                              YPosition=".92"
+                                              IsVisible="true">
+
+                <dxui:MenuButton BackgroundColor="Transparent"
+                                 Text="TEST PRINTER"
+                                 x:Name="FirstButton"
+                                 TextColor="#004225"
+                                 HeightRequest="60"
+                                 Title="TEST PRINTER"
+                                 Source="plus.png">
+                    <dxui:MenuButton.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_10" />
+                    </dxui:MenuButton.GestureRecognizers>
+                </dxui:MenuButton>
+
+                <dxui:MenuButton BackgroundColor="Transparent"
+                                 Text="LOGOUT"
+                                 TextColor="#004225"
+                                 Title="LOGOUT"
+                                 HeightRequest="60"
+                                 Source="plus.png">
+                    <dxui:MenuButton.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_9" />
+                    </dxui:MenuButton.GestureRecognizers>
+                </dxui:MenuButton>
+
+            </dxui:FloatingActionMenuBehaviour>
+        </dxui:ModalityLayout.Behaviors>
+
+    </dxui:ModalityLayout>
+
+</ContentPage>
