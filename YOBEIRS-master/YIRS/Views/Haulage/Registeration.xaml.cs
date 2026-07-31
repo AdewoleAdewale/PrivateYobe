@@ -1,15 +1,18 @@
 ﻿using Acr.UserDialogs;
+using Android.Telecom;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
-
 using Xamarin.Forms;
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 using Xamarin.Forms.Xaml;
 
 namespace YIRS.Views.Haulage
@@ -17,225 +20,747 @@ namespace YIRS.Views.Haulage
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Registeration : ContentPage
     {
-        List<VehicleCatData> enums;
-        List<LGACatData> enums2;
+        // ───────────────────────── Endpoints ─────────────────────────
+        private const string BaseUrl = "https://yobe.osoftpay.net";
+        private const string VehicleTypeUrl = BaseUrl + "/api/HulageVehicles/VehicleType";
+        private const string LgaUrl = BaseUrl + "/api/HulageVehicles/getlga";
+        private const string RegisterUrl = BaseUrl + "/Api/HulageVehicles/VehicleReg";
+
+        private const int TotalRequiredFields = 7;
+
+        // Single shared client — avoids socket exhaustion from per-call HttpClient instances.
+        private static readonly HttpClient Http = CreateHttpClient();
+
+        private List<VehicleCatData> _vehicleTypes = new List<VehicleCatData>();
+        private List<LGACatData> _lgas = new List<LGACatData>();
+
+        private readonly RegistrationResult _result = new RegistrationResult();
+
+        private bool _referenceDataLoaded;
+        private bool _isSubmitting;
+        private bool _isFormValid;
 
         public Registeration()
         {
             InitializeComponent();
-            sheetBehavior.IsOpen = false;
-            failedenumeration.IsOpen = false;
-            ConfigureSSL();
-            LoadVehicleCategory();
-            LoadLGACategory();
-        }
-        // ─── SSL ─────────────────────────────────────────────────────────────
 
-        private void ConfigureSSL()
+            try
+            {
+                BindingContext = _result;
+                sheetBehavior.IsOpen = false;
+                failedenumeration.IsOpen = false;
+                ConfigureSsl();
+                Validate(showErrors: false);
+            }
+            catch (Exception ex)
+            {
+                Log("ctor", ex);
+            }
+        }
+
+        protected override void OnAppearing()
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11;
-            ServicePointManager.ServerCertificateValidationCallback =
-                new RemoteCertificateValidationCallback(ValidateServerCertificate);
-            ServicePointManager.DefaultConnectionLimit = 10;
-            ServicePointManager.Expect100Continue = true;
+            base.OnAppearing();
+
+            try
+            {
+                if (!_referenceDataLoaded || _lgas.Count == 0 || _vehicleTypes.Count == 0)
+                    _ = LoadReferenceDataAsync();
+            }
+            catch (Exception ex)
+            {
+                Log("OnAppearing", ex);
+            }
         }
 
-        private bool ValidateServerCertificate(object sender, X509Certificate certificate,
-            X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            if (sslPolicyErrors == SslPolicyErrors.None) return true;
-            System.Diagnostics.Debug.WriteLine($"SSL Error: {sslPolicyErrors}");
-            return true;
-        }
+        // ───────────────────────── Networking setup ─────────────────────────
 
-        // ─── Data loaders ─────────────────────────────────────────────────────
-
-        private void LoadVehicleCategory()
+        private static HttpClient CreateHttpClient()
         {
             try
             {
                 var handler = new HttpClientHandler
                 {
-                    ServerCertificateCustomValidationCallback = (m, c, ch, er) => true,
-                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    ServerCertificateCustomValidationCallback = (m, c, ch, er) => true
                 };
 
-                using (var client = new HttpClient(handler))
-                using (var response = client.GetAsync("https://yobe.osoftpay.net/api/HulageVehicles/VehicleType").Result)
+                try
                 {
-                    var json = response.Content.ReadAsStringAsync().Result;
-                    var items = JsonConvert.DeserializeObject<List<VehicleCatData>>(json);
-                    picker.ItemDisplayBinding = new Binding("vehicleType");
-                    picker.ItemsSource = items?.ToList();
-                    enums = items?.ToList();
+                    handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                                         | System.Security.Authentication.SslProtocols.Tls11;
+                }
+                catch (Exception ex)
+                {
+                    // Some Android handlers do not allow explicit protocol selection.
+                    Log("SslProtocols", ex);
                 }
 
+                return new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(45) };
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Reg] VehicleType: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                Log("CreateHttpClient", ex);
+                return new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
+            }
         }
 
-
-
-        private void LoadLGACategory()
+        private void ConfigureSsl()
         {
             try
             {
-                var handler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = (m, c, ch, er) => true,
-                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12
-                };
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11;
+                ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, errors) => true;
+                ServicePointManager.DefaultConnectionLimit = 10;
+                ServicePointManager.Expect100Continue = false;
+            }
+            catch (Exception ex)
+            {
+                Log("ConfigureSsl", ex);
+            }
+        }
 
-                using (var client = new HttpClient(handler))
-                using (var response = client.GetAsync("https://yobe.osoftpay.net/api/HulageVehicles/getlga").Result)
+        // ───────────────────────── Reference data ─────────────────────────
+
+        private async Task LoadReferenceDataAsync()
+        {
+            var busyShown = false;
+
+            try
+            {
+                try { UserDialogs.Instance.ShowLoading("Loading form data…"); busyShown = true; }
+                catch (Exception ex) { Log("ShowLoading", ex); }
+
+                var vehicleTask = GetAsync<List<VehicleCatData>>(VehicleTypeUrl);
+                var lgaTask = GetAsync<List<LGACatData>>(LgaUrl);
+
+                await Task.WhenAll(vehicleTask, lgaTask).ConfigureAwait(true);
+
+                _vehicleTypes = vehicleTask.Result ?? new List<VehicleCatData>();
+                _lgas = lgaTask.Result ?? new List<LGACatData>();
+
+                BindPickers();
+
+                _referenceDataLoaded = _vehicleTypes.Count > 0 && _lgas.Count > 0;
+
+                if (!_referenceDataLoaded)
+                    Toast("Some form data could not be loaded. Pull back and re-open the page to retry.", 5);
+            }
+            catch (Exception ex)
+            {
+                Log("LoadReferenceDataAsync", ex);
+                Toast("Unable to load form data. Check your internet connection.", 5);
+            }
+            finally
+            {
+                if (busyShown)
                 {
-                    var json = response.Content.ReadAsStringAsync().Result;
-                    var items = JsonConvert.DeserializeObject<List<LGACatData>>(json);
-                    picker2.ItemDisplayBinding = new Binding("lgaName");
-                    picker2.ItemsSource = items?.ToList();
-                    enums2 = items?.ToList();
+                    try { UserDialogs.Instance.HideLoading(); } catch (Exception ex) { Log("HideLoading", ex); }
+                }
+
+                Validate(showErrors: false);
+            }
+        }
+
+        private void BindPickers()
+        {
+            try
+            {
+                picker.ItemDisplayBinding = new Binding("vehicleType");
+                picker.ItemsSource = _vehicleTypes;
+
+                // The same LGA collection feeds the LGA, Destination From and Destination To pickers.
+                picker2.ItemDisplayBinding = new Binding("lgaName");
+                picker2.ItemsSource = _lgas.ToList();
+
+                pickerFrom.ItemDisplayBinding = new Binding("lgaName");
+                pickerFrom.ItemsSource = _lgas.ToList();
+
+                pickerTo.ItemDisplayBinding = new Binding("lgaName");
+                pickerTo.ItemsSource = _lgas.ToList();
+            }
+            catch (Exception ex)
+            {
+                Log("BindPickers", ex);
+            }
+        }
+
+        private static async Task<T> GetAsync<T>(string url) where T : class
+        {
+            try
+            {
+                using (var response = await Http.GetAsync(url).ConfigureAwait(false))
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Log("GetAsync", new Exception($"{url} → {(int)response.StatusCode}"));
+                        return null;
+                    }
+
+                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    if (string.IsNullOrWhiteSpace(json)) return null;
+
+                    return JsonConvert.DeserializeObject<T>(json);
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[HaulagePayment] LoadLGA: {ex.Message}");
+                Log($"GetAsync({url})", ex);
+                return null;
             }
         }
 
-        private HttpClientHandler BuildHandler() => new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (m, c, ch, er) => true,
-            SslProtocols = System.Security.Authentication.SslProtocols.Tls12
-                         | System.Security.Authentication.SslProtocols.Tls11
-        };
+        // ───────────────────────── Live validation ─────────────────────────
 
-        // ─── Submit ───────────────────────────────────────────────────────────
+        private void OnFieldChanged(object sender, TextChangedEventArgs e)
+        {
+            try { Validate(showErrors: true); }
+            catch (Exception ex) { Log("OnFieldChanged", ex); }
+        }
+
+        private void OnPickerChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                UpdateFeePreview();
+                UpdateRoutePreview();
+                Validate(showErrors: true);
+            }
+            catch (Exception ex) { Log("OnPickerChanged", ex); }
+        }
+
+        /// <summary>
+        /// Single source of truth for form state. Recomputes every field, refreshes the
+        /// badges/error labels, the progress tracker and the enabled state of the submit button.
+        /// </summary>
+        private void Validate(bool showErrors)
+        {
+            try
+            {
+                var driver = SafeText(drivername);
+                var plate = SafeText(Platenumber);
+                var phone = SafeText(Ownernumber);
+
+                var vehicle = picker?.SelectedItem as VehicleCatData;
+                var lga = picker2?.SelectedItem as LGACatData;
+                var from = pickerFrom?.SelectedItem as LGACatData;
+                var to = pickerTo?.SelectedItem as LGACatData;
+
+                var driverOk = driver.Length >= 3;
+                var plateOk = plate.Replace(" ", "").Replace("-", "").Length >= 5;
+                var phoneOk = phone.Length >= 10 && phone.Length <= 11 && phone.All(char.IsDigit);
+                var vehicleOk = vehicle != null && !string.IsNullOrWhiteSpace(vehicle.vehicleType);
+                var lgaOk = lga != null && !string.IsNullOrWhiteSpace(lga.lgaName);
+                var fromOk = from != null && !string.IsNullOrWhiteSpace(from.lgaName);
+                var toOk = to != null && !string.IsNullOrWhiteSpace(to.lgaName);
+
+                SetFieldState(driverBadge, driverError, driverOk, showErrors && driver.Length > 0,
+                    "Enter the driver's full name (minimum 3 characters).");
+                SetFieldState(plateBadge, plateError, plateOk, showErrors && plate.Length > 0,
+                    "Plate number looks too short. e.g. ABC124XA");
+                SetFieldState(phoneBadge, phoneError, phoneOk, showErrors && phone.Length > 0,
+                    "Phone number must be 10–11 digits, numbers only.");
+                SetFieldState(vehicleBadge, vehicleError, vehicleOk, false, string.Empty);
+                SetFieldState(lgaBadge, lgaError, lgaOk, false, string.Empty);
+                SetFieldState(fromBadge, fromError, fromOk, false, string.Empty);
+                SetFieldState(toBadge, toError, toOk, false, string.Empty);
+
+                var completed = new[] { driverOk, plateOk, phoneOk, vehicleOk, lgaOk, fromOk, toOk }.Count(v => v);
+                _isFormValid = completed == TotalRequiredFields;
+
+                UpdateSubmitState(completed);
+            }
+            catch (Exception ex)
+            {
+                Log("Validate", ex);
+            }
+        }
+
+        private void SetFieldState(Label badge, Label error, bool isValid, bool showError, string message)
+        {
+            try
+            {
+                if (badge != null)
+                {
+                    badge.Text = isValid ? "✓ VALID" : "REQUIRED";
+                    badge.TextColor = isValid ? Color.FromHex("#00893E") : Color.FromHex("#FF6B6B");
+                }
+
+                if (error != null)
+                {
+                    error.Text = message ?? string.Empty;
+                    error.IsVisible = !isValid && showError && !string.IsNullOrEmpty(message);
+                }
+            }
+            catch (Exception ex) { Log("SetFieldState", ex); }
+        }
+
+        private void UpdateSubmitState(int completed, bool animate = true)
+        {
+            try
+            {
+                if (progressLabel != null)
+                    progressLabel.Text = $"{completed} OF {TotalRequiredFields} COMPLETED";
+
+                if (formProgress != null)
+                {
+                    var value = (double)completed / TotalRequiredFields;
+                    if (animate) _ = formProgress.ProgressTo(value, 220, Easing.CubicOut);
+                    else formProgress.Progress = value;
+                }
+
+                if (statusHint != null)
+                {
+                    statusHint.Text = _isFormValid
+                        ? "All required details captured. You can submit now."
+                        : $"{TotalRequiredFields - completed} field(s) still required before submission.";
+                    statusHint.TextColor = _isFormValid ? Color.FromHex("#00893E") : Color.FromHex("#6B7B72");
+                }
+
+                if (submitButton != null)
+                {
+                    submitButton.BackgroundGradientStartColor = _isFormValid ? Color.FromHex("#004225") : Color.FromHex("#B9C7BF");
+                    submitButton.BackgroundGradientEndColor = _isFormValid ? Color.FromHex("#00AA55") : Color.FromHex("#9FB0A6");
+                    submitButton.Opacity = _isFormValid ? 1 : 0.65;
+                    submitButton.InputTransparent = !_isFormValid || _isSubmitting;
+                }
+
+                if (submitIcon != null) submitIcon.Text = _isFormValid ? "🚛" : "🔒";
+                if (submitLabel != null && !_isSubmitting)
+                    submitLabel.Text = _isFormValid ? "REGISTER VEHICLE" : "COMPLETE ALL FIELDS";
+            }
+            catch (Exception ex) { Log("UpdateSubmitState", ex); }
+        }
+
+        private void UpdateFeePreview()
+        {
+            try
+            {
+                var vehicle = picker?.SelectedItem as VehicleCatData;
+
+                if (vehicle == null)
+                {
+                    feeLabel.Text = "—";
+                    feeSubLabel.Text = "Select a vehicle category";
+                    return;
+                }
+
+                feeLabel.Text = "₦" + vehicle.amount.ToString("N2", CultureInfo.InvariantCulture);
+                feeSubLabel.Text = vehicle.vehicleType;
+            }
+            catch (Exception ex) { Log("UpdateFeePreview", ex); }
+        }
+
+        private void UpdateRoutePreview()
+        {
+            try
+            {
+                var from = (pickerFrom?.SelectedItem as LGACatData)?.lgaName;
+                var to = (pickerTo?.SelectedItem as LGACatData)?.lgaName;
+
+                if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
+                {
+                    routePreview.Text = "Select origin and destination";
+                    routePreview.TextColor = Color.FromHex("#6B7B72");
+                    return;
+                }
+
+                if (string.Equals(from, to, StringComparison.OrdinalIgnoreCase))
+                {
+                    routePreview.Text = $"{from} → {to}  (intra-LGA movement)";
+                    routePreview.TextColor = Color.FromHex("#C08A2E");
+                    return;
+                }
+
+                routePreview.Text = $"{from} → {to}";
+                routePreview.TextColor = Color.FromHex("#00893E");
+            }
+            catch (Exception ex) { Log("UpdateRoutePreview", ex); }
+        }
+
+        // ───────────────────────── Submit ─────────────────────────
 
         private async void TapGestureRecognizer_Tapped(object sender, EventArgs e)
         {
-            // Resolve picker selections
-            string vehicleCategory = (enums != null && picker.SelectedIndex >= 0 &&
-                                      picker.SelectedIndex < enums.Count)
-                                     ? enums[picker.SelectedIndex].vehicleType ?? ""
-                                     : "";
-
-            string lgaSelected = (enums2 != null && picker2.SelectedIndex >= 0 &&
-                                  picker2.SelectedIndex < enums2.Count)
-                                 ? enums2[picker2.SelectedIndex].lgaName ?? ""
-                                 : "";
-
-            // Validation
-            if (string.IsNullOrWhiteSpace(drivername.Text) ||
-                string.IsNullOrWhiteSpace(Platenumber.Text) ||
-                string.IsNullOrWhiteSpace(Ownernumber.Text) ||
-                string.IsNullOrWhiteSpace(vehicleCategory) ||
-                string.IsNullOrWhiteSpace(lgaSelected))
+            try
             {
-                UserDialogs.Instance.Toast(
-                    "Please fill in all required fields marked with *",
-                    TimeSpan.FromSeconds(4));
-                return;
-            }
+                if (_isSubmitting) return;
 
-            if (Ownernumber.Text.Length < 10)
-            {
-                UserDialogs.Instance.Toast(
-                    "Phone number must be at least 10 digits.",
-                    TimeSpan.FromSeconds(3));
-                return;
-            }
+                Validate(showErrors: true);
 
-            using (UserDialogs.Instance.Loading("Registering vehicle…", null, null, true))
-            {
-                await Task.Delay(800);
-
-                try
+                if (!_isFormValid)
                 {
-                    var nvc = new List<KeyValuePair<string, string>>
-            {
-                new KeyValuePair<string, string>("NameofDriver", drivername.Text.Trim()),
-                new KeyValuePair<string, string>("PlateNumber", Platenumber.Text.Trim().ToUpper()),
-                new KeyValuePair<string, string>("OwnerPhone", Ownernumber.Text.Trim()),
-                new KeyValuePair<string, string>("LGA", lgaSelected),
-                new KeyValuePair<string, string>("VehicleType", vehicleCategory),
-                new KeyValuePair<string, string>("RecordedBy", MainPage.ValidUserMail)
-            };
-
-                    var handler = BuildHandler();
-
-                    using (var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) })
-                    {
-                        var req = new HttpRequestMessage(HttpMethod.Post,
-                            "https://yobe.osoftpay.net/api/HulageVehicles/VehicleReg")
-                        {
-                            Content = new FormUrlEncodedContent(nvc)
-                        };
-
-                        HttpResponseMessage res;
-
-                        try
-                        {
-                            res = await client.SendAsync(req);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            UserDialogs.Instance.Toast("Request timed out. Check your internet.", TimeSpan.FromSeconds(5));
-                            return;
-                        }
-
-                        var resultString = await res.Content.ReadAsStringAsync();
-                        System.Diagnostics.Debug.WriteLine($"[Reg] Response: {resultString}");
-
-                        var regResponse = JsonConvert.DeserializeObject<VechicleRegisterationResponse>(resultString);
-
-                        Device.BeginInvokeOnMainThread(() =>
-                        {
-                            if (regResponse?.statusCode == "oo" || regResponse?.statusCode == "00")
-                            {
-                                sheetBehavior.IsOpen = true;
-                                failedenumeration.IsOpen = false;
-                            }
-                            else
-                            {
-                                sheetBehavior.IsOpen = false;
-                                failedenumeration.IsOpen = true;
-                            }
-                        });
-                    }
+                    Toast(FirstMissingFieldMessage(), 4);
+                    return;
                 }
-                catch (Exception ex)
+
+                var vehicle = picker.SelectedItem as VehicleCatData;
+                var lga = picker2.SelectedItem as LGACatData;
+                var from = pickerFrom.SelectedItem as LGACatData;
+                var to = pickerTo.SelectedItem as LGACatData;
+
+                var payload = new VechicleRegistrationObject
                 {
-                    System.Diagnostics.Debug.WriteLine($"[Reg] Submit: {ex.Message}");
-                    Device.BeginInvokeOnMainThread(() =>
+                    NameofDriver = SafeText(drivername),
+                    PlateNumber = SafeText(Platenumber).ToUpperInvariant().Replace(" ", ""),
+                    OwnerPhone = SafeText(Ownernumber),
+                    LGA = lga?.lgaName ?? string.Empty,
+                    DestinationFrom = from?.lgaName ?? string.Empty,
+                    DestinationTo = to?.lgaName ?? string.Empty,
+                    VehicleType = vehicle?.vehicleType ?? string.Empty,
+                    RecordedBy = ResolveRecordedBy()
+                };
+
+                SetSubmitting(true);
+
+                var json = JsonConvert.SerializeObject(payload);
+                System.Diagnostics.Debug.WriteLine($"[Reg] Request: {json}");
+
+                using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
+                using (var response = await Http.PostAsync(RegisterUrl, content).ConfigureAwait(true))
+                {
+                    var body = string.Empty;
+
+                    try { body = await response.Content.ReadAsStringAsync().ConfigureAwait(true); }
+                    catch (Exception ex) { Log("ReadResponse", ex); }
+
+                    System.Diagnostics.Debug.WriteLine($"[Reg] Response ({(int)response.StatusCode}): {body}");
+
+                    VechicleRegisterationResponse parsed = null;
+
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(body))
+                            parsed = JsonConvert.DeserializeObject<VechicleRegisterationResponse>(body);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("DeserializeResponse", ex);
+                    }
+
+                    if (response.IsSuccessStatusCode && parsed != null && IsSuccessCode(parsed.statusCode))
+                        ShowSuccess(parsed, payload);
+                    else
+                        ShowFailure(
+                            title: "REGISTRATION FAILED",
+                            message: !string.IsNullOrWhiteSpace(parsed?.message)
+                                ? parsed.message
+                                : $"The server rejected the request (HTTP {(int)response.StatusCode}). Please confirm the plate number is not already registered and try again.");
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                ShowFailure("REQUEST TIMED OUT",
+                    "The server did not respond in time. Check your internet connection and try again.");
+            }
+            catch (HttpRequestException ex)
+            {
+                Log("Submit/Http", ex);
+                ShowFailure("NETWORK ERROR",
+                    "We could not reach the registration server. Confirm you have an active internet connection.");
+            }
+            catch (JsonException ex)
+            {
+                Log("Submit/Json", ex);
+                ShowFailure("UNEXPECTED RESPONSE",
+                    "The server returned data in an unexpected format. Please contact support if this persists.");
+            }
+            catch (Exception ex)
+            {
+                Log("Submit", ex);
+                ShowFailure("SOMETHING WENT WRONG",
+                    "An unexpected error occurred while registering the vehicle. Please try again.");
+            }
+            finally
+            {
+                SetSubmitting(false);
+            }
+        }
+
+        private void SetSubmitting(bool busy)
+        {
+            try
+            {
+                _isSubmitting = busy;
+
+                if (submitBusy != null) { submitBusy.IsVisible = busy; submitBusy.IsRunning = busy; }
+                if (submitArrow != null) submitArrow.IsVisible = !busy;
+                if (submitLabel != null)
+                    submitLabel.Text = busy ? "SUBMITTING…" : (_isFormValid ? "REGISTER VEHICLE" : "COMPLETE ALL FIELDS");
+                if (submitButton != null) submitButton.InputTransparent = busy || !_isFormValid;
+            }
+            catch (Exception ex) { Log("SetSubmitting", ex); }
+        }
+
+        private static bool IsSuccessCode(string statusCode)
+        {
+            if (string.IsNullOrWhiteSpace(statusCode)) return false;
+
+            var code = statusCode.Trim().ToLowerInvariant();
+            return code == "00" || code == "0" || code == "oo";
+        }
+
+        private string FirstMissingFieldMessage()
+        {
+            try
+            {
+                if (SafeText(drivername).Length < 3) return "Enter the driver's full name.";
+                if (SafeText(Platenumber).Length < 5) return "Enter a valid plate number.";
+                var phone = SafeText(Ownernumber);
+                if (phone.Length < 10 || phone.Length > 11 || !phone.All(char.IsDigit))
+                    return "Enter a valid 10–11 digit phone number.";
+                if (!(picker?.SelectedItem is VehicleCatData)) return "Select a vehicle category.";
+                if (!(picker2?.SelectedItem is LGACatData)) return "Select the Local Government Area.";
+                if (!(pickerFrom?.SelectedItem is LGACatData)) return "Select the destination the vehicle is coming from.";
+                if (!(pickerTo?.SelectedItem is LGACatData)) return "Select the destination the vehicle is heading to.";
+            }
+            catch (Exception ex) { Log("FirstMissingFieldMessage", ex); }
+
+            return "Please complete all required fields.";
+        }
+
+        private static string ResolveRecordedBy()
+        {
+            try
+            {
+                return string.IsNullOrWhiteSpace(MainPage.ValidUserMail) ? "haulage@gmail.com" : MainPage.ValidUserMail;
+            }
+            catch (Exception ex)
+            {
+                Log("ResolveRecordedBy", ex);
+                return "haulage@gmail.com";
+            }
+        }
+
+        // ───────────────────────── Result presentation ─────────────────────────
+
+        private void ShowSuccess(VechicleRegisterationResponse response, VechicleRegistrationObject request)
+        {
+            try
+            {
+                _result.DriverName = Fallback(response.nameofDriver, request.NameofDriver);
+                _result.PlateNumber = Fallback(response.plateNumber, request.PlateNumber);
+                _result.OwnerPhone = Fallback(response.ownerPhone, request.OwnerPhone);
+                _result.VehicleType = Fallback(response.vehicleType, request.VehicleType);
+                _result.RecordedBy = Fallback(response.recordedBy, request.RecordedBy);
+                _result.Message = Fallback(response.message, "The vehicle has been registered successfully.");
+
+                var lga = Fallback(response.lga, request.LGA);
+                var state = Fallback(response.state, "Yobe State");
+                _result.LgaState = string.IsNullOrWhiteSpace(state) ? lga : $"{lga}, {state}";
+
+                var from = Fallback(response.destinationFrom, request.DestinationFrom);
+                var to = Fallback(response.destinationTo, request.DestinationTo);
+                _result.Route = $"{from} → {to}";
+
+                _result.Amount = FormatAmount(response.amount);
+                _result.DateRecorded = FormatDate(response.dateRecorded);
+                _result.ReferenceId = response.id > 0 ? response.id.ToString() : "—";
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    try
+                    {
+                        failedenumeration.IsOpen = false;
+                        sheetBehavior.IsOpen = true;
+                    }
+                    catch (Exception ex) { Log("ShowSuccess/Sheet", ex); }
+                });
+            }
+            catch (Exception ex)
+            {
+                Log("ShowSuccess", ex);
+                Toast("Vehicle registered, but the receipt could not be displayed.", 4);
+            }
+        }
+
+        private void ShowFailure(string title, string message)
+        {
+            try
+            {
+                _result.ErrorTitle = string.IsNullOrWhiteSpace(title) ? "REGISTRATION FAILED" : title;
+                _result.ErrorMessage = string.IsNullOrWhiteSpace(message)
+                    ? "The registration could not be completed. Please verify your details and try again."
+                    : message;
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    try
                     {
                         sheetBehavior.IsOpen = false;
                         failedenumeration.IsOpen = true;
-                    });
-                }
+                    }
+                    catch (Exception ex) { Log("ShowFailure/Sheet", ex); }
+                });
+            }
+            catch (Exception ex) { Log("ShowFailure", ex); }
+        }
+
+        private static string FormatAmount(string raw)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(raw)) return "₦0.00";
+
+                var cleaned = raw.Replace(",", "").Replace("₦", "").Trim();
+
+                if (decimal.TryParse(cleaned, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                    return "₦" + value.ToString("N2", CultureInfo.InvariantCulture);
+
+                return "₦" + raw;
+            }
+            catch (Exception ex)
+            {
+                Log("FormatAmount", ex);
+                return "₦0.00";
             }
         }
-        // ─── Sheet callbacks ──────────────────────────────────────────────────
+
+        private static string FormatDate(string raw)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(raw)) return DateTime.Now.ToString("dd MMM yyyy, hh:mm tt");
+
+                if (DateTime.TryParse(raw, CultureInfo.InvariantCulture,
+                        DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var utc))
+                    return utc.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt");
+
+                if (DateTime.TryParse(raw, out var local))
+                    return local.ToString("dd MMM yyyy, hh:mm tt");
+
+                return raw;
+            }
+            catch (Exception ex)
+            {
+                Log("FormatDate", ex);
+                return raw ?? string.Empty;
+            }
+        }
+
+        // ───────────────────────── Sheet callbacks ─────────────────────────
 
         private void sheetBehavior_ActionClicked(object sender, EventArgs e)
-            => sheetBehavior.IsOpen = false;
+        {
+            try { sheetBehavior.IsOpen = false; }
+            catch (Exception ex) { Log("sheetBehavior_ActionClicked", ex); }
+        }
 
         private void failedenumeration_ActionClicked(object sender, EventArgs e)
-            => failedenumeration.IsOpen = false;
+        {
+            try { failedenumeration.IsOpen = false; }
+            catch (Exception ex) { Log("failedenumeration_ActionClicked", ex); }
+        }
 
+        /// <summary>
+        /// Resets the form in place instead of pushing a new page — avoids stacking pages
+        /// (and re-downloading reference data) every time the operator registers another vehicle.
+        /// </summary>
         private async void tryagain_Clicked(object sender, EventArgs e)
         {
-            sheetBehavior.IsOpen = false;
-            failedenumeration.IsOpen = false;
-            await Task.Delay(200);
-            await Navigation.PushAsync(new Views.Haulage.Registeration());
+            try
+            {
+                sheetBehavior.IsOpen = false;
+                failedenumeration.IsOpen = false;
+
+                await Task.Delay(250);
+
+                drivername.Text = string.Empty;
+                Platenumber.Text = string.Empty;
+                Ownernumber.Text = string.Empty;
+
+                picker.SelectedIndex = -1;
+                picker2.SelectedIndex = -1;
+                pickerFrom.SelectedIndex = -1;
+                pickerTo.SelectedIndex = -1;
+
+                UpdateFeePreview();
+                UpdateRoutePreview();
+                Validate(showErrors: false);
+
+                Toast("Form cleared. You can register another vehicle.", 3);
+            }
+            catch (Exception ex)
+            {
+                Log("tryagain_Clicked", ex);
+            }
+        }
+
+        // ───────────────────────── Helpers ─────────────────────────
+
+        private static string SafeText(InputView entry)
+        {
+            try { return entry?.Text?.Trim() ?? string.Empty; }
+            catch { return string.Empty; }
+        }
+
+        private static string Fallback(string primary, string secondary)
+            => !string.IsNullOrWhiteSpace(primary) ? primary : (secondary ?? string.Empty);
+
+        private static void Toast(string message, int seconds = 3)
+        {
+            try
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    try { UserDialogs.Instance.Toast(message, TimeSpan.FromSeconds(seconds)); }
+                    catch (Exception ex) { Log("Toast/inner", ex); }
+                });
+            }
+            catch (Exception ex) { Log("Toast", ex); }
+        }
+
+        private static void Log(string scope, Exception ex)
+            => System.Diagnostics.Debug.WriteLine($"[Reg:{scope}] {ex?.GetType().Name}: {ex?.Message}");
+    }
+
+    // ═════════════════════════ Bindable result model ═════════════════════════
+
+    public class RegistrationResult : INotifyPropertyChanged
+    {
+        private string _driverName = "—";
+        private string _plateNumber = "—";
+        private string _ownerPhone = "—";
+        private string _vehicleType = "—";
+        private string _lgaState = "—";
+        private string _route = "—";
+        private string _amount = "₦0.00";
+        private string _dateRecorded = "—";
+        private string _recordedBy = "—";
+        private string _referenceId = "—";
+        private string _message = "The vehicle has been registered successfully.";
+        private string _errorTitle = "REGISTRATION FAILED";
+        private string _errorMessage = "The registration could not be completed. Please verify your details and try again.";
+
+        public string DriverName { get => _driverName; set => Set(ref _driverName, value); }
+        public string PlateNumber { get => _plateNumber; set => Set(ref _plateNumber, value); }
+        public string OwnerPhone { get => _ownerPhone; set => Set(ref _ownerPhone, value); }
+        public string VehicleType { get => _vehicleType; set => Set(ref _vehicleType, value); }
+        public string LgaState { get => _lgaState; set => Set(ref _lgaState, value); }
+        public string Route { get => _route; set => Set(ref _route, value); }
+        public string Amount { get => _amount; set => Set(ref _amount, value); }
+        public string DateRecorded { get => _dateRecorded; set => Set(ref _dateRecorded, value); }
+        public string RecordedBy { get => _recordedBy; set => Set(ref _recordedBy, value); }
+        public string ReferenceId { get => _referenceId; set => Set(ref _referenceId, value); }
+        public string Message { get => _message; set => Set(ref _message, value); }
+        public string ErrorTitle { get => _errorTitle; set => Set(ref _errorTitle, value); }
+        public string ErrorMessage { get => _errorMessage; set => Set(ref _errorMessage, value); }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void Set(ref string field, string value, [CallerMemberName] string name = null)
+        {
+            if (field == value) return;
+            field = string.IsNullOrWhiteSpace(value) ? "—" : value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 
-    // ─── Data models ──────────────────────────────────────────────────────────
+    // ═════════════════════════ DTOs ═════════════════════════
 
     internal class VehicleCatData
     {
         public string vehicleType { get; set; }
+        public decimal amount { get; set; }
     }
 
     internal class LGACatData
@@ -243,29 +768,43 @@ namespace YIRS.Views.Haulage
         public string lgaName { get; set; }
     }
 
+    /// <summary>
+    /// Matches the new JSON response contract returned by /Api/HulageVehicles/VehicleReg.
+    /// </summary>
     internal class VechicleRegisterationResponse
     {
+        public int id { get; set; }
         public string nameofDriver { get; set; }
         public string plateNumber { get; set; }
         public string ownerPhone { get; set; }
         public string state { get; set; }
-        public string totalAmount { get; set; }
         public string lga { get; set; }
+        public string email { get; set; }
+        public string destinationFrom { get; set; }
+        public string destinationTo { get; set; }
+        public string agent { get; set; }
         public string vehicleType { get; set; }
         public string message { get; set; }
         public string statusCode { get; set; }
         public string amount { get; set; }
         public string recordedBy { get; set; }
         public string dateRecorded { get; set; }
+        public string lastPaymentDate { get; set; }
     }
 
+    /// <summary>
+    /// Request payload. JsonProperty names map exactly to the camelCase keys the API expects,
+    /// so the C# property names can stay PascalCase for existing callers.
+    /// </summary>
     internal class VechicleRegistrationObject
     {
-        public string NameofDriver { get; set; }
-        public string PlateNumber { get; set; }
-        public string OwnerPhone { get; set; }
-        public string LGA { get; set; }
-        public string VehicleType { get; set; }
-        public string RecordedBy { get; set; }
+        [JsonProperty("nameofDriver")] public string NameofDriver { get; set; }
+        [JsonProperty("plateNumber")] public string PlateNumber { get; set; }
+        [JsonProperty("ownerPhone")] public string OwnerPhone { get; set; }
+        [JsonProperty("lga")] public string LGA { get; set; }
+        [JsonProperty("destinationFrom")] public string DestinationFrom { get; set; }
+        [JsonProperty("destinationTo")] public string DestinationTo { get; set; }
+        [JsonProperty("vehicleType")] public string VehicleType { get; set; }
+        [JsonProperty("recordedBy")] public string RecordedBy { get; set; }
     }
 }

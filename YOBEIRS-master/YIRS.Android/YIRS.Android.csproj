@@ -53,12 +53,12 @@
     <EnableLLVM>false</EnableLLVM>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <BundleAssemblies>false</BundleAssemblies>
-    <AndroidKeyStore>true</AndroidKeyStore>
+    <AndroidKeyStore>false</AndroidKeyStore>
     <AndroidSigningKeyStore>C:\Users\1\AppData\Local\Xamarin\Mono for Android\Keystore\KynngVon\KynngVon.keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>1234567</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>KynngVon</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>1234567</AndroidSigningKeyPass>
-    <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
+    <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
     <AndroidLinkMode>None</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>

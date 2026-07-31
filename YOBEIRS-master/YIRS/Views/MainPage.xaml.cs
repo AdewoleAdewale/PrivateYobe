@@ -29,7 +29,7 @@ namespace YIRS.Views
 
         #region Private Fields
         private const int MAX_LOGIN_ATTEMPTS = 5;
-        private const int LOCKOUT_DURATION_MINUTES = 15;
+        private const int LOCKOUT_DURATION_MINUTES = 1;
         private const int REQUEST_TIMEOUT_SECONDS = 30;
         private readonly HttpClient _httpClient;
         private static int _loginAttempts = 0;
@@ -811,7 +811,7 @@ namespace YIRS.Views
                         agentType = "StateLine Agent";
                         break;
 
-                    case "haulage":
+                    case "hulage":
                         targetPage = new Views.Haulage.Dashboard();
                         agentType = "Haulage Agent";
                         break;

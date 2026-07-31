@@ -34,7 +34,6 @@ namespace YIRS
             CentralPortalURL = "https://yobe.osoftpay.net/api/SingleCollections/PostCollect/NewCollect";
             RevenueServiceName = "YOBE STATE INTERNAL REVENUE SERVICE(YIRS) ";
             PrinterFooter = "POWERED BY OSOFTPAY";
-            PrinterforWaterPayment = "POWERED BY ABS BLUEPRINT";
             ThankYouMessage = "THANK YOU FOR MAKING YOUR PAYMENT!";
             ThankYouMessage2 = "THANK YOU FOR ENUMERATION!";
             YIRS.Services.SslHandler.ConfigureSSL();

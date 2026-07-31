@@ -76,7 +76,7 @@ namespace YIRS.Views.Haulage
                 };
 
                 using (var client = new HttpClient(handler))
-                using (var response = client.GetAsync("https://gurara.osoftpay.net/api/HulageVehicles/getlga").Result)
+                using (var response = client.GetAsync("https://yobe.osoftpay.net/api/HulageVehicles/getlga").Result)
                 {
                     var json = response.Content.ReadAsStringAsync().Result;
                     var items = JsonConvert.DeserializeObject<List<LGACatData>>(json);

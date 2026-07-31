@@ -17,9 +17,9 @@
 
                     <!-- Gradient Header Banner -->
                     <yummy:PancakeView BackgroundGradientStartColor="#004225"
-                                       BackgroundGradientEndColor="#006B3C"
+                                       BackgroundGradientEndColor="#004225"
                                        BackgroundGradientAngle="135"
-                                       CornerRadius="0,0,30,30"
+                                       CornerRadius="0,0,20,20"
                                        Padding="20,50,20,30">
                         <Grid ColumnDefinitions="*,Auto">
                             <StackLayout Grid.Column="0" Spacing="4">
@@ -31,10 +31,10 @@
                             </StackLayout>
                             <yummy:PancakeView Grid.Column="1"
                                                BackgroundColor="#F2F6F3"
-                                               CornerRadius="16"
+                                               CornerRadius="6"
                                                Padding="12,8"
                                                VerticalOptions="Center">
-                                <Image Source="Logo" HeightRequest="30" ></Image>
+                                <Image Source="make" HeightRequest="30" ></Image>
                             </yummy:PancakeView>
                         </Grid>
                     </yummy:PancakeView>
@@ -43,7 +43,7 @@
                     <yummy:PancakeView Margin="16,-16,16,0"
                                        Padding="20,24,20,24"
                                        BackgroundColor="#F2F6F3"
-                                       CornerRadius="24"
+                                       CornerRadius="14"
                                        Elevation="12" HasShadow="True"
                                        BorderColor="Transparent" BorderThickness="1">
                         <StackLayout Spacing="18">
@@ -54,16 +54,18 @@
                                        FontSize="10" FontAttributes="Bold"
                                        CharacterSpacing="1.5"
                                        TextColor="#004225"/>
-                                <yummy:PancakeView BackgroundColor="#004225"
+                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
                                                    CornerRadius="12"
+                                                   Elevation="5"
+                                                   HasShadow="True"
                                                    Padding="14,0,0,0"
                                                    HeightRequest="50"
-                                                   BorderColor="#004225" BorderThickness="1">
+                                                   BorderColor="White" BorderThickness="1">
                                     <renderers11:BorderlessEntry x:Name="Servicename"
                                                                  FontSize="13"
                                                                  IsReadOnly="True"
-                                                                 TextColor="White"
-                                                                 BackgroundColor="Transparent"/>
+                                                                 TextColor="#004225"
+                                                                 BackgroundColor="WhiteSmoke"/>
                                 </yummy:PancakeView>
                             </StackLayout>
 
@@ -73,17 +75,18 @@
                                        FontSize="10" FontAttributes="Bold"
                                        CharacterSpacing="1.5"
                                        TextColor="#004225"/>
-                                <yummy:PancakeView BackgroundColor="#004225"
-                                                   CornerRadius="12"
-                                                   Padding="14,0,0,0"
-                                                   HeightRequest="50"
-                                                   BorderColor="#004225" BorderThickness="1">
+                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
+                       CornerRadius="12"
+                       Elevation="5"
+                       HasShadow="True"
+                       Padding="14,0,0,0"
+                       HeightRequest="50"
+                       BorderColor="White" BorderThickness="1">
                                     <renderers11:BorderlessEntry x:Name="PayerId"
                                                                  FontSize="13"
                                                                  IsReadOnly="True"
-                                                                 TextColor="White"
                                                                  FontAttributes="Bold"
-                                                                 BackgroundColor="Transparent"/>
+                                                                  TextColor="#004225"  BackgroundColor="WhiteSmoke"/>
                                 </yummy:PancakeView>
                             </StackLayout>
 
@@ -99,14 +102,16 @@
                                            Text="Required *"
                                            FontSize="9" TextColor="#FF6B6B"/>
                                 </Grid>
-                                <yummy:PancakeView BackgroundColor="#004225"
-                                                   CornerRadius="12"
-                                                   Padding="14,0,0,0"
-                                                   HeightRequest="50"
-                                                   BorderColor="#004225" BorderThickness="1">
+                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
+                       CornerRadius="12"
+                       Elevation="5"
+                       HasShadow="True"
+                       Padding="14,0,0,0"
+                       HeightRequest="50"
+                       BorderColor="White" BorderThickness="1">
                                     <Picker x:Name="picker"
                                             Title="Select destination LGA"
-                                            TitleColor="White"
+                                            TitleColor="#004225"
                                             TextColor="#004225"
                                             FontSize="12"/>
                                 </yummy:PancakeView>
@@ -118,15 +123,15 @@
                                        FontSize="10" FontAttributes="Bold"
                                        CharacterSpacing="1.5"
                                        TextColor="#004225"/>
-                                <yummy:PancakeView BackgroundColor="#004225"
+                                <yummy:PancakeView BackgroundColor="Transparent"
                                                    CornerRadius="12"
                                                    Padding="14,0,0,0"
                                                    HeightRequest="50"
-                                                   BorderColor="#004225" BorderThickness="1">
+                                                   BorderColor="Transparent" BorderThickness="1">
                                     <renderers11:BorderlessEntry x:Name="Amount"
                                                                  FontSize="16" FontAttributes="Bold"
                                                                  Keyboard="Numeric"
-                                                                 TextColor="White"
+                                                                 TextColor="Red"
                                                                  ClearButtonVisibility="WhileEditing"
                                                                  BackgroundColor="Transparent"/>
                                 </yummy:PancakeView>
@@ -144,20 +149,22 @@
                                            Text="4-digit PIN"
                                            FontSize="9" TextColor="#004225"/>
                                 </Grid>
-                                <yummy:PancakeView BackgroundColor="#004225"
-                                                   CornerRadius="12"
-                                                   Padding="14,0,0,0"
-                                                   HeightRequest="50"
-                                                   BorderColor="#004225" BorderThickness="1">
+                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
+CornerRadius="12"
+Elevation="5"
+HasShadow="True"
+Padding="14,0,0,0"
+HeightRequest="50"
+BorderColor="White" BorderThickness="1">
                                     <renderers11:BorderlessEntry x:Name="PIN"
                                                                  FontSize="20"
                                                                  IsPassword="True"
                                                                  MaxLength="4"
                                                                  Keyboard="Numeric"
                                                                  Placeholder="● ● ● ●"
-                                                                 PlaceholderColor="White"
+                                                                 PlaceholderColor="#004225"
                                                                  Unfocused="Pin_Unfocused"
-                                                                 TextColor="White"
+                                                                 TextColor="#004225"
                                                                  BackgroundColor="Transparent"/>
                                 </yummy:PancakeView>
                             </StackLayout>
@@ -171,7 +178,7 @@
                                                BackgroundGradientStartColor="#004225"
                                                BackgroundGradientEndColor="#00AA55"
                                                BackgroundGradientAngle="90"
-                                               CornerRadius="16"
+                                               CornerRadius="10"
                                                Elevation="8" HasShadow="True"
                                                HeightRequest="58"
                                                BorderColor="#00FF8840" BorderThickness="1">
@@ -220,7 +227,7 @@
                     <!-- Security note -->
                     <StackLayout Orientation="Horizontal" Margin="24,16,24,30"
                                  Spacing="8" HorizontalOptions="Center">
-                        <Label Text="🔒" FontSize="12" VerticalOptions="Center"/>
+                        <Label Text="🔒" FontSize="12" VerticalOptions="Center" TextColor="White"/>
                         <Label Text="Secured by 256-bit TLS encryption"
                                FontSize="10" TextColor="#445566"
                                VerticalOptions="Center"/>
