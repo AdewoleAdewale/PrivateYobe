@@ -1,199 +1,270 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:dxui="http://dips.xamarin.ui.com" xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView" xmlns:renderers11="clr-namespace:YIRS.Renderers"
-             x:Class="YIRS.Views.Haulage.Payments"             NavigationPage.HasNavigationBar="True"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dxui="http://dips.xamarin.ui.com"
+             xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             xmlns:renderers11="clr-namespace:YIRS.Renderers"
+             x:Class="YIRS.Views.Haulage.Payments"
+             NavigationPage.HasNavigationBar="True"
              BackgroundColor="#F2F6F3"
              Padding="0">
 
-    <dxui:ModalityLayout OverlayColor="Transparent" Opacity="10">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <Color x:Key="Brand">#004225</Color>
+            <Color x:Key="BrandLight">#00AA55</Color>
+            <Color x:Key="Danger">#D64545</Color>
+            <Color x:Key="Muted">#6B7B72</Color>
+            <Color x:Key="FieldBg">#F1F6F2</Color>
+            <Color x:Key="FieldBorder">#DCE7E0</Color>
+
+            <Style x:Key="FieldLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="10"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CharacterSpacing" Value="1.4"/>
+                <Setter Property="TextColor" Value="#33473D"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="Badge" TargetType="Label">
+                <Setter Property="FontSize" Value="9"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="#FF6B6B"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="FieldShell" TargetType="yummy:PancakeView">
+                <Setter Property="BackgroundColor" Value="{StaticResource FieldBg}"/>
+                <Setter Property="CornerRadius" Value="7"/>
+                <Setter Property="HeightRequest" Value="54"/>
+                <Setter Property="BorderColor" Value="{StaticResource FieldBorder}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
+
+            <Style x:Key="FieldIcon" TargetType="Label">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="RowKey" TargetType="Label">
+                <Setter Property="FontSize" Value="10"/>
+                <Setter Property="CharacterSpacing" Value="0.8"/>
+                <Setter Property="TextColor" Value="#8FA79A"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="RowValue" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="#0F2A1D"/>
+                <Setter Property="HorizontalTextAlignment" Value="End"/>
+                <Setter Property="LineBreakMode" Value="TailTruncation"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="Divider" TargetType="BoxView">
+                <Setter Property="HeightRequest" Value="1"/>
+                <Setter Property="BackgroundColor" Value="#EAF1EC"/>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <dxui:ModalityLayout OverlayColor="Transparent">
 
         <Grid>
 
-            <!-- ══════════════════════════════════════════════
-                 MAIN SCROLLABLE CONTENT
-            ══════════════════════════════════════════════ -->
+            <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
             <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                 <StackLayout Spacing="0">
 
-                    <!-- Gradient Header Banner -->
-                    <yummy:PancakeView BackgroundGradientStartColor="#004225"
-                                       BackgroundGradientEndColor="#004225"
+                    <!-- Header -->
+                    <yummy:PancakeView BackgroundGradientStartColor="#00301B"
+                                       BackgroundGradientEndColor="#00693A"
                                        BackgroundGradientAngle="135"
-                                       CornerRadius="0,0,20,20"
-                                       Padding="20,50,20,30">
+                                       CornerRadius="0,0,22,22"
+                                       Padding="20,50,20,44">
                         <Grid ColumnDefinitions="*,Auto">
-                            <StackLayout Grid.Column="0" Spacing="4">
+                            <StackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
                                 <Label Text="HAULAGE PAYMENT"
-                                       FontSize="24" FontAttributes="Bold"
+                                       FontSize="22" FontAttributes="Bold"
                                        TextColor="White"/>
-                                <Label Text="Complete your transaction below"
-                                       FontSize="12" TextColor="White"/>
+                                <Label Text="Confirm the details and authorise with your PIN"
+                                       FontSize="11" TextColor="#9FE3BE"/>
                             </StackLayout>
                             <yummy:PancakeView Grid.Column="1"
-                                               BackgroundColor="#F2F6F3"
-                                               CornerRadius="6"
+                                               BackgroundColor="White"
+                                               CornerRadius="12"
                                                Padding="12,8"
                                                VerticalOptions="Center">
-                                <Image Source="make" HeightRequest="30" ></Image>
+                                <Image Source="make" HeightRequest="30"/>
                             </yummy:PancakeView>
                         </Grid>
                     </yummy:PancakeView>
 
+                    <!-- Amount summary card (overlaps header) -->
+                    <yummy:PancakeView Margin="16,-28,16,0"
+                                       Padding="18,16"
+                                       BackgroundColor="White"
+                                       CornerRadius="10"
+                                       Elevation="10" HasShadow="True">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
+                                <Label Text="AMOUNT DUE" FontSize="9"
+                                       CharacterSpacing="1.4" TextColor="{StaticResource Muted}"/>
+                                <Label x:Name="AmountSubLabel"
+                                       Text="Final amount is confirmed by the server"
+                                       FontSize="10"   TextColor="{StaticResource Brand}"/>
+                            </StackLayout>
+                            <Label Grid.Column="1" x:Name="AmountHeadline"
+                                   Text="₦0.00"
+                                   FontSize="22" FontAttributes="Bold"
+                                   TextColor="{StaticResource Brand}"
+                                   VerticalOptions="Center"/>
+                        </Grid>
+                    </yummy:PancakeView>
+
                     <!-- Form Card -->
-                    <yummy:PancakeView Margin="16,-16,16,0"
+                    <yummy:PancakeView Margin="16,14,16,0"
                                        Padding="20,24,20,24"
-                                       BackgroundColor="#F2F6F3"
+                                       BackgroundColor="White"
                                        CornerRadius="14"
-                                       Elevation="12" HasShadow="True"
-                                       BorderColor="Transparent" BorderThickness="1">
+                                       Elevation="12" HasShadow="True">
                         <StackLayout Spacing="18">
 
                             <!-- SERVICE NAME -->
                             <StackLayout Spacing="6">
-                                <Label Text="SERVICE NAME"
-                                       FontSize="10" FontAttributes="Bold"
-                                       CharacterSpacing="1.5"
-                                       TextColor="#004225"/>
-                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
-                                                   CornerRadius="12"
-                                                   Elevation="5"
-                                                   HasShadow="True"
-                                                   Padding="14,0,0,0"
-                                                   HeightRequest="50"
-                                                   BorderColor="White" BorderThickness="1">
-                                    <renderers11:BorderlessEntry x:Name="Servicename"
-                                                                 FontSize="13"
-                                                                 IsReadOnly="True"
-                                                                 TextColor="#004225"
-                                                                 BackgroundColor="WhiteSmoke"/>
+                                <Label Text="SERVICE NAME" Style="{StaticResource FieldLabel}"/>
+                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                    <Grid ColumnDefinitions="46,*">
+                                        <Label Grid.Column="0" Text="🚛" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <renderers11:BorderlessEntry Grid.Column="1"
+                                                                     x:Name="Servicename"
+                                                                     FontSize="13"
+                                                                     IsReadOnly="True"
+                                                                     TextColor="#0F2A1D"
+                                                                     BackgroundColor="Transparent"/>
+                                    </Grid>
                                 </yummy:PancakeView>
                             </StackLayout>
 
-                            <!-- PLATE NUMBER -->
+                            <!-- PLATE / VEHICLE NUMBER -->
                             <StackLayout Spacing="6">
-                                <Label Text="PLATE NUMBER"
-                                       FontSize="10" FontAttributes="Bold"
-                                       CharacterSpacing="1.5"
-                                       TextColor="#004225"/>
-                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
-                       CornerRadius="12"
-                       Elevation="5"
-                       HasShadow="True"
-                       Padding="14,0,0,0"
-                       HeightRequest="50"
-                       BorderColor="White" BorderThickness="1">
-                                    <renderers11:BorderlessEntry x:Name="PayerId"
-                                                                 FontSize="13"
-                                                                 IsReadOnly="True"
-                                                                 FontAttributes="Bold"
-                                                                  TextColor="#004225"  BackgroundColor="WhiteSmoke"/>
+                                <Label Text="VEHICLE / PLATE NUMBER" Style="{StaticResource FieldLabel}"/>
+                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                    <Grid ColumnDefinitions="46,*">
+                                        <Label Grid.Column="0" Text="🔖" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <renderers11:BorderlessEntry Grid.Column="1"
+                                                                     x:Name="PayerId"
+                                                                     FontSize="14"
+                                                                     FontAttributes="Bold"
+                                                                     CharacterSpacing="1"
+                                                                     IsReadOnly="True"
+                                                                     TextColor="#0F2A1D"
+                                                                     BackgroundColor="Transparent"/>
+                                    </Grid>
                                 </yummy:PancakeView>
                             </StackLayout>
 
-                            <!-- LGA -->
+                            <!-- DESTINATION (StateTo) -->
                             <StackLayout Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0"
-                                           Text="LGA TO"
-                                           FontSize="10" FontAttributes="Bold"
-                                           CharacterSpacing="1.5"
-                                           TextColor="#004225"/>
-                                    <Label Grid.Column="1"
-                                           Text="Required *"
-                                           FontSize="9" TextColor="#FF6B6B"/>
+                                    <Label Grid.Column="0" Text="DESTINATION (STATE / LGA TO)" Style="{StaticResource FieldLabel}"/>
+                                    <Label Grid.Column="1" x:Name="destinationBadge" Text="REQUIRED" Style="{StaticResource Badge}"/>
                                 </Grid>
-                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
-                       CornerRadius="12"
-                       Elevation="5"
-                       HasShadow="True"
-                       Padding="14,0,0,0"
-                       HeightRequest="50"
-                       BorderColor="White" BorderThickness="1">
-                                    <Picker x:Name="picker"
-                                            Title="Select destination LGA"
-                                            TitleColor="#004225"
-                                            TextColor="#004225"
-                                            FontSize="12"/>
+                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                    <Grid ColumnDefinitions="46,*">
+                                        <Label Grid.Column="0" Text="🏁" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <Picker Grid.Column="1"
+                                                x:Name="picker"
+                                                Title="Select destination"
+                                                TitleColor="#0F2A1D"
+                                                TextColor="#0F2A1D"
+                                                FontSize="13"
+                                                SelectedIndexChanged="OnFormStateChanged"/>
+                                    </Grid>
                                 </yummy:PancakeView>
                             </StackLayout>
 
-                            <!-- AMOUNT -->
+                            <!-- AMOUNT (read-only mirror) -->
                             <StackLayout Spacing="6">
-                                <Label Text="AMOUNT (₦)"
-                                       FontSize="10" FontAttributes="Bold"
-                                       CharacterSpacing="1.5"
-                                       TextColor="#004225"/>
-                                <yummy:PancakeView BackgroundColor="Transparent"
-                                                   CornerRadius="12"
-                                                   Padding="14,0,0,0"
-                                                   HeightRequest="50"
-                                                   BorderColor="Transparent" BorderThickness="1">
-                                    <renderers11:BorderlessEntry x:Name="Amount"
-                                                                 FontSize="16" FontAttributes="Bold"
-                                                                 Keyboard="Numeric"
-                                                                 TextColor="Red"
-                                                                 ClearButtonVisibility="WhileEditing"
-                                                                 BackgroundColor="Transparent"/>
+                                <Label Text="AMOUNT (₦)" Style="{StaticResource FieldLabel}"/>
+                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                    <Grid ColumnDefinitions="46,*">
+                                        <Label Grid.Column="0" Text="₦" Style="{StaticResource FieldIcon}"
+                                               FontAttributes="Bold" TextColor="{StaticResource Brand}"/>
+                                        <renderers11:BorderlessEntry Grid.Column="1"
+                                                                     x:Name="Amount"
+                                                                     FontSize="16" FontAttributes="Bold"
+                                                                     Keyboard="Numeric"
+                                                                     IsReadOnly="True"
+                                                                     TextColor="#0F2A1D"
+                                                                     BackgroundColor="Transparent"
+                                                                     TextChanged="OnAmountChanged"/>
+                                    </Grid>
                                 </yummy:PancakeView>
                             </StackLayout>
 
                             <!-- PIN -->
                             <StackLayout Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0"
-                                           Text="TRANSACTION PIN"
-                                           FontSize="10" FontAttributes="Bold"
-                                           CharacterSpacing="1.5"
-                                           TextColor="#004225"/>
-                                    <Label Grid.Column="1"
-                                           Text="4-digit PIN"
-                                           FontSize="9" TextColor="#004225"/>
+                                    <Label Grid.Column="0" Text="TRANSACTION PIN" Style="{StaticResource FieldLabel}"/>
+                                    <Label Grid.Column="1" x:Name="pinBadge" Text="4 DIGITS" Style="{StaticResource Badge}"/>
                                 </Grid>
-                                <yummy:PancakeView BackgroundColor="WhiteSmoke"
-CornerRadius="12"
-Elevation="5"
-HasShadow="True"
-Padding="14,0,0,0"
-HeightRequest="50"
-BorderColor="White" BorderThickness="1">
-                                    <renderers11:BorderlessEntry x:Name="PIN"
-                                                                 FontSize="20"
-                                                                 IsPassword="True"
-                                                                 MaxLength="4"
-                                                                 Keyboard="Numeric"
-                                                                 Placeholder="● ● ● ●"
-                                                                 PlaceholderColor="#004225"
-                                                                 Unfocused="Pin_Unfocused"
-                                                                 TextColor="#004225"
-                                                                 BackgroundColor="Transparent"/>
+                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                    <Grid ColumnDefinitions="46,*">
+                                        <Label Grid.Column="0" Text="🔐" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <renderers11:BorderlessEntry Grid.Column="1"
+                                                                     x:Name="PIN"
+                                                                     FontSize="20"
+                                                                     IsPassword="True"
+                                                                     MaxLength="4"
+                                                                     Keyboard="Numeric"
+                                                                     Placeholder="● ● ● ●"
+                                                                     PlaceholderColor="#9AAFA3"
+                                                                     CharacterSpacing="4"
+                                                                     TextColor="#0F2A1D"
+                                                                     BackgroundColor="Transparent"
+                                                                     TextChanged="OnPinChanged"
+                                                                     Unfocused="Pin_Unfocused"/>
+                                    </Grid>
                                 </yummy:PancakeView>
+                                <Label x:Name="pinError"
+                                       FontSize="10" TextColor="{StaticResource Danger}"
+                                       IsVisible="False" Margin="4,0,0,0"/>
                             </StackLayout>
 
-                            <!-- Divider -->
-                            <BoxView HeightRequest="1" BackgroundColor="#004225" Margin="0,4"/>
+                            <BoxView Style="{StaticResource Divider}"/>
 
                             <!-- PROCESS PAYMENT button -->
                             <yummy:PancakeView x:Name="makepaymentbutton"
-                                               IsVisible="False"
-                                               BackgroundGradientStartColor="#004225"
-                                               BackgroundGradientEndColor="#00AA55"
+                                               BackgroundGradientStartColor="#B9C7BF"
+                                               BackgroundGradientEndColor="#9FB0A6"
                                                BackgroundGradientAngle="90"
-                                               CornerRadius="10"
-                                               Elevation="8" HasShadow="True"
+                                               CornerRadius="16"
+                                               Elevation="6" HasShadow="True"
                                                HeightRequest="58"
-                                               BorderColor="#00FF8840" BorderThickness="1">
+                                               Opacity="0.65"
+                                               InputTransparent="True">
                                 <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <Label Grid.Column="0" Text="+ " FontSize="20" TextColor="White"
-                                           VerticalOptions="Center" Margin="16,0,0,0"/>
-                                    <Label Grid.Column="1"
-                                           Text="PROCESS PAYMENT"
-                                           FontSize="15" FontAttributes="Bold"
+                                    <Label Grid.Column="0" x:Name="payIcon" Text="🔒" FontSize="18" TextColor="White"
+                                           VerticalOptions="Center" Margin="18,0,0,0"/>
+                                    <Label Grid.Column="1" x:Name="payLabel"
+                                           Text="ENTER PIN TO CONTINUE"
+                                           FontSize="14" FontAttributes="Bold"
+                                           CharacterSpacing="1"
                                            TextColor="White"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
-                                    <Label Grid.Column="2" Text="→" FontSize="18"
-                                           TextColor="#AAFFCC"
-                                           VerticalOptions="Center" Margin="0,0,16,0"/>
+                                    <Label Grid.Column="2" x:Name="payArrow" Text="→" FontSize="18"
+                                           TextColor="White"
+                                           VerticalOptions="Center" Margin="0,0,18,0"/>
+                                    <ActivityIndicator Grid.Column="2" x:Name="payBusy"
+                                                       IsVisible="False" IsRunning="False"
+                                                       Color="White" WidthRequest="20" HeightRequest="20"
+                                                       VerticalOptions="Center" Margin="0,0,18,0"/>
                                 </Grid>
                                 <yummy:PancakeView.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
@@ -203,10 +274,10 @@ BorderColor="White" BorderThickness="1">
                             <!-- REPRINT button -->
                             <yummy:PancakeView x:Name="ReprintButtonView"
                                                IsVisible="False"
-                                               BackgroundColor="#1A2B1A"
-                                               CornerRadius="16"
+                                               BackgroundColor="#FFF6E8"
+                                               CornerRadius="14"
                                                HeightRequest="50"
-                                               BorderColor="#004225" BorderThickness="1">
+                                               BorderColor="#F0D9B0" BorderThickness="1">
                                 <Grid ColumnDefinitions="Auto,*">
                                     <Label Grid.Column="0" Text="🖨️" FontSize="18"
                                            VerticalOptions="Center" Margin="16,0,0,0"/>
@@ -215,7 +286,7 @@ BorderColor="White" BorderThickness="1">
                                             Text="REPRINT RECEIPT"
                                             Clicked="OnReprintClicked"
                                             BackgroundColor="Transparent"
-                                            TextColor="#FFAA44"
+                                            TextColor="#B87A16"
                                             FontAttributes="Bold"
                                             FontSize="13"/>
                                 </Grid>
@@ -227,234 +298,313 @@ BorderColor="White" BorderThickness="1">
                     <!-- Security note -->
                     <StackLayout Orientation="Horizontal" Margin="24,16,24,30"
                                  Spacing="8" HorizontalOptions="Center">
-                        <Label Text="🔒" FontSize="12" VerticalOptions="Center" TextColor="White"/>
+                        <Label Text="🔒" FontSize="12" VerticalOptions="Center"/>
                         <Label Text="Secured by 256-bit TLS encryption"
-                               FontSize="10" TextColor="#445566"
+                               FontSize="10" TextColor="#9AAFA3"
                                VerticalOptions="Center"/>
                     </StackLayout>
 
                 </StackLayout>
             </ScrollView>
 
-            <!-- ══════════════════════════════════════════════
-                 LOADING OVERLAY
-            ══════════════════════════════════════════════ -->
+            <!-- ═══════════════════ LOADING OVERLAY ═══════════════════ -->
             <Grid x:Name="LoadingOverlay"
                   IsVisible="False"
-                  BackgroundColor="#CC060E1A">
-                <yummy:PancakeView BackgroundColor="#111E2E"
+                  BackgroundColor="#CC0A1A12">
+                <yummy:PancakeView BackgroundColor="White"
                                    CornerRadius="24"
                                    Padding="36,28"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center"
-                                   WidthRequest="240"
-                                   BorderColor="#004225" BorderThickness="1">
-                    <StackLayout Spacing="18" HorizontalOptions="Center">
+                                   WidthRequest="250"
+                                   Elevation="16">
+                    <StackLayout Spacing="16" HorizontalOptions="Center">
                         <ActivityIndicator IsRunning="True"
-                                           Color="#00FF88"
-                                           HeightRequest="48" WidthRequest="48"
+                                           Color="{StaticResource BrandLight}"
+                                           HeightRequest="46" WidthRequest="46"
                                            HorizontalOptions="Center"/>
-                        <Label Text="Processing Payment…"
+                        <Label x:Name="LoadingTitle"
+                               Text="Processing Payment…"
                                FontSize="14" FontAttributes="Bold"
-                               TextColor="White"
+                               TextColor="#0F2A1D"
                                HorizontalOptions="Center"/>
                         <Label Text="Please do not close the app"
-                               FontSize="10" TextColor="#667788"
-                               HorizontalOptions="Center"/>
+                               FontSize="10" TextColor="{StaticResource Muted}"
+                               HorizontalTextAlignment="Center"/>
                     </StackLayout>
                 </yummy:PancakeView>
             </Grid>
 
-            <!-- ══════════════════════════════════════════════
-                 SUCCESS POPUP OVERLAY
-            ══════════════════════════════════════════════ -->
+            <!-- ═══════════════════ SUCCESS OVERLAY ═══════════════════ -->
             <Grid x:Name="SuccessOverlay"
                   IsVisible="False"
-                  BackgroundColor="#EE060E1A">
-                <yummy:PancakeView BackgroundGradientStartColor="#0D2A1A"
-                                   BackgroundGradientEndColor="#111E2E"
-                                   BackgroundGradientAngle="135"
-                                   CornerRadius="28"
-                                   Padding="28"
-                                   HorizontalOptions="FillAndExpand"
-                                   VerticalOptions="Center"
-                                   Margin="20"
-                                   BorderColor="#00FF8840" BorderThickness="1"
-                                   Elevation="20">
-                    <StackLayout Spacing="16" HorizontalOptions="Center">
+                  BackgroundColor="#EE0A1A12">
+                <ScrollView Margin="16,40,16,40" VerticalOptions="Center">
+                    <yummy:PancakeView BackgroundColor="White"
+                                       CornerRadius="26"
+                                       Padding="22,24,22,22"
+                                       Elevation="20">
+                        <StackLayout Spacing="14">
 
-                        <!-- Success icon -->
-                        <yummy:PancakeView BackgroundColor="#00FF8818"
-                                           CornerRadius="40"
-                                           WidthRequest="80" HeightRequest="80"
-                                           HorizontalOptions="Center"
-                                           BorderColor="#00FF8860" BorderThickness="2">
-                            <Label Text="✅" FontSize="40"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </yummy:PancakeView>
+                            <yummy:PancakeView BackgroundColor="#E6F7EE"
+                                               CornerRadius="40"
+                                               WidthRequest="80" HeightRequest="80"
+                                               HorizontalOptions="Center"
+                                               BorderColor="#00AA5560" BorderThickness="2">
+                                <Image Source="gooddone" HeightRequest="38" 
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </yummy:PancakeView>
 
-                        <Label Text="PAYMENT SUCCESSFUL"
-                               FontSize="20" FontAttributes="Bold"
-                               TextColor="#00FF88"
-                               HorizontalOptions="Center"
-                               CharacterSpacing="1"/>
-
-                        <!-- Receipt details box -->
-                        <yummy:PancakeView BackgroundColor="#0D1825"
-                                           CornerRadius="16"
-                                           Padding="16"
-                                           BorderColor="#004225" BorderThickness="1">
-                            <StackLayout Spacing="10">
-                                <Grid ColumnDefinitions="*,*">
-                                    <Label Grid.Column="0" Text="Reference"
-                                           FontSize="11" TextColor="#667788"/>
-                                    <Label x:Name="PopupRef"
-                                           Grid.Column="1" FontSize="11"
-                                           FontAttributes="Bold" TextColor="White"
-                                           HorizontalTextAlignment="End"/>
-                                </Grid>
-                                <BoxView HeightRequest="1" BackgroundColor="#004225"/>
-                                <Grid ColumnDefinitions="*,*">
-                                    <Label Grid.Column="0" Text="Vehicle Type"
-                                           FontSize="11" TextColor="#667788"/>
-                                    <Label x:Name="PopupVehicle"
-                                           Grid.Column="1" FontSize="11"
-                                           TextColor="White"
-                                           HorizontalTextAlignment="End"/>
-                                </Grid>
-                                <BoxView HeightRequest="1" BackgroundColor="#004225"/>
-                                <Grid ColumnDefinitions="*,*">
-                                    <Label Grid.Column="0" Text="Plate Number"
-                                           FontSize="11" TextColor="#667788"/>
-                                    <Label x:Name="PopupPlate"
-                                           Grid.Column="1" FontSize="11"
-                                           TextColor="#4DA6FF" FontAttributes="Bold"
-                                           HorizontalTextAlignment="End"/>
-                                </Grid>
-                                <BoxView HeightRequest="1" BackgroundColor="#004225"/>
-                                <Grid ColumnDefinitions="*,*">
-                                    <Label Grid.Column="0" Text="LGA To"
-                                           FontSize="11" TextColor="#667788"/>
-                                    <Label x:Name="PopupLGA"
-                                           Grid.Column="1" FontSize="11"
-                                           TextColor="White"
-                                           HorizontalTextAlignment="End"/>
-                                </Grid>
-                                <BoxView HeightRequest="1" BackgroundColor="#004225"/>
-                                <Grid ColumnDefinitions="*,*">
-                                    <Label Grid.Column="0" Text="Amount Paid"
-                                           FontSize="13" FontAttributes="Bold"
-                                           TextColor="#AAFFCC"/>
-                                    <Label x:Name="PopupAmount"
-                                           Grid.Column="1" FontSize="16"
-                                           FontAttributes="Bold" TextColor="#00FF88"
-                                           HorizontalTextAlignment="End"/>
-                                </Grid>
-                            </StackLayout>
-                        </yummy:PancakeView>
-
-                        <!-- Printing status label -->
-                        <Label x:Name="PrintingStatusLabel"
-                               Text="🖨️  Sending to printer…"
-                               FontSize="11" TextColor="#AAFFCC"
-                               HorizontalOptions="Center"/>
-
-                        <!-- Continue button -->
-                        <yummy:PancakeView BackgroundGradientStartColor="#004225"
-                                           BackgroundGradientEndColor="#00AA55"
-                                           BackgroundGradientAngle="90"
-                                           CornerRadius="14"
-                                           HeightRequest="50">
-                            <Label Text="CONTINUE  →"
-                                   FontSize="14" FontAttributes="Bold"
-                                   TextColor="White"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                            <yummy:PancakeView.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="SuccessContinue_Tapped"/>
-                            </yummy:PancakeView.GestureRecognizers>
-                        </yummy:PancakeView>
-
-                    </StackLayout>
-                </yummy:PancakeView>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════
-                 FAILURE POPUP OVERLAY
-            ══════════════════════════════════════════════ -->
-            <Grid x:Name="FailureOverlay"
-                  IsVisible="False"
-                  BackgroundColor="#EE060E1A">
-                <yummy:PancakeView BackgroundGradientStartColor="#2A0D0D"
-                                   BackgroundGradientEndColor="#111E2E"
-                                   BackgroundGradientAngle="135"
-                                   CornerRadius="28"
-                                   Padding="28"
-                                   HorizontalOptions="FillAndExpand"
-                                   VerticalOptions="Center"
-                                   Margin="20"
-                                   BorderColor="#FF4A4A40" BorderThickness="1"
-                                   Elevation="20">
-                    <StackLayout Spacing="16" HorizontalOptions="Center">
-
-                        <!-- Failure icon -->
-                        <yummy:PancakeView BackgroundColor="#FF4A4A18"
-                                           CornerRadius="40"
-                                           WidthRequest="80" HeightRequest="80"
-                                           HorizontalOptions="Center"
-                                           BorderColor="#FF4A4A60" BorderThickness="2">
-                            <Label Text="❌" FontSize="40"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </yummy:PancakeView>
-
-                        <Label Text="TRANSACTION FAILED"
-                               FontSize="20" FontAttributes="Bold"
-                               TextColor="#FF4A4A"
-                               HorizontalOptions="Center"
-                               CharacterSpacing="1"/>
-
-                        <yummy:PancakeView BackgroundColor="#0D1825"
-                                           CornerRadius="16"
-                                           Padding="16"
-                                           BorderColor="#FF4A4A20" BorderThickness="1">
-                            <StackLayout Spacing="8">
-                                <Label Text="Reason" FontSize="11" TextColor="#667788"/>
-                                <Label x:Name="FailureMessage"
-                                       FontSize="13" TextColor="#FF8888"
+                            <StackLayout Spacing="4">
+                                <Label Text="PAYMENT SUCCESSFUL"
+                                       FontSize="18" FontAttributes="Bold"
+                                       CharacterSpacing="1"
+                                       TextColor="#00693A"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="PopupMessage"
+                                       Text="Transaction completed."
+                                       FontSize="11" TextColor="{StaticResource Muted}"
                                        HorizontalTextAlignment="Center"/>
                             </StackLayout>
-                        </yummy:PancakeView>
 
-                        <Label Text="Please verify your details and try again,&#x0a;or check your History if deducted."
-                               FontSize="10" TextColor="#556677"
-                               HorizontalTextAlignment="Center"/>
+                            <!-- Amount banner -->
+                            <yummy:PancakeView BackgroundGradientStartColor="#00301B"
+                                               BackgroundGradientEndColor="#00693A"
+                                               BackgroundGradientAngle="120"
+                                               CornerRadius="18"
+                                               Padding="18,14">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
+                                        <Label Text="AMOUNT PAID" FontSize="9"
+                                               CharacterSpacing="1.2" TextColor="#8FD9B2"/>
+                                        <Label x:Name="PopupDate" Text="—"
+                                               FontSize="10" TextColor="#BFEBD3"/>
+                                    </StackLayout>
+                                    <Label Grid.Column="1" x:Name="PopupAmount" Text="₦0.00"
+                                           FontSize="20" FontAttributes="Bold"
+                                           TextColor="White" VerticalOptions="Center"/>
+                                </Grid>
+                            </yummy:PancakeView>
 
-                        <!-- Retry button -->
-                        <yummy:PancakeView BackgroundColor="#3A1010"
-                                           CornerRadius="14"
-                                           HeightRequest="50"
-                                           BorderColor="#FF4A4A60" BorderThickness="1">
-                            <Label Text="TRY AGAIN"
-                                   FontSize="14" FontAttributes="Bold"
-                                   TextColor="#FF6666"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                            <yummy:PancakeView.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="FailureRetry_Tapped"/>
-                            </yummy:PancakeView.GestureRecognizers>
-                        </yummy:PancakeView>
+                            <!-- Receipt rows -->
+                            <yummy:PancakeView BackgroundColor="#F7FAF8"
+                                               CornerRadius="18"
+                                               Padding="16,14"
+                                               BorderColor="#E4EDE7" BorderThickness="1">
+                                <StackLayout Spacing="10">
 
-                    </StackLayout>
-                </yummy:PancakeView>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="REFERENCE" Style="{StaticResource RowKey}"/>
+                                        <Label Grid.Column="1" x:Name="PopupRef" Text="—" Style="{StaticResource RowValue}"/>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}"/>
+
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="VEHICLE TYPE" Style="{StaticResource RowKey}"/>
+                                        <Label Grid.Column="1" x:Name="PopupVehicle" Text="—" Style="{StaticResource RowValue}"/>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}"/>
+
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="VEHICLE NO" Style="{StaticResource RowKey}"/>
+                                        <Label Grid.Column="1" x:Name="PopupPlate" Text="—" Style="{StaticResource RowValue}"/>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}"/>
+
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="DESTINATION" Style="{StaticResource RowKey}"/>
+                                        <Label Grid.Column="1" x:Name="PopupLGA" Text="—" Style="{StaticResource RowValue}"/>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}"/>
+
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="AGENT" Style="{StaticResource RowKey}"/>
+                                        <Label Grid.Column="1" x:Name="PopupAgent" Text="—" Style="{StaticResource RowValue}"/>
+                                    </Grid>
+
+                                    <StackLayout x:Name="PopupPaymentRefRow" IsVisible="False" Spacing="10">
+                                        <BoxView Style="{StaticResource Divider}"/>
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Label Grid.Column="0" Text="PAYMENT REF" Style="{StaticResource RowKey}"/>
+                                            <Label Grid.Column="1" x:Name="PopupPaymentRef" Text="—" Style="{StaticResource RowValue}"/>
+                                        </Grid>
+                                    </StackLayout>
+
+                                    <StackLayout x:Name="PopupExpiryRow" IsVisible="False" Spacing="10">
+                                        <BoxView Style="{StaticResource Divider}"/>
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <Label Grid.Column="0" Text="VALID UNTIL" Style="{StaticResource RowKey}"/>
+                                            <Label Grid.Column="1" x:Name="PopupExpiry" Text="—" Style="{StaticResource RowValue}"/>
+                                        </Grid>
+                                    </StackLayout>
+
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <!-- Printing status -->
+                            <yummy:PancakeView x:Name="PrintingStatusView"
+                                               BackgroundColor="#F0F6FF"
+                                               CornerRadius="12"
+                                               Padding="14,10"
+                                               BorderColor="#D9E6F7" BorderThickness="1">
+                                <Label x:Name="PrintingStatusLabel"
+                                       Text="🖨️  Sending receipt to printer…"
+                                       FontSize="11" TextColor="#3A5A80"
+                                       HorizontalTextAlignment="Center"/>
+                            </yummy:PancakeView>
+
+                            <!-- In-popup reprint -->
+                            <yummy:PancakeView x:Name="PopupReprintView"
+                                               IsVisible="False"
+                                               BackgroundColor="#FFF6E8"
+                                               CornerRadius="14"
+                                               HeightRequest="48"
+                                               BorderColor="#F0D9B0" BorderThickness="1">
+                                <Label Text="🖨️  REPRINT RECEIPT"
+                                       FontSize="13" FontAttributes="Bold"
+                                       TextColor="#B87A16"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <yummy:PancakeView.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="PopupReprint_Tapped"/>
+                                </yummy:PancakeView.GestureRecognizers>
+                            </yummy:PancakeView>
+
+                            <!-- Continue -->
+                            <yummy:PancakeView BackgroundGradientStartColor="#004225"
+                                               BackgroundGradientEndColor="#00AA55"
+                                               BackgroundGradientAngle="90"
+                                               CornerRadius="14"
+                                               HeightRequest="52">
+                                <Label Text="CONTINUE  →"
+                                       FontSize="14" FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <yummy:PancakeView.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="SuccessContinue_Tapped"/>
+                                </yummy:PancakeView.GestureRecognizers>
+                            </yummy:PancakeView>
+
+                        </StackLayout>
+                    </yummy:PancakeView>
+                </ScrollView>
+            </Grid>
+
+            <!-- ═══════════════════ FAILURE OVERLAY ═══════════════════ -->
+            <Grid x:Name="FailureOverlay"
+                  IsVisible="False"
+                  BackgroundColor="#EE0A1A12">
+                <ScrollView Margin="16,40,16,40" VerticalOptions="Center">
+                    <yummy:PancakeView BackgroundColor="White"
+                                       CornerRadius="16"
+                                       Padding="22,24,22,22"
+                                       Elevation="20">
+                        <StackLayout Spacing="14">
+
+                            <yummy:PancakeView BackgroundColor="White"
+                                               CornerRadius="40"
+                                               WidthRequest="80" HeightRequest="80"
+                                               HorizontalOptions="Center"
+                                               BorderColor="White" BorderThickness="2">
+                                <Label x:Name="FailureIcon" Text="❌" FontSize="38"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </yummy:PancakeView>
+
+                            <Label x:Name="FailureTitle"
+                                   Text="TRANSACTION FAILED"
+                                   FontSize="18" FontAttributes="Bold"
+                                   CharacterSpacing="1"
+                                   TextColor="{StaticResource Danger}"
+                                   HorizontalTextAlignment="Center"/>
+
+                            <!-- Response code chip -->
+                            <yummy:PancakeView x:Name="FailureCodeView"
+                                               IsVisible="False"
+                                               BackgroundColor="#FDF0F0"
+                                               CornerRadius="5"
+                                               Padding="12,5"
+                                               HorizontalOptions="Center"
+                                               BorderColor="#F3DADA" BorderThickness="1">
+                                <Label x:Name="FailureCode"
+                                       Text="CODE —"
+                                       FontSize="10" FontAttributes="Bold"
+                                       CharacterSpacing="1.2"
+                                       TextColor="#B04A4A"/>
+                            </yummy:PancakeView>
+
+                            <!-- Server message -->
+                            <yummy:PancakeView BackgroundColor="#FDF6F6"
+                                               CornerRadius="10"
+                                               Padding="16,14"
+                                               BorderColor="#F3DADA" BorderThickness="1">
+                                <StackLayout Spacing="10">
+                                    <Label Text="MESSAGE FROM SERVER" FontSize="9"
+                                           CharacterSpacing="1.2"  TextColor="{StaticResource Danger}"/>
+                                    <Label x:Name="FailureMessage"
+                                           Text="—"
+                                           FontSize="13" TextColor="#5A4646"
+                                           LineBreakMode="WordWrap"/>
+
+                                    <StackLayout x:Name="FailureDetailRow" IsVisible="False" Spacing="6">
+                                        <BoxView HeightRequest="1" BackgroundColor="#F3DADA"/>
+                                        <Label Text="ADDITIONAL DETAIL" FontSize="9"
+                                               CharacterSpacing="1.2" TextColor="#C08585"/>
+                                        <Label x:Name="FailureDetail"
+                                               FontSize="11" TextColor="#7A6464"
+                                               LineBreakMode="WordWrap"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <!-- What to do next -->
+                            <yummy:PancakeView BackgroundColor="#F7FAF8"
+                                               CornerRadius="10"
+                                               Padding="16,14"
+                                               BorderColor="#E4EDE7" BorderThickness="1">
+                                <StackLayout Spacing="6">
+                                    <Label Text="WHAT TO DO NEXT" FontSize="9"
+                                           CharacterSpacing="1.2" TextColor="Black"/>
+                                    <Label x:Name="FailureHint"
+                                           Text="Verify the details and try again. If your wallet was debited, check History before retrying."
+                                           FontSize="11" TextColor="#4C5C54"
+                                           LineBreakMode="WordWrap"/>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
+                            <Label x:Name="FailureRefLabel"
+                                   IsVisible="False"
+                                   FontSize="10" TextColor="#9AAFA3"
+                                   HorizontalTextAlignment="Center"/>
+
+                            <yummy:PancakeView BackgroundColor="{StaticResource Danger}"
+                                               CornerRadius="10"
+                                               HeightRequest="50"
+                                               BorderColor="{StaticResource Danger}" BorderThickness="1">
+                                <Label Text="TRY AGAIN"
+                                       FontSize="13" FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                <yummy:PancakeView.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="FailureRetry_Tapped"/>
+                                </yummy:PancakeView.GestureRecognizers>
+                            </yummy:PancakeView>
+
+                            <Label Text="GO BACK"
+                                   FontSize="12" FontAttributes="Bold"
+                                   TextColor="{StaticResource Muted}"
+                                   HorizontalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="Button_Clicked"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+
+                        </StackLayout>
+                    </yummy:PancakeView>
+                </ScrollView>
             </Grid>
 
         </Grid>
 
-        <!-- ══════════════════════════════════════════════
-             SUCCESS SHEET (legacy, kept as fallback)
-        ══════════════════════════════════════════════ -->
+        <!-- Legacy sheet retained for backwards compatibility -->
         <dxui:ModalityLayout.Behaviors>
             <dxui:SheetBehavior x:Name="sheetBehavior"
                                 IsOpen="False"

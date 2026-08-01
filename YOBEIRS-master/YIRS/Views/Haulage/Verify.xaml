@@ -133,11 +133,11 @@
                 </Grid>
 
                 <!-- Main detail card -->
-                <yummy:PancakeView BackgroundColor="#111E2E"
+                <yummy:PancakeView BackgroundColor="White"
                                    CornerRadius="10"
                                    Padding="20"
                                    Elevation="10" HasShadow="True"
-                                   BorderColor="#004225" BorderThickness="1">
+                                   BorderColor="White" BorderThickness="1">
                     <StackLayout Spacing="0">
 
                         <!-- Plate number hero -->
@@ -178,7 +178,7 @@
                                        TextColor="#667788"/>
                                 <Label x:Name="nameofDrivers"
                                        FontSize="14" FontAttributes="Bold"
-                                       TextColor="White"/>
+                                       TextColor="Black"/>
                             </StackLayout>
                             <StackLayout Grid.Column="1" Spacing="3">
                                 <Label Text="PHONE NUMBER"
@@ -186,7 +186,7 @@
                                        TextColor="#667788"/>
                                 <Label x:Name="ownerPhones"
                                        FontSize="14" FontAttributes="Bold"
-                                       TextColor="#4DA6FF"/>
+                                       TextColor="Black"/>
                             </StackLayout>
                         </Grid>
 
@@ -200,7 +200,7 @@
                                        TextColor="#667788"/>
                                 <Label x:Name="vehicleTypes"
                                        FontSize="14" FontAttributes="Bold"
-                                       TextColor="#AA88FF"/>
+                                       TextColor="#004225"/>
                             </StackLayout>
                             <StackLayout Grid.Column="1" Spacing="3">
                                 <Label Text="LGA"
@@ -208,7 +208,7 @@
                                        TextColor="#667788"/>
                                 <Label x:Name="lga"
                                        FontSize="14" FontAttributes="Bold"
-                                       TextColor="White"/>
+                                       TextColor="Black"/>
                             </StackLayout>
                         </Grid>
 
@@ -221,39 +221,39 @@
                                        FontSize="9" CharacterSpacing="1"
                                        TextColor="#667788"/>
                                 <StackLayout Orientation="Horizontal" Spacing="2">
-                                    <Label Text="₦" FontSize="12" TextColor="#00FF88"
+                                    <Label Text="₦" FontSize="12" TextColor="#004225"
                                            VerticalOptions="End" Margin="0,0,0,2"/>
                                     <Label x:Name="Amount"
                                            FontSize="20" FontAttributes="Bold"
-                                           TextColor="#00FF88"/>
+                                           TextColor="#004225"/>
                                 </StackLayout>
                             </StackLayout>
                             <StackLayout Grid.Column="1" Spacing="3">
                                 <Label Text="DATE RECORDED"
                                        FontSize="9" CharacterSpacing="1"
-                                       TextColor="#667788"/>
+                                       TextColor="#FFAA44"/>
                                 <Label x:Name="DateRecorded"
                                        FontSize="12"
-                                       TextColor="#FFAA44"/>
+                                       TextColor="Black"/>
                             </StackLayout>
                         </Grid>
 
                         <BoxView HeightRequest="1" BackgroundColor="#004225" Margin="0,0,0,12"/>
 
                         <!-- Status message -->
-                        <yummy:PancakeView BackgroundColor="#00FF8812"
+                        <yummy:PancakeView BackgroundColor="White"
                                            CornerRadius="10"
                                            Padding="12,8"
-                                           BorderColor="#00FF8830" BorderThickness="1">
+                                           BorderColor="White" BorderThickness="1">
                             <Grid ColumnDefinitions="Auto,*">
                                 <Label Grid.Column="0" Text="●" FontSize="12"
-                                       TextColor="#00FF88"
+                                       TextColor="Red"
                                        VerticalOptions="Center"
                                        Margin="0,0,8,0"/>
                                 <Label Grid.Column="1"
                                        x:Name="messages"
                                        FontSize="12" FontAttributes="Bold"
-                                       TextColor="#00FF88"/>
+                                       TextColor="#004225"/>
                             </Grid>
                         </yummy:PancakeView>
 

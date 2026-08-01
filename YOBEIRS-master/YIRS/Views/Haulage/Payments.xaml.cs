@@ -2,11 +2,10 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
@@ -19,201 +18,401 @@ namespace YIRS.Views.Haulage
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Payments : ContentPage
     {
-        List<LGACatData> enums;
+        // ───────────────────────── Endpoints ─────────────────────────
+        private const string BaseUrl = "https://yobe.osoftpay.net";
+        private const string LgaUrl = BaseUrl + "/api/HulageVehicles/getlga";
+        private const string PaymentUrl = BaseUrl + "/Api/SingleCollections/Hulage";
 
-        private bool _isProcessing = false;
-        private bool _isPrinting = false;
-        private ReceiptData _lastReceiptData = null;
+        private const string SuccessCode = "00";
+
+        // One shared client — per-call HttpClient instances leak sockets on Android.
+        private static readonly HttpClient Http = CreateHttpClient();
+
+        private List<LGACatData> _destinations = new List<LGACatData>();
+
+        private bool _isProcessing;
+        private bool _isPrinting;
+        private bool _destinationsLoaded;
+        private bool _isFormValid;
+
+        private ReceiptData _lastReceiptData;
 
         public Payments()
         {
             InitializeComponent();
-            ConfigureSSL();
-            LoadLGACategory();
 
-            sheetBehavior.IsOpen = false;
-            makepaymentbutton.IsVisible = false;
+            try
+            {
+                ConfigureSSL();
 
-            Servicename.Text = Verify.vehicleTypess;
-            PayerId.Text = Verify.plateNumberss;
+                sheetBehavior.IsOpen = false;
+                SuccessOverlay.IsVisible = false;
+                FailureOverlay.IsVisible = false;
+                LoadingOverlay.IsVisible = false;
 
-            bool amountIsZero = Verify.amountss is "0";
-            Amount.IsEnabled = amountIsZero;
-            Amount.Text = Verify.amountss;
-            Amount.IsReadOnly = !amountIsZero;
+                Servicename.Text = SafeString(Verify.vehicleTypess);
+                PayerId.Text = SafeString(Verify.plateNumberss);
+                Amount.Text = SafeString(Verify.amountss);
+
+                UpdateAmountHeadline();
+                Validate();
+            }
+            catch (Exception ex)
+            {
+                Log("ctor", ex);
+            }
         }
 
-        // ─── SSL ─────────────────────────────────────────────────────────────
-
-        private void ConfigureSSL()
+        protected override void OnAppearing()
         {
-            ServicePointManager.SecurityProtocol =
-                SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11;
-            ServicePointManager.ServerCertificateValidationCallback =
-                new RemoteCertificateValidationCallback(ValidateServerCertificate);
-            ServicePointManager.DefaultConnectionLimit = 10;
-            ServicePointManager.Expect100Continue = true;
+            base.OnAppearing();
+
+            try
+            {
+                if (!_destinationsLoaded || _destinations.Count == 0)
+                    _ = LoadDestinationsAsync();
+            }
+            catch (Exception ex)
+            {
+                Log("OnAppearing", ex);
+            }
         }
 
-        private bool ValidateServerCertificate(object sender, X509Certificate certificate,
-            X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            if (sslPolicyErrors == SslPolicyErrors.None) return true;
-            System.Diagnostics.Debug.WriteLine($"SSL: {sslPolicyErrors}");
-            return true;
-        }
+        // ───────────────────────── Networking setup ─────────────────────────
 
-        // ─── LGA Loader ──────────────────────────────────────────────────────
-
-        private void LoadLGACategory()
+        private static HttpClient CreateHttpClient()
         {
             try
             {
                 var handler = new HttpClientHandler
                 {
-                    ServerCertificateCustomValidationCallback = (m, c, ch, er) => true,
-                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    ServerCertificateCustomValidationCallback = (m, c, ch, er) => true
                 };
 
-                using (var client = new HttpClient(handler))
-                using (var response = client.GetAsync("https://yobe.osoftpay.net/api/HulageVehicles/getlga").Result)
+                try
                 {
-                    var json = response.Content.ReadAsStringAsync().Result;
-                    var items = JsonConvert.DeserializeObject<List<LGACatData>>(json);
+                    handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                                         | System.Security.Authentication.SslProtocols.Tls11;
+                }
+                catch (Exception ex)
+                {
+                    Log("SslProtocols", ex);
+                }
+
+                return new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(90) };
+            }
+            catch (Exception ex)
+            {
+                Log("CreateHttpClient", ex);
+                return new HttpClient { Timeout = TimeSpan.FromSeconds(90) };
+            }
+        }
+
+        private void ConfigureSSL()
+        {
+            try
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11;
+                ServicePointManager.ServerCertificateValidationCallback = (s, c, ch, er) => true;
+                ServicePointManager.DefaultConnectionLimit = 10;
+                ServicePointManager.Expect100Continue = false;
+            }
+            catch (Exception ex)
+            {
+                Log("ConfigureSSL", ex);
+            }
+        }
+
+        // ───────────────────────── Destination loader ─────────────────────────
+
+        private async Task LoadDestinationsAsync()
+        {
+            try
+            {
+                using (var response = await Http.GetAsync(LgaUrl).ConfigureAwait(true))
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Log("LoadDestinations", new Exception($"HTTP {(int)response.StatusCode}"));
+                        Toast("Could not load destinations. Pull back and re-open this page.", 5);
+                        return;
+                    }
+
+                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
+
+                    if (string.IsNullOrWhiteSpace(json)) return;
+
+                    _destinations = JsonConvert.DeserializeObject<List<LGACatData>>(json) ?? new List<LGACatData>();
 
                     picker.ItemDisplayBinding = new Binding("lgaName");
-                    picker.ItemsSource = items?.ToList();
-                    enums = items?.ToList();
+                    picker.ItemsSource = _destinations;
+
+                    _destinationsLoaded = _destinations.Count > 0;
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                Toast("Loading destinations timed out. Check your connection.", 5);
+            }
+            catch (HttpRequestException ex)
+            {
+                Log("LoadDestinations/Http", ex);
+                Toast("No network connection. Destinations could not be loaded.", 5);
+            }
+            catch (Exception ex)
+            {
+                Log("LoadDestinations", ex);
+            }
+            finally
+            {
+                Validate();
+            }
+        }
+
+        // ───────────────────────── Validation / UI state ─────────────────────────
+
+        private void OnFormStateChanged(object sender, EventArgs e)
+        {
+            try { Validate(); }
+            catch (Exception ex) { Log("OnFormStateChanged", ex); }
+        }
+
+        private void OnPinChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                var pin = SafeText(PIN);
+                var ok = pin.Length == 4 && pin.All(char.IsDigit);
+
+                pinBadge.Text = ok ? "✓ VALID" : "4 DIGITS";
+                pinBadge.TextColor = ok ? Color.FromHex("#00893E") : Color.FromHex("#FF6B6B");
+
+                pinError.Text = "PIN must be exactly 4 digits.";
+                pinError.IsVisible = pin.Length > 0 && !ok;
+
+                Validate();
+            }
+            catch (Exception ex) { Log("OnPinChanged", ex); }
+        }
+
+        private void OnAmountChanged(object sender, TextChangedEventArgs e)
+        {
+            try { UpdateAmountHeadline(); }
+            catch (Exception ex) { Log("OnAmountChanged", ex); }
+        }
+
+        private void Pin_Unfocused(object sender, FocusEventArgs e)
+        {
+            try { Validate(); }
+            catch (Exception ex) { Log("Pin_Unfocused", ex); }
+        }
+
+        private void Validate()
+        {
+            try
+            {
+                var pin = SafeText(PIN);
+                var pinOk = pin.Length == 4 && pin.All(char.IsDigit);
+
+                var destination = picker?.SelectedItem as LGACatData;
+                var destOk = destination != null && !string.IsNullOrWhiteSpace(destination.lgaName);
+
+                destinationBadge.Text = destOk ? "✓ SELECTED" : "REQUIRED";
+                destinationBadge.TextColor = destOk ? Color.FromHex("#00893E") : Color.FromHex("#FF6B6B");
+
+                _isFormValid = pinOk && destOk;
+
+                makepaymentbutton.BackgroundGradientStartColor = _isFormValid ? Color.FromHex("#004225") : Color.FromHex("#B9C7BF");
+                makepaymentbutton.BackgroundGradientEndColor = _isFormValid ? Color.FromHex("#00AA55") : Color.FromHex("#9FB0A6");
+                makepaymentbutton.Opacity = _isFormValid ? 1 : 0.65;
+                makepaymentbutton.InputTransparent = !_isFormValid || _isProcessing;
+
+                payIcon.Text = _isFormValid ? "+" : "🔒";
+
+                if (!_isProcessing)
+                {
+                    payLabel.Text = _isFormValid
+                        ? "PROCESS PAYMENT"
+                        : (!destOk ? "SELECT A DESTINATION" : "ENTER PIN TO CONTINUE");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[HaulagePayment] LoadLGA: {ex.Message}");
+                Log("Validate", ex);
             }
         }
-        // ─── Sheet / PIN ──────────────────────────────────────────────────────
 
-        private void sheetBehavior_ActionClicked(object sender, EventArgs e)
-            => sheetBehavior.IsOpen = false;
+        private void UpdateAmountHeadline()
+        {
+            try
+            {
+                var raw = SafeText(Amount).Replace(",", "").Replace("₦", "");
 
-        private void Pin_Unfocused(object sender, FocusEventArgs e)
-            => makepaymentbutton.IsVisible = true;
+                if (decimal.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var value) && value > 0)
+                {
+                    AmountHeadline.Text = "₦" + value.ToString("N2", CultureInfo.InvariantCulture);
+                    AmountSubLabel.Text = SafeString(Verify.vehicleTypess);
+                }
+                else
+                {
+                    AmountHeadline.Text = "₦0.00";
+                    AmountSubLabel.Text = "Final amount is confirmed by the server";
+                }
+            }
+            catch (Exception ex) { Log("UpdateAmountHeadline", ex); }
+        }
 
-        // ─── Payment ──────────────────────────────────────────────────────────
+        private void SetLoadingState(bool loading)
+        {
+            try
+            {
+                LoadingOverlay.IsVisible = loading;
+
+                payBusy.IsVisible = loading;
+                payBusy.IsRunning = loading;
+                payArrow.IsVisible = !loading;
+                payLabel.Text = loading ? "PROCESSING…" : (_isFormValid ? "PROCESS PAYMENT" : "ENTER PIN TO CONTINUE");
+
+                makepaymentbutton.InputTransparent = loading || !_isFormValid;
+                PIN.IsEnabled = !loading;
+                picker.IsEnabled = !loading;
+            }
+            catch (Exception ex) { Log("SetLoadingState", ex); }
+        }
+
+        // ───────────────────────── Payment ─────────────────────────
 
         private async void TapGestureRecognizer_Tapped(object sender, EventArgs e)
         {
-            if (_isProcessing) return;
-            await ProcessPaymentAsync();
+            try
+            {
+                if (_isProcessing) return;
+                await ProcessPaymentAsync();
+            }
+            catch (Exception ex)
+            {
+                Log("TapGestureRecognizer_Tapped", ex);
+                await ShowFailurePopup("UNEXPECTED ERROR", "Something went wrong before the request was sent. Please try again.");
+            }
         }
 
         private async Task ProcessPaymentAsync()
         {
-            // Resolve LGA
-            string lgaSelected = (enums != null && picker.SelectedIndex >= 0 &&
-                                  picker.SelectedIndex < enums.Count)
-                                 ? enums[picker.SelectedIndex].lgaName ?? ""
-                                 : "";
-
-            // Validate
-            if (string.IsNullOrWhiteSpace(PIN.Text) || string.IsNullOrWhiteSpace(lgaSelected))
-            {
-                await ShowFailurePopup("Kindly fill in all required fields before proceeding.");
-                return;
-            }
-
-            if (PIN.Text != MainPage.Pin)
-            {
-                await ShowFailurePopup("Incorrect Transaction PIN. Please try again.");
-                return;
-            }
-
-            _isProcessing = true;
-            SetLoadingState(true);
+            var destination = string.Empty;
 
             try
             {
-                string newAmount = Amount.Text?.Replace(",", "") ?? "";
-                string finalAmount = newAmount.Replace(".00", "");
+                destination = (picker?.SelectedItem as LGACatData)?.lgaName ?? string.Empty;
 
-                var nvc = new List<KeyValuePair<string, string>>
-        {
-            new KeyValuePair<string, string>("ServiceName", Verify.vehicleTypess),
-            new KeyValuePair<string, string>("Email", MainPage.ValidUserMail),
-            new KeyValuePair<string, string>("Amount", finalAmount),
-            new KeyValuePair<string, string>("Pin", PIN.Text),
-            new KeyValuePair<string, string>("Payer", Verify.plateNumberss),
-            new KeyValuePair<string, string>("LgaTo", lgaSelected)
-        };
-
-                var handler = new HttpClientHandler
+                if (string.IsNullOrWhiteSpace(destination))
                 {
-                    ServerCertificateCustomValidationCallback = (m, c, ch, er) => true,
-                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12
-                                 | System.Security.Authentication.SslProtocols.Tls11
+                    await ShowFailurePopup("DESTINATION REQUIRED",
+                        "Select the destination for this trip before processing the payment.");
+                    return;
+                }
+
+                var pin = SafeText(PIN);
+
+                if (pin.Length != 4 || !pin.All(char.IsDigit))
+                {
+                    await ShowFailurePopup("INVALID PIN",
+                        "Your transaction PIN must be exactly 4 digits.");
+                    return;
+                }
+
+                if (!string.IsNullOrEmpty(MainPage.Pin) && pin != MainPage.Pin)
+                {
+                    await ShowFailurePopup("INCORRECT PIN",
+                        "The transaction PIN you entered does not match the PIN on this device. Please try again.");
+                    return;
+                }
+
+                _isProcessing = true;
+                SetLoadingState(true);
+
+                var payer = SafeString(Verify.plateNumberss);
+                var serviceName = SafeString(Verify.vehicleTypess);
+                var email = string.IsNullOrWhiteSpace(MainPage.ValidUserMail) ? "" : MainPage.ValidUserMail;
+
+                // Field names and casing match the Postman form-data contract exactly.
+                var fields = new Dictionary<string, string>
+                {
+                    { "Payer",       payer },
+                    { "Email",       email },
+                    { "Pin",         pin },
+                    { "ServiceName", serviceName },
+                    { "VehicleNo",   payer },
+                    { "StateTo",     destination }
                 };
 
-                using (var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(60) })
+                System.Diagnostics.Debug.WriteLine(
+                    $"[HaulagePayment] Request → {string.Join(", ", fields.Where(f => f.Key != "Pin").Select(f => $"{f.Key}={f.Value}"))}");
+
+                var (body, statusCode) = await PostFormAsync(fields).ConfigureAwait(true);
+
+                System.Diagnostics.Debug.WriteLine($"[HaulagePayment] Response ({statusCode}): {body}");
+
+                StateCollectionResponseObject resp = null;
+
+                try
                 {
-                    HttpResponseMessage res;
-
-                    try
-                    {
-                        var req = new HttpRequestMessage(HttpMethod.Post,
-                            "https://yobe.osoftpay.net/api/SingleCollections/v1/Hulage")
-                        {
-                            Content = new FormUrlEncodedContent(nvc)
-                        };
-
-                        res = await client.SendAsync(req);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        await ShowFailurePopup("Request timed out. Please check your internet connection and try again.");
-                        return;
-                    }
-                    catch (HttpRequestException httpEx)
-                    {
-                        await ShowFailurePopup($"Network error: {httpEx.Message}");
-                        return;
-                    }
-
-                    var resultString = await res.Content.ReadAsStringAsync();
-                    System.Diagnostics.Debug.WriteLine($"[HaulagePayment] Response: {resultString}");
-
-                    StateCollectionResponseObject resp;
-                    try
-                    {
-                        resp = JsonConvert.DeserializeObject<StateCollectionResponseObject>(resultString);
-                        if (resp == null) throw new Exception("Null response");
-                    }
-                    catch
-                    {
-                        await ShowFailurePopup("Server returned an unexpected response. Please try again.");
-                        return;
-                    }
-
-                    if (resp.RespondCode == "00")
-                    {
-                        var receipt = BuildReceiptData(resp, finalAmount, lgaSelected);
-                        _lastReceiptData = receipt;
-
-                        // Show rich success popup
-                        await ShowSuccessPopup(resp, lgaSelected, finalAmount);
-
-                        // Attempt print silently after popup shown
-                        _ = AttemptPrintAsync(receipt, isReprint: false);
-                    }
-                    else
-                    {
-                        await ShowFailurePopup(resp.Message ?? "Transaction failed. Please try again.");
-                    }
+                    if (!string.IsNullOrWhiteSpace(body))
+                        resp = JsonConvert.DeserializeObject<StateCollectionResponseObject>(body);
                 }
+                catch (Exception ex)
+                {
+                    Log("Deserialize", ex);
+                }
+
+                if (resp == null)
+                {
+                    await ShowFailurePopup("UNEXPECTED RESPONSE",
+                        $"The server returned data we could not read (HTTP {statusCode}). Please try again, and check History before retrying if your wallet was debited.");
+                    return;
+                }
+
+                if (IsSuccess(resp.RespondCode))
+                {
+                    var receipt = BuildReceiptData(resp, destination);
+                    _lastReceiptData = receipt;
+
+                    await ShowSuccessPopup(resp, destination);
+
+                    // Fire and forget — printing must never block or crash the payment flow.
+                    _ = AttemptPrintAsync(receipt, isReprint: false);
+                }
+                else
+                {
+                    await ShowFailurePopup(TitleForCode(resp.RespondCode),
+                        FirstNonEmpty(resp.Message, resp.ResponseMessage,
+                            $"The transaction was declined (code {SafeString(resp.RespondCode, "—")})."),
+                        detail: DifferingDetail(resp),
+                        code: resp.RespondCode,
+                        reference: resp.TransactionNo);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                await ShowFailurePopup("REQUEST TIMED OUT",
+                    "The server did not respond in time. Do not retry immediately — check History first to confirm whether the payment went through.");
+            }
+            catch (HttpRequestException ex)
+            {
+                Log("ProcessPayment/Http", ex);
+                await ShowFailurePopup("NETWORK ERROR",
+                    "We could not reach the payment server. Confirm you have an active internet connection and try again.");
+            }
+            catch (JsonException ex)
+            {
+                Log("ProcessPayment/Json", ex);
+                await ShowFailurePopup("UNEXPECTED RESPONSE",
+                    "The server responded in a format we did not expect. Please try again or contact support.");
             }
             catch (Exception ex)
             {
-                await ShowFailurePopup("Check your internet connection. If amount was deducted, verify in History.");
-                System.Diagnostics.Debug.WriteLine($"[HaulagePayment] ProcessPayment: {ex}");
+                Log("ProcessPayment", ex);
+                await ShowFailurePopup("TRANSACTION FAILED",
+                    "An unexpected error occurred. If your wallet was debited, verify the transaction in History before retrying.");
             }
             finally
             {
@@ -221,155 +420,438 @@ namespace YIRS.Views.Haulage
                 SetLoadingState(false);
             }
         }
-        // ─── Rich Popup helpers ────────────────────────────────────────────────
 
-        private Task ShowSuccessPopup(StateCollectionResponseObject resp, string lgaTo, string amount)
+        /// <summary>
+        /// Posts as multipart/form-data to match Postman. If the endpoint rejects multipart
+        /// (415/400/500), it retries once as x-www-form-urlencoded before giving up.
+        /// </summary>
+        private static async Task<(string Body, int StatusCode)> PostFormAsync(Dictionary<string, string> fields)
+        {
+            using (var multipart = new MultipartFormDataContent())
+            {
+                foreach (var kv in fields)
+                    multipart.Add(new StringContent(kv.Value ?? string.Empty), kv.Key);
+
+                using (var response = await Http.PostAsync(PaymentUrl, multipart).ConfigureAwait(false))
+                {
+                    var body = await SafeReadAsync(response).ConfigureAwait(false);
+                    var status = (int)response.StatusCode;
+
+                    if (response.IsSuccessStatusCode || !string.IsNullOrWhiteSpace(body))
+                        return (body, status);
+                }
+            }
+
+            using (var encoded = new FormUrlEncodedContent(fields))
+            using (var retry = await Http.PostAsync(PaymentUrl, encoded).ConfigureAwait(false))
+            {
+                var body = await SafeReadAsync(retry).ConfigureAwait(false);
+                return (body, (int)retry.StatusCode);
+            }
+        }
+
+        private static async Task<string> SafeReadAsync(HttpResponseMessage response)
+        {
+            try
+            {
+                if (response?.Content == null) return string.Empty;
+                return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log("SafeRead", ex);
+                return string.Empty;
+            }
+        }
+
+        private static bool IsSuccess(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code)) return false;
+
+            var normalised = code.Trim();
+            return normalised == SuccessCode || normalised == "0" || normalised == "oo";
+        }
+
+        private static string TitleForCode(string code)
+        {
+            switch ((code ?? string.Empty).Trim())
+            {
+                case "06": return "INSUFFICIENT WALLET BALANCE";
+                case "51": return "INSUFFICIENT FUNDS";
+                case "55": return "INCORRECT PIN";
+                case "12": return "INVALID TRANSACTION";
+                case "91": return "SERVICE UNAVAILABLE";
+                default: return "TRANSACTION FAILED";
+            }
+        }
+
+        private static string HintForCode(string code)
+        {
+            switch ((code ?? string.Empty).Trim())
+            {
+                case "06":
+                case "51":
+                    return "The Super Agent wallet funding this collection does not have enough balance. Contact your supervisor or the agency office to top up, then retry.";
+                case "55":
+                    return "Re-enter your transaction PIN carefully. If you have forgotten it, reset it from your profile.";
+                case "91":
+                    return "The service is temporarily unavailable. Wait a few minutes and try again.";
+                default:
+                    return "Verify the details and try again. If your wallet was debited, check History before retrying so you do not pay twice.";
+            }
+        }
+
+        /// <summary>
+        /// Returns responseMessage only when it adds information beyond message,
+        /// so the error sheet never shows the same sentence twice.
+        /// </summary>
+        private static string DifferingDetail(StateCollectionResponseObject resp)
+        {
+            try
+            {
+                var message = SafeString(resp?.Message);
+                var responseMessage = SafeString(resp?.ResponseMessage);
+
+                if (string.IsNullOrWhiteSpace(responseMessage)) return null;
+                if (string.Equals(message, responseMessage, StringComparison.OrdinalIgnoreCase)) return null;
+
+                return responseMessage;
+            }
+            catch (Exception ex)
+            {
+                Log("DifferingDetail", ex);
+                return null;
+            }
+        }
+
+        // ───────────────────────── Popups ─────────────────────────
+
+        private Task ShowSuccessPopup(StateCollectionResponseObject resp, string destination)
         {
             return Device.InvokeOnMainThreadAsync(() =>
             {
-                PopupRef.Text = resp.TransactionNo ?? "N/A";
-                PopupVehicle.Text = Verify.vehicleTypess ?? "—";
-                PopupPlate.Text = Verify.plateNumberss ?? "—";
-                PopupLGA.Text = lgaTo;
-                PopupAmount.Text = $"₦{(decimal.TryParse(amount, out var a) ? a.ToString("N2") : amount)}";
-                PrintingStatusLabel.Text = "🖨️  Sending receipt to printer…";
+                try
+                {
+                    PopupRef.Text = FirstNonEmpty(resp.TransactionNo, resp.TId, "N/A");
+                    PopupVehicle.Text = FirstNonEmpty(resp.Vehicle, Verify.vehicleTypess, "—");
+                    PopupPlate.Text = FirstNonEmpty(resp.VehicleNo, Verify.plateNumberss, "—");
+                    PopupLGA.Text = FirstNonEmpty(resp.Destination, destination, "—");
+                    PopupAgent.Text = FirstNonEmpty(resp.AgentName, MainPage.Name, "—");
+                    PopupAmount.Text = FormatAmount(resp.TotalAmount);
+                    PopupDate.Text = DateTime.Now.ToString("dd MMM yyyy, hh:mm tt");
+                    PopupMessage.Text = FirstNonEmpty(resp.Message, resp.ResponseMessage, "Transaction completed successfully.");
 
-                SuccessOverlay.IsVisible = true;
-                FailureOverlay.IsVisible = false;
+                    var paymentRef = SafeString(resp.PaymentReference);
+                    PopupPaymentRef.Text = paymentRef;
+                    PopupPaymentRefRow.IsVisible = !string.IsNullOrWhiteSpace(paymentRef);
+
+                    var expiry = FormatDate(resp.ExpDate);
+                    PopupExpiry.Text = expiry;
+                    PopupExpiryRow.IsVisible = !string.IsNullOrWhiteSpace(expiry);
+
+                    PrintingStatusLabel.Text = "🖨️  Sending receipt to printer…";
+                    PopupReprintView.IsVisible = false;
+
+                    FailureOverlay.IsVisible = false;
+                    SuccessOverlay.IsVisible = true;
+                }
+                catch (Exception ex)
+                {
+                    Log("ShowSuccessPopup", ex);
+                    Toast("Payment succeeded, but the receipt view could not be rendered.", 5);
+                }
             });
         }
 
-        private Task ShowFailurePopup(string message)
+        private Task ShowFailurePopup(string title, string message,
+            string detail = null, string code = null, string reference = null)
         {
             return Device.InvokeOnMainThreadAsync(() =>
             {
-                FailureMessage.Text = message;
-                FailureOverlay.IsVisible = true;
-                SuccessOverlay.IsVisible = false;
+                try
+                {
+                    FailureTitle.Text = string.IsNullOrWhiteSpace(title) ? "TRANSACTION FAILED" : title;
+                    FailureMessage.Text = string.IsNullOrWhiteSpace(message)
+                        ? "The transaction could not be completed."
+                        : message;
+
+                    FailureDetail.Text = detail ?? string.Empty;
+                    FailureDetailRow.IsVisible = !string.IsNullOrWhiteSpace(detail);
+
+                    var hasCode = !string.IsNullOrWhiteSpace(code);
+                    FailureCode.Text = hasCode ? $"RESPONSE CODE {code.Trim()}" : string.Empty;
+                    FailureCodeView.IsVisible = hasCode;
+
+                    FailureHint.Text = HintForCode(code);
+
+                    var hasRef = !string.IsNullOrWhiteSpace(reference);
+                    FailureRefLabel.Text = hasRef ? $"Ref: {reference}" : string.Empty;
+                    FailureRefLabel.IsVisible = hasRef;
+
+                    FailureIcon.Text = IsWalletCode(code) ? "💳" : "❌";
+
+                    SuccessOverlay.IsVisible = false;
+                    FailureOverlay.IsVisible = true;
+                }
+                catch (Exception ex)
+                {
+                    Log("ShowFailurePopup", ex);
+                    Toast(message ?? "Transaction failed.", 6);
+                }
             });
+        }
+
+        private static bool IsWalletCode(string code)
+        {
+            var c = (code ?? string.Empty).Trim();
+            return c == "06" || c == "51";
         }
 
         private void SuccessContinue_Tapped(object sender, EventArgs e)
         {
-            SuccessOverlay.IsVisible = false;
-            Navigation.PushAsync(new Verify());
+            try
+            {
+                SuccessOverlay.IsVisible = false;
+                _ = Navigation.PushAsync(new Verify());
+            }
+            catch (Exception ex) { Log("SuccessContinue_Tapped", ex); }
         }
 
         private void FailureRetry_Tapped(object sender, EventArgs e)
         {
-            FailureOverlay.IsVisible = false;
+            try
+            {
+                FailureOverlay.IsVisible = false;
+                PIN.Text = string.Empty;
+                Validate();
+            }
+            catch (Exception ex) { Log("FailureRetry_Tapped", ex); }
         }
 
-        // ─── Receipt Builder ──────────────────────────────────────────────────
+        private void sheetBehavior_ActionClicked(object sender, EventArgs e)
+        {
+            try { sheetBehavior.IsOpen = false; }
+            catch (Exception ex) { Log("sheetBehavior_ActionClicked", ex); }
+        }
+
+        private async void Button_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                FailureOverlay.IsVisible = false;
+                await Navigation.PushAsync(new Views.Haulage.Verify());
+            }
+            catch (Exception ex) { Log("Button_Clicked", ex); }
+        }
+
+        // ───────────────────────── Receipt ─────────────────────────
 
         private ReceiptData BuildReceiptData(StateCollectionResponseObject resp,
-       string amount, string lgaTo, bool isReprint = false)
+            string destination, bool isReprint = false)
         {
-            decimal amtDecimal = decimal.TryParse(amount, out decimal d) ? d : 0m;
-
-            string verifyUrl = $"https://yobe.osoftpay.net/singlecollections/verify?TransactId={Uri.EscapeDataString(resp.TransactionNo ?? "")}";
-
-            var items = new List<ReceiptItem>
-    {
-        new ReceiptItem { Description = "AGENT NAME", Amount = 0m, SubText = MainPage.Name },
-        new ReceiptItem { Description = "VEHICLE TYPE", Amount = 0m, SubText = Verify.vehicleTypess },
-        new ReceiptItem { Description = "VEHICLE LIC. NO", Amount = 0m, SubText = Verify.plateNumberss },
-        new ReceiptItem { Description = "LGA TO", Amount = 0m, SubText = lgaTo }
-    };
-
-            return new ReceiptData
+            try
             {
-                StoreName = App.RevenueServiceName ?? "YOBE STATE INTERNAL REVENUE SERVICES",
-                StorePhone = "Contact us: +234 810 046 6363",
-                ReceiptNumber = resp.TransactionNo ?? "N/A",
-                AgentName = MainPage.Name,
-                CollectionPoint = "HAULAGE",
-                AmountPaid = amtDecimal,
-                PrintDate = DateTime.Now,
-                Items = items,
-                FooterLine1 = isReprint ? "*** REPRINTED RECEIPT ***" : App.ThankYouMessage ?? "Thank You!",
-                FooterLine2 = isReprint
-                    ? $"Reprinted: {DateTime.Now:dd MMM yyyy HH:mm} | POWERED BY OSOFTPAY"
-                    : "POWERED BY OSOFTPAY",
-                BarcodeLabel = verifyUrl
-            };
+                var amount = ParseAmount(resp?.TotalAmount);
+                var reference = FirstNonEmpty(resp?.TransactionNo, resp?.TId, "N/A");
+
+                var verifyUrl = $"{BaseUrl}/singlecollections/verify?TransactId={Uri.EscapeDataString(reference)}";
+
+                var items = new List<ReceiptItem>
+                {
+                    new ReceiptItem { Description = "AGENT NAME",     Amount = 0m, SubText = FirstNonEmpty(resp?.AgentName, MainPage.Name, "—") },
+                    new ReceiptItem { Description = "VEHICLE TYPE",   Amount = 0m, SubText = FirstNonEmpty(resp?.Vehicle, Verify.vehicleTypess, "—") },
+                    new ReceiptItem { Description = "VEHICLE LIC. NO", Amount = 0m, SubText = FirstNonEmpty(resp?.VehicleNo, Verify.plateNumberss, "—") },
+                    new ReceiptItem { Description = "DESTINATION",    Amount = 0m, SubText = FirstNonEmpty(resp?.Destination, destination, "—") }
+                };
+
+                var paymentRef = SafeString(resp?.PaymentReference);
+                if (!string.IsNullOrWhiteSpace(paymentRef))
+                    items.Add(new ReceiptItem { Description = "PAYMENT REF", Amount = 0m, SubText = paymentRef });
+
+                var expiry = FormatDate(resp?.ExpDate);
+                if (!string.IsNullOrWhiteSpace(expiry))
+                    items.Add(new ReceiptItem { Description = "VALID UNTIL", Amount = 0m, SubText = expiry });
+
+                return new ReceiptData
+                {
+                    StoreName = App.RevenueServiceName ?? "YOBE STATE INTERNAL REVENUE SERVICES",
+                    StorePhone = "Contact us: +234 810 046 6363",
+                    ReceiptNumber = reference,
+                    AgentName = FirstNonEmpty(resp?.AgentName, MainPage.Name, "—"),
+                    CollectionPoint = "HAULAGE",
+                    AmountPaid = amount,
+                    PrintDate = DateTime.Now,
+                    Items = items,
+                    FooterLine1 = isReprint ? "*** REPRINTED RECEIPT ***" : (App.ThankYouMessage ?? "Thank You!"),
+                    FooterLine2 = isReprint
+                        ? $"Reprinted: {DateTime.Now:dd MMM yyyy HH:mm} | POWERED BY OSOFTPAY"
+                        : "POWERED BY OSOFTPAY",
+                    BarcodeLabel = verifyUrl
+                };
+            }
+            catch (Exception ex)
+            {
+                Log("BuildReceiptData", ex);
+
+                return new ReceiptData
+                {
+                    StoreName = "YOBE STATE INTERNAL REVENUE SERVICES",
+                    ReceiptNumber = SafeString(resp?.TransactionNo, "N/A"),
+                    CollectionPoint = "HAULAGE",
+                    AmountPaid = ParseAmount(resp?.TotalAmount),
+                    PrintDate = DateTime.Now,
+                    Items = new List<ReceiptItem>(),
+                    FooterLine1 = "Thank You!",
+                    FooterLine2 = "POWERED BY OSOFTPAY"
+                };
+            }
         }
-        // ─── Print ────────────────────────────────────────────────────────────
+
+        // ───────────────────────── Printing ─────────────────────────
 
         private async Task AttemptPrintAsync(ReceiptData receipt, bool isReprint)
         {
-            if (_isPrinting) return;
+            if (receipt == null || _isPrinting) return;
+
             _isPrinting = true;
+
             try
             {
-                bool granted = await BluetoothPermissionHelper.RequestAsync();
+                bool granted;
+
+                try
+                {
+                    granted = await BluetoothPermissionHelper.RequestAsync();
+                }
+                catch (Exception ex)
+                {
+                    Log("BluetoothPermission", ex);
+                    granted = false;
+                }
+
                 if (!granted)
                 {
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        UserDialogs.Instance.Toast("Bluetooth permission denied.", TimeSpan.FromSeconds(6));
-                        ShowReprintButton();
-                        if (SuccessOverlay.IsVisible)
-                            PrintingStatusLabel.Text = "⚠️  Print failed — tap Reprint below";
-                    });
+                    SetPrintFailed("⚠️  Bluetooth permission denied — tap Reprint after granting it");
                     return;
                 }
 
                 var job = await App.PrintJobManager.EnqueueAsync(receipt, logoAssetName: "Logo.png");
+
                 var progress = new Progress<PrintProgress>(p =>
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        switch (p.Status)
+                        try
                         {
-                            case PrintProgressStatus.SessionCompleted:
-                                HideReprintButton();
-                                UserDialogs.Instance.Toast(
-                                    isReprint ? "Receipt reprinted." : "Receipt printed.",
-                                    TimeSpan.FromSeconds(3));
-                                if (SuccessOverlay.IsVisible)
-                                    PrintingStatusLabel.Text = "✅  Receipt printed successfully";
-                                break;
-                            case PrintProgressStatus.ChunkFailed:
-                                ShowReprintButton();
-                                if (SuccessOverlay.IsVisible)
-                                    PrintingStatusLabel.Text = "⚠️  Print failed — tap Reprint";
-                                break;
+                            switch (p.Status)
+                            {
+                                case PrintProgressStatus.SessionCompleted:
+                                    HideReprintButton();
+                                    PopupReprintView.IsVisible = false;
+                                    if (SuccessOverlay.IsVisible)
+                                        PrintingStatusLabel.Text = "✅  Receipt printed successfully";
+                                    Toast(isReprint ? "Receipt reprinted." : "Receipt printed.", 3);
+                                    break;
+
+                                case PrintProgressStatus.ChunkFailed:
+                                    SetPrintFailed("⚠️  Print failed — tap Reprint to retry");
+                                    break;
+                            }
                         }
+                        catch (Exception ex) { Log("PrintProgress", ex); }
                     }));
 
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-                try
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(60)))
                 {
-                    await App.PrintJobManager.ExecuteAsync(job.JobId, progress, cts.Token);
-                    await App.PrintJobManager.DeleteJobAsync(job.JobId);
-                    MainThread.BeginInvokeOnMainThread(HideReprintButton);
-                }
-                catch
-                {
-                    MainThread.BeginInvokeOnMainThread(() =>
+                    try
                     {
-                        ShowReprintButton();
-                        if (SuccessOverlay.IsVisible)
-                            PrintingStatusLabel.Text = "⚠️  Print failed — tap Reprint below";
-                    });
+                        await App.PrintJobManager.ExecuteAsync(job.JobId, progress, cts.Token);
+
+                        try { await App.PrintJobManager.DeleteJobAsync(job.JobId); }
+                        catch (Exception ex) { Log("DeleteJob", ex); }
+
+                        MainThread.BeginInvokeOnMainThread(HideReprintButton);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        SetPrintFailed("⚠️  Printer timed out — tap Reprint to retry");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("PrintExecute", ex);
+                        SetPrintFailed("⚠️  Print failed — tap Reprint to retry");
+                    }
                 }
             }
-            finally { _isPrinting = false; }
+            catch (Exception ex)
+            {
+                Log("AttemptPrint", ex);
+                SetPrintFailed("⚠️  Printer unavailable — tap Reprint to retry");
+            }
+            finally
+            {
+                _isPrinting = false;
+            }
         }
 
-        // ─── Reprint ──────────────────────────────────────────────────────────
+        private void SetPrintFailed(string message)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                try
+                {
+                    ShowReprintButton();
+                    PopupReprintView.IsVisible = SuccessOverlay.IsVisible;
+
+                    if (SuccessOverlay.IsVisible)
+                        PrintingStatusLabel.Text = message;
+                    else
+                        Toast(message, 5);
+                }
+                catch (Exception ex) { Log("SetPrintFailed", ex); }
+            });
+        }
+
+        private async void PopupReprint_Tapped(object sender, EventArgs e)
+        {
+            try
+            {
+                PrintingStatusLabel.Text = "🖨️  Reprinting…";
+                await ReprintAsync();
+            }
+            catch (Exception ex) { Log("PopupReprint_Tapped", ex); }
+        }
 
         private async void OnReprintClicked(object sender, EventArgs e)
         {
-            if (_lastReceiptData == null)
-            {
-                UserDialogs.Instance.Toast("No receipt data available.", TimeSpan.FromSeconds(4));
-                return;
-            }
-            ReprintButton.IsEnabled = false;
-            ReprintButton.Text = "Reprinting…";
             try
             {
+                ReprintButton.IsEnabled = false;
+                ReprintButton.Text = "Reprinting…";
+
+                await ReprintAsync();
+            }
+            catch (Exception ex) { Log("OnReprintClicked", ex); }
+            finally
+            {
+                try
+                {
+                    ReprintButton.IsEnabled = true;
+                    ReprintButton.Text = "REPRINT RECEIPT";
+                }
+                catch (Exception ex) { Log("OnReprintClicked/reset", ex); }
+            }
+        }
+
+        private async Task ReprintAsync()
+        {
+            try
+            {
+                if (_lastReceiptData == null)
+                {
+                    Toast("No receipt data available to reprint.", 4);
+                    return;
+                }
+
                 var reprint = new ReceiptData
                 {
                     StoreName = _lastReceiptData.StoreName,
@@ -382,50 +864,148 @@ namespace YIRS.Views.Haulage
                     AmountPaid = _lastReceiptData.AmountPaid,
                     BarcodeLabel = _lastReceiptData.BarcodeLabel,
                     FooterLine1 = "*** REPRINTED RECEIPT ***",
-                    FooterLine2 = $"Reprinted: {DateTime.Now:dd MMM yyyy HH:mm} | POWERED BY OSOFTPAY",
+                    FooterLine2 = $"Reprinted: {DateTime.Now:dd MMM yyyy HH:mm} | POWERED BY OSOFTPAY"
                 };
+
                 await AttemptPrintAsync(reprint, isReprint: true);
             }
-            finally
+            catch (Exception ex)
             {
-                ReprintButton.IsEnabled = true;
-                ReprintButton.Text = "REPRINT RECEIPT";
+                Log("ReprintAsync", ex);
+                Toast("Reprint could not be started.", 4);
             }
         }
 
-        private void ShowReprintButton() { try { ReprintButtonView.IsVisible = true; } catch { } }
-        private void HideReprintButton() { try { ReprintButtonView.IsVisible = false; } catch { } }
+        private void ShowReprintButton() { try { ReprintButtonView.IsVisible = true; } catch (Exception ex) { Log("ShowReprint", ex); } }
+        private void HideReprintButton() { try { ReprintButtonView.IsVisible = false; } catch (Exception ex) { Log("HideReprint", ex); } }
 
-        // ─── Loading state ────────────────────────────────────────────────────
+        // ───────────────────────── Helpers ─────────────────────────
 
-        private void SetLoadingState(bool loading)
+        private static decimal ParseAmount(object raw)
         {
             try
             {
-                LoadingOverlay.IsVisible = loading;
-                makepaymentbutton.IsEnabled = !loading;
-                PIN.IsEnabled = !loading;
-                picker.IsEnabled = !loading;
+                if (raw == null) return 0m;
+
+                if (raw is decimal dec) return dec;
+                if (raw is double dbl) return (decimal)dbl;
+                if (raw is int i) return i;
+                if (raw is long l) return l;
+
+                var text = raw.ToString().Replace(",", "").Replace("₦", "").Trim();
+
+                return decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var value) ? value : 0m;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Log("ParseAmount", ex);
+                return 0m;
+            }
         }
 
-        // ─── Legacy sheet / navigation ────────────────────────────────────────
+        private static string FormatAmount(object raw)
+        {
+            try { return "₦" + ParseAmount(raw).ToString("N2", CultureInfo.InvariantCulture); }
+            catch { return "₦0.00"; }
+        }
 
-        private async void Button_Clicked(object sender, EventArgs e)
-            => await Navigation.PushAsync(new Views.Haulage.Verify());
+        private static string FormatDate(string raw)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+
+                if (DateTime.TryParse(raw, CultureInfo.InvariantCulture,
+                        DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var utc))
+                    return utc.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt");
+
+                return DateTime.TryParse(raw, out var local)
+                    ? local.ToString("dd MMM yyyy, hh:mm tt")
+                    : raw;
+            }
+            catch (Exception ex)
+            {
+                Log("FormatDate", ex);
+                return string.Empty;
+            }
+        }
+
+        private static string FirstNonEmpty(params string[] candidates)
+        {
+            try
+            {
+                foreach (var candidate in candidates ?? new string[0])
+                    if (!string.IsNullOrWhiteSpace(candidate)) return candidate.Trim();
+            }
+            catch (Exception ex) { Log("FirstNonEmpty", ex); }
+
+            return string.Empty;
+        }
+
+        private static string SafeString(string value, string fallback = "")
+            => string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+
+        private static string SafeText(InputView input)
+        {
+            try { return input?.Text?.Trim() ?? string.Empty; }
+            catch { return string.Empty; }
+        }
+
+        private static void Toast(string message, int seconds = 3)
+        {
+            try
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    try { UserDialogs.Instance.Toast(message, TimeSpan.FromSeconds(seconds)); }
+                    catch (Exception ex) { Log("Toast/inner", ex); }
+                });
+            }
+            catch (Exception ex) { Log("Toast", ex); }
+        }
+
+        private static void Log(string scope, Exception ex)
+            => System.Diagnostics.Debug.WriteLine($"[HaulagePayment:{scope}] {ex?.GetType().Name}: {ex?.Message}");
     }
 
     internal class GetSateCatData { public string name { get; set; } }
 
+    /// <summary>
+    /// Mirrors the camelCase JSON contract returned by /Api/SingleCollections/Hulage.
+    /// </summary>
     internal class StateCollectionResponseObject
     {
-        public string RespondCode { get; set; }
-        public string Message { get; set; }
-        public AddSinglecollect addSinglecollect { get; set; }
-        public string PrintCode { get; set; }
-        public string TransactionNo { get; set; }
+        [JsonProperty("respondCode")] public string RespondCode { get; set; }
+        [JsonProperty("transactionNo")] public string TransactionNo { get; set; }
+        [JsonProperty("department")] public string Department { get; set; }
+        [JsonProperty("message")] public string Message { get; set; }
+        [JsonProperty("status")] public string Status { get; set; }
+        [JsonProperty("responseMessage")] public string ResponseMessage { get; set; }
+        [JsonProperty("noofDaysPaid")] public int? NoofDaysPaid { get; set; }
+        [JsonProperty("expDate")] public string ExpDate { get; set; }
+        [JsonProperty("payerId")] public string PayerId { get; set; }
+        [JsonProperty("totalAmount")] public decimal TotalAmount { get; set; }
+        [JsonProperty("breakdown")] public string Breakdown { get; set; }
+        [JsonProperty("vehicleNo")] public string VehicleNo { get; set; }
+        [JsonProperty("marketName")] public string MarketName { get; set; }
+        [JsonProperty("shopOwner")] public string ShopOwner { get; set; }
+        [JsonProperty("tId")] public string TId { get; set; }
+        [JsonProperty("paymentMethod")] public string PaymentMethod { get; set; }
+        [JsonProperty("paymentReference")] public string PaymentReference { get; set; }
+        [JsonProperty("agentName")] public string AgentName { get; set; }
+        [JsonProperty("vehicle")] public string Vehicle { get; set; }
+        [JsonProperty("destination")] public string Destination { get; set; }
+        [JsonProperty("differences")] public decimal Differences { get; set; }
+        [JsonProperty("noofSeat")] public int NoofSeat { get; set; }
+        [JsonProperty("amountRemitted")] public decimal AmountRemitted { get; set; }
+
+        // Retained so older code paths referencing the nested object still compile.
+        [JsonProperty("addSinglecollect")] public AddSinglecollect addSinglecollect { get; set; }
+        [JsonProperty("printCode")] public string PrintCode { get; set; }
     }
 
-    internal class AddSinglecollect { public string TransactionNo { get; set; } }
+    internal class AddSinglecollect
+    {
+        [JsonProperty("transactionNo")] public string TransactionNo { get; set; }
+    }
 }
