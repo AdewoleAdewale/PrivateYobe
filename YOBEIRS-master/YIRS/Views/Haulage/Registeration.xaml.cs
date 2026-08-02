@@ -1,10 +1,11 @@
 ﻿using Acr.UserDialogs;
-using Android.Telecom;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,8 +13,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 using Xamarin.Forms.Xaml;
+using YIRS.Services;
 
 namespace YIRS.Views.Haulage
 {
@@ -27,6 +28,19 @@ namespace YIRS.Views.Haulage
         private const string RegisterUrl = BaseUrl + "/Api/HulageVehicles/VehicleReg";
 
         private const int TotalRequiredFields = 7;
+
+        /// <summary>
+        /// Destination From / Destination To are Nigerian states, not LGAs.
+        /// Static list — no round trip needed, and the form stays usable offline.
+        /// </summary>
+        private static readonly List<string> NigerianStates = new List<string>
+        {
+            "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+            "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Federal Capital Territory",
+            "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara",
+            "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers",
+            "Sokoto", "Taraba", "Yobe", "Zamfara"
+        };
 
         // Single shared client — avoids socket exhaustion from per-call HttpClient instances.
         private static readonly HttpClient Http = CreateHttpClient();
@@ -50,6 +64,8 @@ namespace YIRS.Views.Haulage
                 sheetBehavior.IsOpen = false;
                 failedenumeration.IsOpen = false;
                 ConfigureSsl();
+                BindStatePickers();
+                TrackUserActivity();
                 Validate(showErrors: false);
             }
             catch (Exception ex)
@@ -119,7 +135,65 @@ namespace YIRS.Views.Haulage
             }
         }
 
+        private void TrackUserActivity()
+        {
+            try
+            {
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += (s, e) => SessionManager.Instance.UpdateActivity();
+                if (this.Content != null)
+                    this.Content.GestureRecognizers.Add(tapGesture);
+            }
+            catch (Exception ex)
+            {
+                LogError("TrackUserActivity", ex);
+            }
+        }
+
+        private void LogError(string method, Exception ex)
+        {
+            try
+            {
+                Debug.WriteLine($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss} | {method}");
+                Debug.WriteLine($"[ERROR] Message: {ex?.Message}");
+                Debug.WriteLine($"[ERROR] StackTrace: {ex?.StackTrace}");
+
+                string logDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "YIRS", "Logs");
+                if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+
+                string logFile = Path.Combine(logDir, $"error_log_{DateTime.Now:yyyy-MM-dd}.txt");
+                File.AppendAllText(logFile,
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {method}: {ex?.Message}\n{ex?.StackTrace}\n\n");
+            }
+            catch { }
+        }
+
+
         // ───────────────────────── Reference data ─────────────────────────
+
+        /// <summary>
+        /// States are local, so both destination pickers are populated immediately —
+        /// they do not wait on (or fail with) the network.
+        /// </summary>
+        private void BindStatePickers()
+        {
+            try
+            {
+                // ItemDisplayBinding must stay null for plain string sources.
+                pickerFrom.ItemDisplayBinding = null;
+                pickerFrom.ItemsSource = NigerianStates.ToList();
+
+                SessionManager.Instance.UpdateActivity();
+                pickerTo.ItemDisplayBinding = null;
+                pickerTo.ItemsSource = NigerianStates.ToList();
+            }
+            catch (Exception ex)
+            {
+                Log("BindStatePickers", ex);
+            }
+        }
 
         private async Task LoadReferenceDataAsync()
         {
@@ -168,15 +242,8 @@ namespace YIRS.Views.Haulage
                 picker.ItemDisplayBinding = new Binding("vehicleType");
                 picker.ItemsSource = _vehicleTypes;
 
-                // The same LGA collection feeds the LGA, Destination From and Destination To pickers.
                 picker2.ItemDisplayBinding = new Binding("lgaName");
                 picker2.ItemsSource = _lgas.ToList();
-
-                pickerFrom.ItemDisplayBinding = new Binding("lgaName");
-                pickerFrom.ItemsSource = _lgas.ToList();
-
-                pickerTo.ItemDisplayBinding = new Binding("lgaName");
-                pickerTo.ItemsSource = _lgas.ToList();
             }
             catch (Exception ex)
             {
@@ -242,16 +309,16 @@ namespace YIRS.Views.Haulage
 
                 var vehicle = picker?.SelectedItem as VehicleCatData;
                 var lga = picker2?.SelectedItem as LGACatData;
-                var from = pickerFrom?.SelectedItem as LGACatData;
-                var to = pickerTo?.SelectedItem as LGACatData;
+                var from = pickerFrom?.SelectedItem as string;
+                var to = pickerTo?.SelectedItem as string;
 
                 var driverOk = driver.Length >= 3;
                 var plateOk = plate.Replace(" ", "").Replace("-", "").Length >= 5;
                 var phoneOk = phone.Length >= 10 && phone.Length <= 11 && phone.All(char.IsDigit);
                 var vehicleOk = vehicle != null && !string.IsNullOrWhiteSpace(vehicle.vehicleType);
                 var lgaOk = lga != null && !string.IsNullOrWhiteSpace(lga.lgaName);
-                var fromOk = from != null && !string.IsNullOrWhiteSpace(from.lgaName);
-                var toOk = to != null && !string.IsNullOrWhiteSpace(to.lgaName);
+                var fromOk = !string.IsNullOrWhiteSpace(from);
+                var toOk = !string.IsNullOrWhiteSpace(to);
 
                 SetFieldState(driverBadge, driverError, driverOk, showErrors && driver.Length > 0,
                     "Enter the driver's full name (minimum 3 characters).");
@@ -354,19 +421,19 @@ namespace YIRS.Views.Haulage
         {
             try
             {
-                var from = (pickerFrom?.SelectedItem as LGACatData)?.lgaName;
-                var to = (pickerTo?.SelectedItem as LGACatData)?.lgaName;
+                var from = pickerFrom?.SelectedItem as string;
+                var to = pickerTo?.SelectedItem as string;
 
                 if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
                 {
-                    routePreview.Text = "Select origin and destination";
+                    routePreview.Text = "Select origin and destination states";
                     routePreview.TextColor = Color.FromHex("#6B7B72");
                     return;
                 }
 
                 if (string.Equals(from, to, StringComparison.OrdinalIgnoreCase))
                 {
-                    routePreview.Text = $"{from} → {to}  (intra-LGA movement)";
+                    routePreview.Text = $"{from} → {to}  (intra-state movement)";
                     routePreview.TextColor = Color.FromHex("#C08A2E");
                     return;
                 }
@@ -385,6 +452,7 @@ namespace YIRS.Views.Haulage
             {
                 if (_isSubmitting) return;
 
+                SessionManager.Instance.UpdateActivity();
                 Validate(showErrors: true);
 
                 if (!_isFormValid)
@@ -395,8 +463,8 @@ namespace YIRS.Views.Haulage
 
                 var vehicle = picker.SelectedItem as VehicleCatData;
                 var lga = picker2.SelectedItem as LGACatData;
-                var from = pickerFrom.SelectedItem as LGACatData;
-                var to = pickerTo.SelectedItem as LGACatData;
+                var from = pickerFrom.SelectedItem as string;
+                var to = pickerTo.SelectedItem as string;
 
                 var payload = new VechicleRegistrationObject
                 {
@@ -404,8 +472,8 @@ namespace YIRS.Views.Haulage
                     PlateNumber = SafeText(Platenumber).ToUpperInvariant().Replace(" ", ""),
                     OwnerPhone = SafeText(Ownernumber),
                     LGA = lga?.lgaName ?? string.Empty,
-                    DestinationFrom = from?.lgaName ?? string.Empty,
-                    DestinationTo = to?.lgaName ?? string.Empty,
+                    DestinationFrom = from ?? string.Empty,
+                    DestinationTo = to ?? string.Empty,
                     VehicleType = vehicle?.vehicleType ?? string.Empty,
                     RecordedBy = ResolveRecordedBy()
                 };
@@ -510,8 +578,8 @@ namespace YIRS.Views.Haulage
                     return "Enter a valid 10–11 digit phone number.";
                 if (!(picker?.SelectedItem is VehicleCatData)) return "Select a vehicle category.";
                 if (!(picker2?.SelectedItem is LGACatData)) return "Select the Local Government Area.";
-                if (!(pickerFrom?.SelectedItem is LGACatData)) return "Select the destination the vehicle is coming from.";
-                if (!(pickerTo?.SelectedItem is LGACatData)) return "Select the destination the vehicle is heading to.";
+                if (string.IsNullOrWhiteSpace(pickerFrom?.SelectedItem as string)) return "Select the state the vehicle is travelling from.";
+                if (string.IsNullOrWhiteSpace(pickerTo?.SelectedItem as string)) return "Select the state the vehicle is travelling to.";
             }
             catch (Exception ex) { Log("FirstMissingFieldMessage", ex); }
 
@@ -677,6 +745,7 @@ namespace YIRS.Views.Haulage
                 UpdateRoutePreview();
                 Validate(showErrors: false);
 
+                SessionManager.Instance.UpdateActivity();
                 Toast("Form cleared. You can register another vehicle.", 3);
             }
             catch (Exception ex)
@@ -769,7 +838,7 @@ namespace YIRS.Views.Haulage
     }
 
     /// <summary>
-    /// Matches the new JSON response contract returned by /Api/HulageVehicles/VehicleReg.
+    /// Matches the JSON response contract returned by /Api/HulageVehicles/VehicleReg.
     /// </summary>
     internal class VechicleRegisterationResponse
     {

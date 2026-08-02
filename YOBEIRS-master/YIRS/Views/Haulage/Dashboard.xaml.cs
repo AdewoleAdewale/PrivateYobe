@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -41,11 +42,13 @@ namespace YIRS.Views.Haulage
             realdate.Text = MainPage.Super_Agent ?? "—";   // Super Agent card
             Agents.Text = MainPage.CollectionPoint ?? "—";   // Collection Point card
             realdates.Text = DateTime.Now.ToString("ddd, dd MMM yyyy");
-
+            TrackUserActivity();
             LoadRecentTransaction();
             On<Xamarin.Forms.PlatformConfiguration.iOS>().SetUseSafeArea(true);
             ConfigureSSL();
         }
+
+    
 
         // ─────────────────────────────────────────────────────────────────
         //  SSL
@@ -147,13 +150,16 @@ namespace YIRS.Views.Haulage
         {
             using (UserDialogs.Instance.Loading("Loading…", null, null, true))
             {
+                SessionManager.Instance.UpdateActivity();
                 await Task.Delay(400);
                 await Navigation.PushAsync(new Verify());
             }
         }
 
         private async void TapGestureRecognizer_Tapped_1(object sender, EventArgs e)
-            => await Navigation.PushAsync(new History());
+            =>
+
+            await Navigation.PushAsync(new History());
 
         private void TapGestureRecognizer_Tapped_8(object sender, EventArgs e)
         {
@@ -175,6 +181,7 @@ namespace YIRS.Views.Haulage
             using (UserDialogs.Instance.Loading("Loading…", null, null, true))
             {
                 await Task.Delay(400);
+                SessionManager.Instance.UpdateActivity();
                 await Navigation.PushAsync(new Registeration());
             }
         }
@@ -239,6 +246,42 @@ namespace YIRS.Views.Haulage
             });
             return true;
         }
+
+        private void TrackUserActivity()
+        {
+            try
+            {
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += (s, e) => SessionManager.Instance.UpdateActivity();
+                if (this.Content != null)
+                    this.Content.GestureRecognizers.Add(tapGesture);
+            }
+            catch (Exception ex)
+            {
+                LogError("TrackUserActivity", ex);
+            }
+        }
+
+        private void LogError(string method, Exception ex)
+        {
+            try
+            {
+                Debug.WriteLine($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss} | {method}");
+                Debug.WriteLine($"[ERROR] Message: {ex?.Message}");
+                Debug.WriteLine($"[ERROR] StackTrace: {ex?.StackTrace}");
+
+                string logDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "YIRS", "Logs");
+                if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+
+                string logFile = Path.Combine(logDir, $"error_log_{DateTime.Now:yyyy-MM-dd}.txt");
+                File.AppendAllText(logFile,
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {method}: {ex?.Message}\n{ex?.StackTrace}\n\n");
+            }
+            catch { }
+        }
+
 
         private void TapGestureRecognizer_Tapped_4(object sender, EventArgs e)
         {

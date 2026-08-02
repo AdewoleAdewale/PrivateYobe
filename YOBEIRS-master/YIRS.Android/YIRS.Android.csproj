@@ -228,5 +228,9 @@
     <AndroidResource Include="Resources\drawable\YobeHistory.png" />
     <AndroidResource Include="Resources\drawable\YobeOther.png" />
   </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\PRINT.png" />
+    <AndroidResource Include="Resources\drawable\shutdown.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

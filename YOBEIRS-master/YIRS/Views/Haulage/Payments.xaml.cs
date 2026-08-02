@@ -2,10 +2,13 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
@@ -20,7 +23,6 @@ namespace YIRS.Views.Haulage
     {
         // ───────────────────────── Endpoints ─────────────────────────
         private const string BaseUrl = "https://yobe.osoftpay.net";
-        private const string LgaUrl = BaseUrl + "/api/HulageVehicles/getlga";
         private const string PaymentUrl = BaseUrl + "/Api/SingleCollections/Hulage";
 
         private const string SuccessCode = "00";
@@ -28,12 +30,12 @@ namespace YIRS.Views.Haulage
         // One shared client — per-call HttpClient instances leak sockets on Android.
         private static readonly HttpClient Http = CreateHttpClient();
 
-        private List<LGACatData> _destinations = new List<LGACatData>();
-
         private bool _isProcessing;
         private bool _isPrinting;
-        private bool _destinationsLoaded;
         private bool _isFormValid;
+
+        private string _destination = string.Empty;
+        private decimal _expectedAmount;
 
         private ReceiptData _lastReceiptData;
 
@@ -49,12 +51,8 @@ namespace YIRS.Views.Haulage
                 SuccessOverlay.IsVisible = false;
                 FailureOverlay.IsVisible = false;
                 LoadingOverlay.IsVisible = false;
-
-                Servicename.Text = SafeString(Verify.vehicleTypess);
-                PayerId.Text = SafeString(Verify.plateNumberss);
-                Amount.Text = SafeString(Verify.amountss);
-
-                UpdateAmountHeadline();
+                TrackUserActivity();
+                LoadVerifiedDetails();
                 Validate();
             }
             catch (Exception ex)
@@ -63,18 +61,93 @@ namespace YIRS.Views.Haulage
             }
         }
 
-        protected override void OnAppearing()
+        private void TrackUserActivity()
         {
-            base.OnAppearing();
-
             try
             {
-                if (!_destinationsLoaded || _destinations.Count == 0)
-                    _ = LoadDestinationsAsync();
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += (s, e) => SessionManager.Instance.UpdateActivity();
+                if (this.Content != null)
+                    this.Content.GestureRecognizers.Add(tapGesture);
             }
             catch (Exception ex)
             {
-                Log("OnAppearing", ex);
+                LogError("TrackUserActivity", ex);
+            }
+        }
+
+        private void LogError(string method, Exception ex)
+        {
+            try
+            {
+                Debug.WriteLine($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss} | {method}");
+                Debug.WriteLine($"[ERROR] Message: {ex?.Message}");
+                Debug.WriteLine($"[ERROR] StackTrace: {ex?.StackTrace}");
+
+                string logDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "YIRS", "Logs");
+                if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+
+                string logFile = Path.Combine(logDir, $"error_log_{DateTime.Now:yyyy-MM-dd}.txt");
+                File.AppendAllText(logFile,
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {method}: {ex?.Message}\n{ex?.StackTrace}\n\n");
+            }
+            catch { }
+        }
+
+
+        // ───────────────────────── Verified details ─────────────────────────
+
+        /// <summary>
+        /// Every field except the PIN comes from the verified vehicle record.
+        /// Destination To is resolved from Verify, falling back to the vehicle's LGA
+        /// only if the verify response did not carry a destination.
+        /// </summary>
+        private void LoadVerifiedDetails()
+        {
+            try
+            {
+                Servicename.Text = SafeString(Verify.vehicleTypess, "—");
+                PayerId.Text = SafeString(Verify.plateNumberss, "—");
+
+                _destination = ResolveDestination();
+                DestinationTo.Text = SafeString(_destination, "—");
+
+                var hasDestination = !string.IsNullOrWhiteSpace(_destination);
+                destinationBadge.Text = hasDestination ? "VERIFIED" : "MISSING";
+                destinationBadge.TextColor = hasDestination ? Color.FromHex("#9AAFA3") : Color.FromHex("#FF6B6B");
+                destinationError.IsVisible = !hasDestination;
+
+                _expectedAmount = ParseAmount(Verify.amountss);
+                Amount.Text = _expectedAmount > 0
+                    ? _expectedAmount.ToString("N2", CultureInfo.InvariantCulture)
+                    : SafeString(Verify.amountss);
+
+                UpdateAmountHeadline();
+            }
+            catch (Exception ex)
+            {
+                Log("LoadVerifiedDetails", ex);
+            }
+        }
+
+        private static string ResolveDestination()
+        {
+            try
+            {
+                // Verify.destinationToss is the primary source; lga is the legacy fallback.
+                var destination = SafeString(Verify.destinationToss);
+
+                if (string.IsNullOrWhiteSpace(destination))
+                    destination = SafeString(Verify.lgass);
+
+                return destination;
+            }
+            catch (Exception ex)
+            {
+                Log("ResolveDestination", ex);
+                return string.Empty;
             }
         }
 
@@ -123,59 +196,7 @@ namespace YIRS.Views.Haulage
             }
         }
 
-        // ───────────────────────── Destination loader ─────────────────────────
-
-        private async Task LoadDestinationsAsync()
-        {
-            try
-            {
-                using (var response = await Http.GetAsync(LgaUrl).ConfigureAwait(true))
-                {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        Log("LoadDestinations", new Exception($"HTTP {(int)response.StatusCode}"));
-                        Toast("Could not load destinations. Pull back and re-open this page.", 5);
-                        return;
-                    }
-
-                    var json = await response.Content.ReadAsStringAsync().ConfigureAwait(true);
-
-                    if (string.IsNullOrWhiteSpace(json)) return;
-
-                    _destinations = JsonConvert.DeserializeObject<List<LGACatData>>(json) ?? new List<LGACatData>();
-
-                    picker.ItemDisplayBinding = new Binding("lgaName");
-                    picker.ItemsSource = _destinations;
-
-                    _destinationsLoaded = _destinations.Count > 0;
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                Toast("Loading destinations timed out. Check your connection.", 5);
-            }
-            catch (HttpRequestException ex)
-            {
-                Log("LoadDestinations/Http", ex);
-                Toast("No network connection. Destinations could not be loaded.", 5);
-            }
-            catch (Exception ex)
-            {
-                Log("LoadDestinations", ex);
-            }
-            finally
-            {
-                Validate();
-            }
-        }
-
         // ───────────────────────── Validation / UI state ─────────────────────────
-
-        private void OnFormStateChanged(object sender, EventArgs e)
-        {
-            try { Validate(); }
-            catch (Exception ex) { Log("OnFormStateChanged", ex); }
-        }
 
         private void OnPinChanged(object sender, TextChangedEventArgs e)
         {
@@ -213,12 +234,7 @@ namespace YIRS.Views.Haulage
             {
                 var pin = SafeText(PIN);
                 var pinOk = pin.Length == 4 && pin.All(char.IsDigit);
-
-                var destination = picker?.SelectedItem as LGACatData;
-                var destOk = destination != null && !string.IsNullOrWhiteSpace(destination.lgaName);
-
-                destinationBadge.Text = destOk ? "✓ SELECTED" : "REQUIRED";
-                destinationBadge.TextColor = destOk ? Color.FromHex("#00893E") : Color.FromHex("#FF6B6B");
+                var destOk = !string.IsNullOrWhiteSpace(_destination);
 
                 _isFormValid = pinOk && destOk;
 
@@ -227,13 +243,13 @@ namespace YIRS.Views.Haulage
                 makepaymentbutton.Opacity = _isFormValid ? 1 : 0.65;
                 makepaymentbutton.InputTransparent = !_isFormValid || _isProcessing;
 
-                payIcon.Text = _isFormValid ? "+" : "🔒";
+                payIcon.Text = _isFormValid ? "💳" : "🔒";
 
                 if (!_isProcessing)
                 {
                     payLabel.Text = _isFormValid
                         ? "PROCESS PAYMENT"
-                        : (!destOk ? "SELECT A DESTINATION" : "ENTER PIN TO CONTINUE");
+                        : (!destOk ? "DESTINATION MISSING" : "ENTER PIN TO CONTINUE");
                 }
             }
             catch (Exception ex)
@@ -246,12 +262,12 @@ namespace YIRS.Views.Haulage
         {
             try
             {
-                var raw = SafeText(Amount).Replace(",", "").Replace("₦", "");
+                var value = ParseAmount(SafeText(Amount));
 
-                if (decimal.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var value) && value > 0)
+                if (value > 0)
                 {
                     AmountHeadline.Text = "₦" + value.ToString("N2", CultureInfo.InvariantCulture);
-                    AmountSubLabel.Text = SafeString(Verify.vehicleTypess);
+                    AmountSubLabel.Text = SafeString(Verify.vehicleTypess, "Haulage collection");
                 }
                 else
                 {
@@ -275,7 +291,6 @@ namespace YIRS.Views.Haulage
 
                 makepaymentbutton.InputTransparent = loading || !_isFormValid;
                 PIN.IsEnabled = !loading;
-                picker.IsEnabled = !loading;
             }
             catch (Exception ex) { Log("SetLoadingState", ex); }
         }
@@ -292,22 +307,19 @@ namespace YIRS.Views.Haulage
             catch (Exception ex)
             {
                 Log("TapGestureRecognizer_Tapped", ex);
-                await ShowFailurePopup("UNEXPECTED ERROR", "Something went wrong before the request was sent. Please try again.");
+                await ShowFailurePopup("UNEXPECTED ERROR",
+                    "Something went wrong before the request was sent. Please try again.");
             }
         }
 
         private async Task ProcessPaymentAsync()
         {
-            var destination = string.Empty;
-
             try
             {
-                destination = (picker?.SelectedItem as LGACatData)?.lgaName ?? string.Empty;
-
-                if (string.IsNullOrWhiteSpace(destination))
+                if (string.IsNullOrWhiteSpace(_destination))
                 {
-                    await ShowFailurePopup("DESTINATION REQUIRED",
-                        "Select the destination for this trip before processing the payment.");
+                    await ShowFailurePopup("DESTINATION MISSING",
+                        "This vehicle record did not return a destination. Go back and re-verify the plate number before taking payment.");
                     return;
                 }
 
@@ -330,25 +342,33 @@ namespace YIRS.Views.Haulage
                 _isProcessing = true;
                 SetLoadingState(true);
 
-                var payer = SafeString(Verify.plateNumberss);
-                var serviceName = SafeString(Verify.vehicleTypess);
-                var email = string.IsNullOrWhiteSpace(MainPage.ValidUserMail) ? "" : MainPage.ValidUserMail;
+                var plate = SafeString(Verify.plateNumberss);
 
-                // Field names and casing match the Postman form-data contract exactly.
-                var fields = new Dictionary<string, string>
+                var payload = new HaulagePaymentRequest
                 {
-                    { "Payer",       payer },
-                    { "Email",       email },
-                    { "Pin",         pin },
-                    { "ServiceName", serviceName },
-                    { "VehicleNo",   payer },
-                    { "StateTo",     destination }
+                    Payer = plate,
+                    Email = SafeString(MainPage.ValidUserMail),
+                    Pin = pin,
+                    ServiceName = SafeString(Verify.vehicleTypess),
+                    VehicleNo = plate,
+                    StateTo = _destination
                 };
 
-                System.Diagnostics.Debug.WriteLine(
-                    $"[HaulagePayment] Request → {string.Join(", ", fields.Where(f => f.Key != "Pin").Select(f => $"{f.Key}={f.Value}"))}");
+                // Raw JSON body — the endpoint no longer takes form-url-encoded data.
+                var requestJson = JsonConvert.SerializeObject(payload);
 
-                var (body, statusCode) = await PostFormAsync(fields).ConfigureAwait(true);
+                System.Diagnostics.Debug.WriteLine(
+                    $"[HaulagePayment] Request: {JsonConvert.SerializeObject(new { payload.Payer, payload.Email, payload.ServiceName, payload.VehicleNo, payload.StateTo })}");
+
+                string body;
+                int statusCode;
+
+                using (var content = new StringContent(requestJson, Encoding.UTF8, "application/json"))
+                using (var response = await Http.PostAsync(PaymentUrl, content).ConfigureAwait(true))
+                {
+                    body = await SafeReadAsync(response).ConfigureAwait(true);
+                    statusCode = (int)response.StatusCode;
+                }
 
                 System.Diagnostics.Debug.WriteLine($"[HaulagePayment] Response ({statusCode}): {body}");
 
@@ -373,10 +393,10 @@ namespace YIRS.Views.Haulage
 
                 if (IsSuccess(resp.RespondCode))
                 {
-                    var receipt = BuildReceiptData(resp, destination);
+                    var receipt = BuildReceiptData(resp);
                     _lastReceiptData = receipt;
 
-                    await ShowSuccessPopup(resp, destination);
+                    await ShowSuccessPopup(resp);
 
                     // Fire and forget — printing must never block or crash the payment flow.
                     _ = AttemptPrintAsync(receipt, isReprint: false);
@@ -388,7 +408,8 @@ namespace YIRS.Views.Haulage
                             $"The transaction was declined (code {SafeString(resp.RespondCode, "—")})."),
                         detail: DifferingDetail(resp),
                         code: resp.RespondCode,
-                        reference: resp.TransactionNo);
+                        reference: resp.TransactionNo,
+                        amount: resp.TotalAmount > 0 ? resp.TotalAmount : _expectedAmount);
                 }
             }
             catch (TaskCanceledException)
@@ -418,35 +439,6 @@ namespace YIRS.Views.Haulage
             {
                 _isProcessing = false;
                 SetLoadingState(false);
-            }
-        }
-
-        /// <summary>
-        /// Posts as multipart/form-data to match Postman. If the endpoint rejects multipart
-        /// (415/400/500), it retries once as x-www-form-urlencoded before giving up.
-        /// </summary>
-        private static async Task<(string Body, int StatusCode)> PostFormAsync(Dictionary<string, string> fields)
-        {
-            using (var multipart = new MultipartFormDataContent())
-            {
-                foreach (var kv in fields)
-                    multipart.Add(new StringContent(kv.Value ?? string.Empty), kv.Key);
-
-                using (var response = await Http.PostAsync(PaymentUrl, multipart).ConfigureAwait(false))
-                {
-                    var body = await SafeReadAsync(response).ConfigureAwait(false);
-                    var status = (int)response.StatusCode;
-
-                    if (response.IsSuccessStatusCode || !string.IsNullOrWhiteSpace(body))
-                        return (body, status);
-                }
-            }
-
-            using (var encoded = new FormUrlEncodedContent(fields))
-            using (var retry = await Http.PostAsync(PaymentUrl, encoded).ConfigureAwait(false))
-            {
-                var body = await SafeReadAsync(retry).ConfigureAwait(false);
-                return (body, (int)retry.StatusCode);
             }
         }
 
@@ -526,18 +518,24 @@ namespace YIRS.Views.Haulage
 
         // ───────────────────────── Popups ─────────────────────────
 
-        private Task ShowSuccessPopup(StateCollectionResponseObject resp, string destination)
+        private Task ShowSuccessPopup(StateCollectionResponseObject resp)
         {
             return Device.InvokeOnMainThreadAsync(() =>
             {
                 try
                 {
+                    // Server figure wins; the verified amount is the fallback.
+                    var paid = resp.TotalAmount > 0 ? resp.TotalAmount : _expectedAmount;
+                    var formatted = "₦" + paid.ToString("N2", CultureInfo.InvariantCulture);
+
+                    PopupAmount.Text = formatted;
+                    PopupAmountRow.Text = formatted;
+
                     PopupRef.Text = FirstNonEmpty(resp.TransactionNo, resp.TId, "N/A");
                     PopupVehicle.Text = FirstNonEmpty(resp.Vehicle, Verify.vehicleTypess, "—");
                     PopupPlate.Text = FirstNonEmpty(resp.VehicleNo, Verify.plateNumberss, "—");
-                    PopupLGA.Text = FirstNonEmpty(resp.Destination, destination, "—");
+                    PopupLGA.Text = FirstNonEmpty(resp.Destination, _destination, "—");
                     PopupAgent.Text = FirstNonEmpty(resp.AgentName, MainPage.Name, "—");
-                    PopupAmount.Text = FormatAmount(resp.TotalAmount);
                     PopupDate.Text = DateTime.Now.ToString("dd MMM yyyy, hh:mm tt");
                     PopupMessage.Text = FirstNonEmpty(resp.Message, resp.ResponseMessage, "Transaction completed successfully.");
 
@@ -564,7 +562,7 @@ namespace YIRS.Views.Haulage
         }
 
         private Task ShowFailurePopup(string title, string message,
-            string detail = null, string code = null, string reference = null)
+            string detail = null, string code = null, string reference = null, decimal? amount = null)
         {
             return Device.InvokeOnMainThreadAsync(() =>
             {
@@ -574,6 +572,10 @@ namespace YIRS.Views.Haulage
                     FailureMessage.Text = string.IsNullOrWhiteSpace(message)
                         ? "The transaction could not be completed."
                         : message;
+
+                    var attempted = amount ?? _expectedAmount;
+                    FailureAmount.Text = "₦" + attempted.ToString("N2", CultureInfo.InvariantCulture);
+                    FailureVehicle.Text = $"{SafeString(Verify.plateNumberss, "—")}  •  {SafeString(Verify.vehicleTypess, "—")}";
 
                     FailureDetail.Text = detail ?? string.Empty;
                     FailureDetailRow.IsVisible = !string.IsNullOrWhiteSpace(detail);
@@ -646,22 +648,22 @@ namespace YIRS.Views.Haulage
 
         // ───────────────────────── Receipt ─────────────────────────
 
-        private ReceiptData BuildReceiptData(StateCollectionResponseObject resp,
-            string destination, bool isReprint = false)
+        private ReceiptData BuildReceiptData(StateCollectionResponseObject resp, bool isReprint = false)
         {
             try
             {
-                var amount = ParseAmount(resp?.TotalAmount);
+                var amount = resp != null && resp.TotalAmount > 0 ? resp.TotalAmount : _expectedAmount;
                 var reference = FirstNonEmpty(resp?.TransactionNo, resp?.TId, "N/A");
 
                 var verifyUrl = $"{BaseUrl}/singlecollections/verify?TransactId={Uri.EscapeDataString(reference)}";
 
                 var items = new List<ReceiptItem>
                 {
-                    new ReceiptItem { Description = "AGENT NAME",     Amount = 0m, SubText = FirstNonEmpty(resp?.AgentName, MainPage.Name, "—") },
-                    new ReceiptItem { Description = "VEHICLE TYPE",   Amount = 0m, SubText = FirstNonEmpty(resp?.Vehicle, Verify.vehicleTypess, "—") },
-                    new ReceiptItem { Description = "VEHICLE LIC. NO", Amount = 0m, SubText = FirstNonEmpty(resp?.VehicleNo, Verify.plateNumberss, "—") },
-                    new ReceiptItem { Description = "DESTINATION",    Amount = 0m, SubText = FirstNonEmpty(resp?.Destination, destination, "—") }
+                    new ReceiptItem { Description = "AGENT NAME",      Amount = 0m, SubText = FirstNonEmpty(resp?.AgentName, MainPage.Name, "—") },
+                    new ReceiptItem { Description = "VEHICLE TYPE",    Amount = 0m, SubText = FirstNonEmpty(resp?.Vehicle, Verify.vehicleTypess, "—") },
+                    new ReceiptItem { Description = "VEHICLE NO", Amount = 0m, SubText = FirstNonEmpty(resp?.VehicleNo, Verify.plateNumberss, "—") },
+                    new ReceiptItem { Description = "DESTINATION",     Amount = 0m, SubText = FirstNonEmpty(resp?.Destination, _destination, "—") },
+                    new ReceiptItem { Description = "AMOUNT PAID",     Amount = amount, SubText = "₦" + amount.ToString("N2", CultureInfo.InvariantCulture) }
                 };
 
                 var paymentRef = SafeString(resp?.PaymentReference);
@@ -678,7 +680,7 @@ namespace YIRS.Views.Haulage
                     StorePhone = "Contact us: +234 810 046 6363",
                     ReceiptNumber = reference,
                     AgentName = FirstNonEmpty(resp?.AgentName, MainPage.Name, "—"),
-                    CollectionPoint = "HAULAGE",
+                    CollectionPoint = MainPage.CollectionPoint,
                     AmountPaid = amount,
                     PrintDate = DateTime.Now,
                     Items = items,
@@ -697,8 +699,8 @@ namespace YIRS.Views.Haulage
                 {
                     StoreName = "YOBE STATE INTERNAL REVENUE SERVICES",
                     ReceiptNumber = SafeString(resp?.TransactionNo, "N/A"),
-                    CollectionPoint = "HAULAGE",
-                    AmountPaid = ParseAmount(resp?.TotalAmount),
+                    CollectionPoint = MainPage.CollectionPoint,
+                    AmountPaid = resp != null && resp.TotalAmount > 0 ? resp.TotalAmount : _expectedAmount,
                     PrintDate = DateTime.Now,
                     Items = new List<ReceiptItem>(),
                     FooterLine1 = "Thank You!",
@@ -903,12 +905,6 @@ namespace YIRS.Views.Haulage
             }
         }
 
-        private static string FormatAmount(object raw)
-        {
-            try { return "₦" + ParseAmount(raw).ToString("N2", CultureInfo.InvariantCulture); }
-            catch { return "₦0.00"; }
-        }
-
         private static string FormatDate(string raw)
         {
             try
@@ -969,6 +965,19 @@ namespace YIRS.Views.Haulage
     }
 
     internal class GetSateCatData { public string name { get; set; } }
+
+    /// <summary>
+    /// Raw JSON request body for /Api/SingleCollections/Hulage.
+    /// </summary>
+    internal class HaulagePaymentRequest
+    {
+        [JsonProperty("payer")] public string Payer { get; set; }
+        [JsonProperty("email")] public string Email { get; set; }
+        [JsonProperty("pin")] public string Pin { get; set; }
+        [JsonProperty("serviceName")] public string ServiceName { get; set; }
+        [JsonProperty("vehicleNo")] public string VehicleNo { get; set; }
+        [JsonProperty("stateTo")] public string StateTo { get; set; }
+    }
 
     /// <summary>
     /// Mirrors the camelCase JSON contract returned by /Api/SingleCollections/Hulage.

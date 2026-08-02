@@ -18,6 +18,7 @@
             <Color x:Key="Muted">#6B7B72</Color>
             <Color x:Key="FieldBg">#F1F6F2</Color>
             <Color x:Key="FieldBorder">#DCE7E0</Color>
+            <Color x:Key="LockedBg">#ECF2EE</Color>
 
             <Style x:Key="FieldLabel" TargetType="Label">
                 <Setter Property="FontSize" Value="10"/>
@@ -34,8 +35,23 @@
                 <Setter Property="VerticalOptions" Value="Center"/>
             </Style>
 
+            <Style x:Key="LockedBadge" TargetType="Label">
+                <Setter Property="FontSize" Value="9"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="#9AAFA3"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+
             <Style x:Key="FieldShell" TargetType="yummy:PancakeView">
                 <Setter Property="BackgroundColor" Value="{StaticResource FieldBg}"/>
+                <Setter Property="CornerRadius" Value="7"/>
+                <Setter Property="HeightRequest" Value="54"/>
+                <Setter Property="BorderColor" Value="{StaticResource FieldBorder}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
+
+            <Style x:Key="LockedShell" TargetType="yummy:PancakeView">
+                <Setter Property="BackgroundColor" Value="{StaticResource LockedBg}"/>
                 <Setter Property="CornerRadius" Value="7"/>
                 <Setter Property="HeightRequest" Value="54"/>
                 <Setter Property="BorderColor" Value="{StaticResource FieldBorder}"/>
@@ -116,7 +132,7 @@
                                        CharacterSpacing="1.4" TextColor="{StaticResource Muted}"/>
                                 <Label x:Name="AmountSubLabel"
                                        Text="Final amount is confirmed by the server"
-                                       FontSize="10"   TextColor="{StaticResource Brand}"/>
+                                       FontSize="10" TextColor="{StaticResource Brand}"/>
                             </StackLayout>
                             <Label Grid.Column="1" x:Name="AmountHeadline"
                                    Text="₦0.00"
@@ -134,64 +150,96 @@
                                        Elevation="12" HasShadow="True">
                         <StackLayout Spacing="18">
 
-                            <!-- SERVICE NAME -->
+                            <!-- Locked-details banner -->
+                            <yummy:PancakeView BackgroundColor="#F1F6F2"
+                                               CornerRadius="8"
+                                               Padding="12,9"
+                                               BorderColor="{StaticResource FieldBorder}" BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Label Grid.Column="0" Text="🔒" FontSize="13"
+                                           VerticalOptions="Center" Margin="0,0,10,0"/>
+                                    <Label Grid.Column="1"
+                                           Text="These details were pulled from the verified vehicle record. Only your transaction PIN is required."
+                                           FontSize="10" TextColor="{StaticResource Muted}"
+                                           LineBreakMode="WordWrap"/>
+                                </Grid>
+                            </yummy:PancakeView>
+
+                            <!-- SERVICE NAME (locked) -->
                             <StackLayout Spacing="6">
-                                <Label Text="SERVICE NAME" Style="{StaticResource FieldLabel}"/>
-                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="SERVICE NAME" Style="{StaticResource FieldLabel}"/>
+                                    <Label Grid.Column="1" Text="VERIFIED" Style="{StaticResource LockedBadge}"/>
+                                </Grid>
+                                <yummy:PancakeView Style="{StaticResource LockedShell}">
                                     <Grid ColumnDefinitions="46,*">
-                                        <Label Grid.Column="0" Text="🚛" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <Label Grid.Column="0" Text="🚛" Style="{StaticResource FieldIcon}" TextColor="White"/>
                                         <renderers11:BorderlessEntry Grid.Column="1"
                                                                      x:Name="Servicename"
                                                                      FontSize="13"
                                                                      IsReadOnly="True"
+                                                                     IsEnabled="False"
                                                                      TextColor="#0F2A1D"
                                                                      BackgroundColor="Transparent"/>
                                     </Grid>
                                 </yummy:PancakeView>
                             </StackLayout>
 
-                            <!-- PLATE / VEHICLE NUMBER -->
+                            <!-- PLATE / VEHICLE NUMBER (locked) -->
                             <StackLayout Spacing="6">
-                                <Label Text="VEHICLE / PLATE NUMBER" Style="{StaticResource FieldLabel}"/>
-                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="VEHICLE / PLATE NUMBER" Style="{StaticResource FieldLabel}"/>
+                                    <Label Grid.Column="1" Text="VERIFIED" Style="{StaticResource LockedBadge}"/>
+                                </Grid>
+                                <yummy:PancakeView Style="{StaticResource LockedShell}">
                                     <Grid ColumnDefinitions="46,*">
-                                        <Label Grid.Column="0" Text="🔖" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <Label Grid.Column="0" Text="🔖" Style="{StaticResource FieldIcon}" TextColor="White"/>
                                         <renderers11:BorderlessEntry Grid.Column="1"
                                                                      x:Name="PayerId"
                                                                      FontSize="14"
                                                                      FontAttributes="Bold"
                                                                      CharacterSpacing="1"
                                                                      IsReadOnly="True"
+                                                                     IsEnabled="False"
                                                                      TextColor="#0F2A1D"
                                                                      BackgroundColor="Transparent"/>
                                     </Grid>
                                 </yummy:PancakeView>
                             </StackLayout>
 
-                            <!-- DESTINATION (StateTo) -->
+                            <!-- DESTINATION TO (locked, passed from Verify) -->
                             <StackLayout Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" Text="DESTINATION (STATE / LGA TO)" Style="{StaticResource FieldLabel}"/>
-                                    <Label Grid.Column="1" x:Name="destinationBadge" Text="REQUIRED" Style="{StaticResource Badge}"/>
+                                    <Label Grid.Column="0" Text="DESTINATION TO (STATE)" Style="{StaticResource FieldLabel}"/>
+                                    <Label Grid.Column="1" x:Name="destinationBadge" Text="VERIFIED" Style="{StaticResource LockedBadge}"/>
                                 </Grid>
-                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                <yummy:PancakeView Style="{StaticResource LockedShell}">
                                     <Grid ColumnDefinitions="46,*">
-                                        <Label Grid.Column="0" Text="🏁" Style="{StaticResource FieldIcon}" TextColor="White" />
-                                        <Picker Grid.Column="1"
-                                                x:Name="picker"
-                                                Title="Select destination"
-                                                TitleColor="#0F2A1D"
-                                                TextColor="#0F2A1D"
-                                                FontSize="13"
-                                                SelectedIndexChanged="OnFormStateChanged"/>
+                                        <Label Grid.Column="0" Text="🏁" Style="{StaticResource FieldIcon}" TextColor="White"/>
+                                        <renderers11:BorderlessEntry Grid.Column="1"
+                                                                     x:Name="DestinationTo"
+                                                                     FontSize="13"
+                                                                     FontAttributes="Bold"
+                                                                     IsReadOnly="True"
+                                                                     IsEnabled="False"
+                                                                     TextColor="#0F2A1D"
+                                                                     BackgroundColor="Transparent"/>
                                     </Grid>
                                 </yummy:PancakeView>
+                                <Label x:Name="destinationError"
+                                       Text="No destination was returned for this vehicle. Re-verify the plate number before paying."
+                                       FontSize="10" TextColor="{StaticResource Danger}"
+                                       IsVisible="False" Margin="4,0,0,0"
+                                       LineBreakMode="WordWrap"/>
                             </StackLayout>
 
-                            <!-- AMOUNT (read-only mirror) -->
+                            <!-- AMOUNT (locked) -->
                             <StackLayout Spacing="6">
-                                <Label Text="AMOUNT (₦)" Style="{StaticResource FieldLabel}"/>
-                                <yummy:PancakeView Style="{StaticResource FieldShell}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="AMOUNT (₦)" Style="{StaticResource FieldLabel}"/>
+                                    <Label Grid.Column="1" Text="VERIFIED" Style="{StaticResource LockedBadge}"/>
+                                </Grid>
+                                <yummy:PancakeView Style="{StaticResource LockedShell}">
                                     <Grid ColumnDefinitions="46,*">
                                         <Label Grid.Column="0" Text="₦" Style="{StaticResource FieldIcon}"
                                                FontAttributes="Bold" TextColor="{StaticResource Brand}"/>
@@ -200,6 +248,7 @@
                                                                      FontSize="16" FontAttributes="Bold"
                                                                      Keyboard="Numeric"
                                                                      IsReadOnly="True"
+                                                                     IsEnabled="False"
                                                                      TextColor="#0F2A1D"
                                                                      BackgroundColor="Transparent"
                                                                      TextChanged="OnAmountChanged"/>
@@ -207,7 +256,9 @@
                                 </yummy:PancakeView>
                             </StackLayout>
 
-                            <!-- PIN -->
+                            <BoxView Style="{StaticResource Divider}"/>
+
+                            <!-- PIN — the only editable field -->
                             <StackLayout Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <Label Grid.Column="0" Text="TRANSACTION PIN" Style="{StaticResource FieldLabel}"/>
@@ -215,7 +266,7 @@
                                 </Grid>
                                 <yummy:PancakeView Style="{StaticResource FieldShell}">
                                     <Grid ColumnDefinitions="46,*">
-                                        <Label Grid.Column="0" Text="🔐" Style="{StaticResource FieldIcon}" TextColor="White" />
+                                        <Label Grid.Column="0" Text="🔐" Style="{StaticResource FieldIcon}" TextColor="White"/>
                                         <renderers11:BorderlessEntry Grid.Column="1"
                                                                      x:Name="PIN"
                                                                      FontSize="20"
@@ -341,7 +392,7 @@
                   BackgroundColor="#EE0A1A12">
                 <ScrollView Margin="16,40,16,40" VerticalOptions="Center">
                     <yummy:PancakeView BackgroundColor="White"
-                                       CornerRadius="26"
+                                       CornerRadius="16"
                                        Padding="22,24,22,22"
                                        Elevation="20">
                         <StackLayout Spacing="14">
@@ -351,7 +402,7 @@
                                                WidthRequest="80" HeightRequest="80"
                                                HorizontalOptions="Center"
                                                BorderColor="#00AA5560" BorderThickness="2">
-                                <Image Source="gooddone" HeightRequest="38" 
+                                <Image Source="gooddone" HeightRequest="38"
                                        HorizontalOptions="Center" VerticalOptions="Center"/>
                             </yummy:PancakeView>
 
@@ -367,28 +418,29 @@
                                        HorizontalTextAlignment="Center"/>
                             </StackLayout>
 
-                            <!-- Amount banner -->
+                            <!-- Amount paid — headline -->
                             <yummy:PancakeView BackgroundGradientStartColor="#00301B"
                                                BackgroundGradientEndColor="#00693A"
                                                BackgroundGradientAngle="120"
-                                               CornerRadius="18"
-                                               Padding="18,14">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <StackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
-                                        <Label Text="AMOUNT PAID" FontSize="9"
-                                               CharacterSpacing="1.2" TextColor="#8FD9B2"/>
-                                        <Label x:Name="PopupDate" Text="—"
-                                               FontSize="10" TextColor="#BFEBD3"/>
-                                    </StackLayout>
-                                    <Label Grid.Column="1" x:Name="PopupAmount" Text="₦0.00"
-                                           FontSize="20" FontAttributes="Bold"
-                                           TextColor="White" VerticalOptions="Center"/>
-                                </Grid>
+                                               CornerRadius="10"
+                                               Padding="18,16">
+                                <StackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="AMOUNT PAID" FontSize="9"
+                                           CharacterSpacing="1.4" TextColor="#8FD9B2"
+                                           HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="PopupAmount" Text="₦0.00"
+                                           FontSize="30" FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="PopupDate" Text="—"
+                                           FontSize="10" TextColor="#BFEBD3"
+                                           HorizontalTextAlignment="Center"/>
+                                </StackLayout>
                             </yummy:PancakeView>
 
                             <!-- Receipt rows -->
                             <yummy:PancakeView BackgroundColor="#F7FAF8"
-                                               CornerRadius="18"
+                                               CornerRadius="10"
                                                Padding="16,14"
                                                BorderColor="#E4EDE7" BorderThickness="1">
                                 <StackLayout Spacing="10">
@@ -414,6 +466,12 @@
                                     <Grid ColumnDefinitions="Auto,*">
                                         <Label Grid.Column="0" Text="DESTINATION" Style="{StaticResource RowKey}"/>
                                         <Label Grid.Column="1" x:Name="PopupLGA" Text="—" Style="{StaticResource RowValue}"/>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}"/>
+
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Label Grid.Column="0" Text="AMOUNT" Style="{StaticResource RowKey}"/>
+                                        <Label Grid.Column="1" x:Name="PopupAmountRow" Text="₦0.00" Style="{StaticResource RowValue}"/>
                                     </Grid>
                                     <BoxView Style="{StaticResource Divider}"/>
 
@@ -444,7 +502,7 @@
                             <!-- Printing status -->
                             <yummy:PancakeView x:Name="PrintingStatusView"
                                                BackgroundColor="#F0F6FF"
-                                               CornerRadius="12"
+                                               CornerRadius="10"
                                                Padding="14,10"
                                                BorderColor="#D9E6F7" BorderThickness="1">
                                 <Label x:Name="PrintingStatusLabel"
@@ -457,7 +515,7 @@
                             <yummy:PancakeView x:Name="PopupReprintView"
                                                IsVisible="False"
                                                BackgroundColor="#FFF6E8"
-                                               CornerRadius="14"
+                                               CornerRadius="10"
                                                HeightRequest="48"
                                                BorderColor="#F0D9B0" BorderThickness="1">
                                 <Label Text="🖨️  REPRINT RECEIPT"
@@ -473,7 +531,7 @@
                             <yummy:PancakeView BackgroundGradientStartColor="#004225"
                                                BackgroundGradientEndColor="#00AA55"
                                                BackgroundGradientAngle="90"
-                                               CornerRadius="14"
+                                               CornerRadius="10"
                                                HeightRequest="52">
                                 <Label Text="CONTINUE  →"
                                        FontSize="14" FontAttributes="Bold"
@@ -516,6 +574,25 @@
                                    TextColor="{StaticResource Danger}"
                                    HorizontalTextAlignment="Center"/>
 
+                            <!-- Attempted amount -->
+                            <yummy:PancakeView BackgroundColor="#FDF6F6"
+                                               CornerRadius="10"
+                                               Padding="18,14"
+                                               BorderColor="#F3DADA" BorderThickness="1">
+                                <StackLayout Spacing="4" HorizontalOptions="Center">
+                                    <Label Text="AMOUNT NOT PAID" FontSize="9"
+                                           CharacterSpacing="1.4" TextColor="#C08585"
+                                           HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="FailureAmount" Text="₦0.00"
+                                           FontSize="26" FontAttributes="Bold"
+                                           TextColor="{StaticResource Danger}"
+                                           HorizontalTextAlignment="Center"/>
+                                    <Label x:Name="FailureVehicle" Text="—"
+                                           FontSize="10" TextColor="#9A8080"
+                                           HorizontalTextAlignment="Center"/>
+                                </StackLayout>
+                            </yummy:PancakeView>
+
                             <!-- Response code chip -->
                             <yummy:PancakeView x:Name="FailureCodeView"
                                                IsVisible="False"
@@ -538,7 +615,7 @@
                                                BorderColor="#F3DADA" BorderThickness="1">
                                 <StackLayout Spacing="10">
                                     <Label Text="MESSAGE FROM SERVER" FontSize="9"
-                                           CharacterSpacing="1.2"  TextColor="{StaticResource Danger}"/>
+                                           CharacterSpacing="1.2" TextColor="{StaticResource Danger}"/>
                                     <Label x:Name="FailureMessage"
                                            Text="—"
                                            FontSize="13" TextColor="#5A4646"

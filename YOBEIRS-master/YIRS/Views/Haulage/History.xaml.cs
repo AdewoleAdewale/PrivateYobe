@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using YIRS.Services;
 
 namespace YIRS.Views.Haulage
 {
@@ -127,6 +130,7 @@ namespace YIRS.Views.Haulage
                 InitializeComponent();
                 InitializePage();
                 ConfigureSSL();
+                TrackUserActivity();
                 _httpClient = CreateHttpClient();
             }
             catch (Exception ex)
@@ -134,6 +138,42 @@ namespace YIRS.Views.Haulage
                 HandleException(ex, "Error initializing page");
             }
         }
+
+        private void TrackUserActivity()
+        {
+            try
+            {
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += (s, e) => SessionManager.Instance.UpdateActivity();
+                if (this.Content != null)
+                    this.Content.GestureRecognizers.Add(tapGesture);
+            }
+            catch (Exception ex)
+            {
+                LogError("TrackUserActivity", ex);
+            }
+        }
+
+        private void LogError(string method, Exception ex)
+        {
+            try
+            {
+                Debug.WriteLine($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss} | {method}");
+                Debug.WriteLine($"[ERROR] Message: {ex?.Message}");
+                Debug.WriteLine($"[ERROR] StackTrace: {ex?.StackTrace}");
+
+                string logDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "YIRS", "Logs");
+                if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+
+                string logFile = Path.Combine(logDir, $"error_log_{DateTime.Now:yyyy-MM-dd}.txt");
+                File.AppendAllText(logFile,
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {method}: {ex?.Message}\n{ex?.StackTrace}\n\n");
+            }
+            catch { }
+        }
+
 
         #region Initialization
         private void InitializePage()
@@ -151,6 +191,7 @@ namespace YIRS.Views.Haulage
                 // Hide all sections initially
                 HideAllSections();
 
+                SessionManager.Instance.UpdateActivity();
                 System.Diagnostics.Debug.WriteLine("Page initialized successfully");
             }
             catch (Exception ex)
@@ -229,6 +270,8 @@ namespace YIRS.Views.Haulage
             try
             {
                 await SearchTransactions();
+
+                SessionManager.Instance.UpdateActivity();
             }
             catch (Exception ex)
             {

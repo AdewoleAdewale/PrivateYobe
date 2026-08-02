@@ -1,6 +1,8 @@
 ﻿using Acr.UserDialogs;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -10,6 +12,7 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using YIRS.Services;
 
 namespace YIRS.Views.Haulage
 {
@@ -28,10 +31,14 @@ namespace YIRS.Views.Haulage
         public static string recordedByss { get; set; }
         public static string dateRecordedss { get; set; }
 
+        public static string destinationFromss { get; set; }
+        public static string destinationToss { get; set; }
+
         public Verify()
         {
             InitializeComponent();
             ConfigureSSL();
+            TrackUserActivity();
 
             // Restore previous result if it exists
             if (plateNumberss != null)
@@ -57,6 +64,7 @@ namespace YIRS.Views.Haulage
             DateRecorded.Text = dateRecordedss ?? "—";
             ownerPhones.Text = ownerPhoness ?? "—";
 
+            SessionManager.Instance.UpdateActivity();
             // Status badge colour
             bool paid = (statusCodess == "00");
             StatusBadge.BackgroundColor = paid ? Color.FromHex("#00FF8820") : Color.FromHex("#FFAA4420");
@@ -96,6 +104,8 @@ namespace YIRS.Views.Haulage
                 using (UserDialogs.Instance.Loading("Please wait…", null, null, true))
                 {
                     await Task.Delay(10);
+
+                    SessionManager.Instance.UpdateActivity();
                     await Navigation.PushModalAsync(new Views.Haulage.Dashboard());
                 }
             });
@@ -118,6 +128,8 @@ namespace YIRS.Views.Haulage
             if (string.IsNullOrWhiteSpace(Search.Text))
             {
                 UserDialogs.Instance.Toast("Please enter a plate number.", TimeSpan.FromSeconds(3));
+
+                SessionManager.Instance.UpdateActivity();
                 return;
             }
 
@@ -158,6 +170,8 @@ namespace YIRS.Views.Haulage
                                 statusCodess = result.statusCode;
                                 recordedByss = result.recordedBy;
                                 dateRecordedss = result.dateRecorded;
+                                destinationFromss = result.destinationFrom;
+                                destinationToss = result.destinationTo;
 
                                 await Application.Current.SavePropertiesAsync();
 
@@ -194,6 +208,41 @@ namespace YIRS.Views.Haulage
         private async void make_Clicked(object sender, EventArgs e)
             => await Navigation.PushAsync(new Views.Haulage.Payments());
 
+        private void TrackUserActivity()
+        {
+            try
+            {
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += (s, e) => SessionManager.Instance.UpdateActivity();
+                if (this.Content != null)
+                    this.Content.GestureRecognizers.Add(tapGesture);
+            }
+            catch (Exception ex)
+            {
+                LogError("TrackUserActivity", ex);
+            }
+        }
+
+        private void LogError(string method, Exception ex)
+        {
+            try
+            {
+                Debug.WriteLine($"[ERROR] {DateTime.Now:yyyy-MM-dd HH:mm:ss} | {method}");
+                Debug.WriteLine($"[ERROR] Message: {ex?.Message}");
+                Debug.WriteLine($"[ERROR] StackTrace: {ex?.StackTrace}");
+
+                string logDir = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "YIRS", "Logs");
+                if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+
+                string logFile = Path.Combine(logDir, $"error_log_{DateTime.Now:yyyy-MM-dd}.txt");
+                File.AppendAllText(logFile,
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {method}: {ex?.Message}\n{ex?.StackTrace}\n\n");
+            }
+            catch { }
+        }
+
         internal class HaulageVerifyResponse
         {
             public string nameofDriver { get; set; }
@@ -207,6 +256,9 @@ namespace YIRS.Views.Haulage
             public string amount { get; set; }
             public string recordedBy { get; set; }
             public string dateRecorded { get; set; }
+
+            public string destinationFrom { get; set; }
+            public string destinationTo { get; set; }
         }
     }
 }
