@@ -90,7 +90,7 @@
                 <!-- ══════════ GRADIENT HEADER ══════════ -->
                 <yummy:PancakeView BackgroundGradientStartColor="#00301B"
                                    BackgroundGradientEndColor="#00693A"
-                                   BackgroundGradientAngle="135"
+                                   BackgroundGradientAngle="180"
                                    CornerRadius="0,0,32,32"
                                    Padding="24,50,24,44">
                     <Grid ColumnDefinitions="*,Auto">
@@ -469,7 +469,7 @@
 
                             <!-- Detail rows -->
                             <yummy:PancakeView BackgroundColor="#F7FAF8"
-                                               CornerRadius="18"
+                                               CornerRadius="10"
                                                Padding="16,14"
                                                BorderColor="#E4EDE7" BorderThickness="1">
                                 <StackLayout Spacing="10">
@@ -568,10 +568,10 @@
                                      VerticalOptions="FillAndExpand">
 
                             <yummy:PancakeView BackgroundColor="#FDECEC"
-                                               CornerRadius="42"
+                                               CornerRadius="22"
                                                WidthRequest="84" HeightRequest="84"
                                                HorizontalOptions="Center"
-                                               BorderColor="#D6454560" BorderThickness="2"
+                                               BorderColor="White" BorderThickness="2"
                                                Margin="0,6,0,0">
                                 <Label Text="❌" FontSize="40"
                                        HorizontalOptions="Center" VerticalOptions="Center"/>
@@ -584,7 +584,7 @@
                                    HorizontalOptions="Center"/>
 
                             <yummy:PancakeView BackgroundColor="#FDF6F6"
-                                               CornerRadius="16"
+                                               CornerRadius="10"
                                                Padding="16,14"
                                                BorderColor="#F3DADA" BorderThickness="1">
                                 <StackLayout Spacing="8">
@@ -601,9 +601,9 @@
                                    HorizontalTextAlignment="Center"/>
 
                             <yummy:PancakeView BackgroundColor="#FDECEC"
-                                               CornerRadius="14"
+                                               CornerRadius="10"
                                                HeightRequest="52"
-                                               BorderColor="#D6454560" BorderThickness="1">
+                                               BorderColor="White" BorderThickness="1">
                                 <Label Text="BACK TO FORM"
                                        FontSize="13" FontAttributes="Bold"
                                        TextColor="#D64545"

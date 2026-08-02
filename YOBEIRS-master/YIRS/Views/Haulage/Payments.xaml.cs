@@ -116,7 +116,7 @@ namespace YIRS.Views.Haulage
 
                 var hasDestination = !string.IsNullOrWhiteSpace(_destination);
                 destinationBadge.Text = hasDestination ? "VERIFIED" : "MISSING";
-                destinationBadge.TextColor = hasDestination ? Color.FromHex("#9AAFA3") : Color.FromHex("#FF6B6B");
+                destinationBadge.TextColor = hasDestination ? Color.Black : Color.ForestGreen;
                 destinationError.IsVisible = !hasDestination;
 
                 _expectedAmount = ParseAmount(Verify.amountss);
@@ -243,7 +243,7 @@ namespace YIRS.Views.Haulage
                 makepaymentbutton.Opacity = _isFormValid ? 1 : 0.65;
                 makepaymentbutton.InputTransparent = !_isFormValid || _isProcessing;
 
-                payIcon.Text = _isFormValid ? "💳" : "🔒";
+                payIcon.Text = _isFormValid ? "+" : "🔒";
 
                 if (!_isProcessing)
                 {

@@ -70,7 +70,7 @@ namespace YIRS.Views.Haulage
             StatusBadge.BackgroundColor = paid ? Color.FromHex("#00FF8820") : Color.FromHex("#FFAA4420");
             StatusBadge.BorderColor = paid ? Color.FromHex("#00FF8860") : Color.FromHex("#FFAA4460");
             StatusBadgeText.Text = paid ? "PAID" : "PENDING";
-            StatusBadgeText.TextColor = paid ? Color.FromHex("#00FF88") : Color.FromHex("#FFAA44");
+            StatusBadgeText.TextColor = paid ? Color.Red : Color.Blue;
         }
 
         private void ShowResultPanel()

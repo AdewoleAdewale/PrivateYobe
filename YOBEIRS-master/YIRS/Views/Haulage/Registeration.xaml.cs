@@ -391,7 +391,7 @@ namespace YIRS.Views.Haulage
                     submitButton.InputTransparent = !_isFormValid || _isSubmitting;
                 }
 
-                if (submitIcon != null) submitIcon.Text = _isFormValid ? "🚛" : "🔒";
+                if (submitIcon != null) submitIcon.Text = _isFormValid ? "+" : "🔒";
                 if (submitLabel != null && !_isSubmitting)
                     submitLabel.Text = _isFormValid ? "REGISTER VEHICLE" : "COMPLETE ALL FIELDS";
             }

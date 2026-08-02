@@ -15,7 +15,7 @@
             <Color x:Key="Brand">#004225</Color>
             <Color x:Key="BrandLight">#00AA55</Color>
             <Color x:Key="Danger">#D64545</Color>
-            <Color x:Key="Muted">#6B7B72</Color>
+            <Color x:Key="Muted">black</Color>
             <Color x:Key="FieldBg">#F1F6F2</Color>
             <Color x:Key="FieldBorder">#DCE7E0</Color>
             <Color x:Key="LockedBg">#ECF2EE</Color>
@@ -38,7 +38,7 @@
             <Style x:Key="LockedBadge" TargetType="Label">
                 <Setter Property="FontSize" Value="9"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="#9AAFA3"/>
+                <Setter Property="TextColor" Value="Black"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
             </Style>
 
@@ -67,7 +67,7 @@
             <Style x:Key="RowKey" TargetType="Label">
                 <Setter Property="FontSize" Value="10"/>
                 <Setter Property="CharacterSpacing" Value="0.8"/>
-                <Setter Property="TextColor" Value="#8FA79A"/>
+                <Setter Property="TextColor" Value="Black"/>
                 <Setter Property="VerticalOptions" Value="Center"/>
             </Style>
 
