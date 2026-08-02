@@ -97,10 +97,10 @@
                 <StackLayout Spacing="0">
 
                     <!-- Header -->
-                    <yummy:PancakeView BackgroundGradientStartColor="#00301B"
-                                       BackgroundGradientEndColor="#00693A"
+                    <yummy:PancakeView BackgroundGradientStartColor="#004225"
+                                       BackgroundGradientEndColor="#004225"
                                        BackgroundGradientAngle="135"
-                                       CornerRadius="0,0,22,22"
+                                       CornerRadius="0,0,12,12"
                                        Padding="20,50,20,44">
                         <Grid ColumnDefinitions="*,Auto">
                             <StackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
@@ -156,7 +156,7 @@
                                                Padding="12,9"
                                                BorderColor="{StaticResource FieldBorder}" BorderThickness="1">
                                 <Grid ColumnDefinitions="Auto,*">
-                                    <Label Grid.Column="0" Text="🔒" FontSize="13"
+                                    <Label Grid.Column="0" Text="🔒" FontSize="13" TextColor="White"
                                            VerticalOptions="Center" Margin="0,0,10,0"/>
                                     <Label Grid.Column="1"
                                            Text="These details were pulled from the verified vehicle record. Only your transaction PIN is required."
@@ -178,7 +178,6 @@
                                                                      x:Name="Servicename"
                                                                      FontSize="13"
                                                                      IsReadOnly="True"
-                                                                     IsEnabled="False"
                                                                      TextColor="#0F2A1D"
                                                                      BackgroundColor="Transparent"/>
                                     </Grid>
@@ -200,7 +199,6 @@
                                                                      FontAttributes="Bold"
                                                                      CharacterSpacing="1"
                                                                      IsReadOnly="True"
-                                                                     IsEnabled="False"
                                                                      TextColor="#0F2A1D"
                                                                      BackgroundColor="Transparent"/>
                                     </Grid>
@@ -221,7 +219,6 @@
                                                                      FontSize="13"
                                                                      FontAttributes="Bold"
                                                                      IsReadOnly="True"
-                                                                     IsEnabled="False"
                                                                      TextColor="#0F2A1D"
                                                                      BackgroundColor="Transparent"/>
                                     </Grid>
@@ -248,8 +245,7 @@
                                                                      FontSize="16" FontAttributes="Bold"
                                                                      Keyboard="Numeric"
                                                                      IsReadOnly="True"
-                                                                     IsEnabled="False"
-                                                                     TextColor="#0F2A1D"
+                                                                     TextColor="Black"
                                                                      BackgroundColor="Transparent"
                                                                      TextChanged="OnAmountChanged"/>
                                     </Grid>
@@ -294,8 +290,8 @@
                                                BackgroundGradientStartColor="#B9C7BF"
                                                BackgroundGradientEndColor="#9FB0A6"
                                                BackgroundGradientAngle="90"
-                                               CornerRadius="16"
-                                               Elevation="6" HasShadow="True"
+                                               CornerRadius="10"
+                                               Elevation="6" 
                                                HeightRequest="58"
                                                Opacity="0.65"
                                                InputTransparent="True">
@@ -349,9 +345,9 @@
                     <!-- Security note -->
                     <StackLayout Orientation="Horizontal" Margin="24,16,24,30"
                                  Spacing="8" HorizontalOptions="Center">
-                        <Label Text="🔒" FontSize="12" VerticalOptions="Center"/>
+                        <Label Text="🔒" FontSize="12" VerticalOptions="Center" TextColor="White"/>
                         <Label Text="Secured by 256-bit TLS encryption"
-                               FontSize="10" TextColor="#9AAFA3"
+                               FontSize="10" TextColor="#004225"
                                VerticalOptions="Center"/>
                     </StackLayout>
 
