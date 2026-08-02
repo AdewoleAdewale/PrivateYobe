@@ -809,18 +809,16 @@ namespace YIRS.Views.Default
             try
             {
                 var result = await DisplayAlert("Logout", "Are you sure you want to logout?", "Yes", "No");
+                if (!result) return;
 
-                if (result)
-                {
-                    App.IsUserLoggedIn = false;
-                    SessionManager.Instance.StopSession();
-                    // Clear sensitive data
-                    cashoutBalance = null;
-                    agent = null;
-                    superAgent = null;
+                SessionManager.Instance.StopSession();
+                await SecureStorageService.ClearCredentialsAsync();
 
-                    Process.GetCurrentProcess().CloseMainWindow();
-                }
+                cashoutBalance = null;
+                agent = null;
+                superAgent = null;
+
+                Device.BeginInvokeOnMainThread(() => App.SetRoot(new Views.MainPage()));
             }
             catch (Exception ex)
             {

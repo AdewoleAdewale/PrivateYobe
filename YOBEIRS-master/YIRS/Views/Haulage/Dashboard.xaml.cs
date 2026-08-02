@@ -189,11 +189,27 @@ namespace YIRS.Views.Haulage
         private void TapGestureRecognizer_Tapped_2(object sender, EventArgs e)
             => CallPrinterAsync();
 
-        private void TapGestureRecognizer_Tapped_7(object sender, EventArgs e)
+   
+
+        private async void TapGestureRecognizer_Tapped_7(object sender, EventArgs e)
         {
-            App.IsUserLoggedIn = false;
-            System.Diagnostics.Process.GetCurrentProcess().CloseMainWindow();
+            try
+            {
+                var confirmed = await DisplayAlert("Logout",
+                    "Are you sure you want to logout?", "Yes", "No");
+                if (!confirmed) return;
+
+                SessionManager.Instance.StopSession();
+                await SecureStorageService.ClearCredentialsAsync();
+
+                Device.BeginInvokeOnMainThread(() => App.SetRoot(new Views.MainPage()));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Haulage:Logout] {ex.Message}");
+            }
         }
+
 
         private void TapGestureRecognizer_Tapped_3(object sender, EventArgs e) { }
 
@@ -283,9 +299,23 @@ namespace YIRS.Views.Haulage
         }
 
 
-        private void TapGestureRecognizer_Tapped_4(object sender, EventArgs e)
+        private async void TapGestureRecognizer_Tapped_4(object sender, EventArgs e)
         {
+            try
+            {
+                var confirmed = await DisplayAlert("Logout",
+                    "Are you sure you want to logout?", "Yes", "No");
+                if (!confirmed) return;
 
+                SessionManager.Instance.StopSession();
+                await SecureStorageService.ClearCredentialsAsync();
+
+                Device.BeginInvokeOnMainThread(() => App.SetRoot(new Views.MainPage()));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Haulage:Logout] {ex.Message}");
+            }
         }
     }
 }

@@ -17,14 +17,56 @@ namespace YIRS.Views
     public partial class MainPage : ContentPage
     {
         #region Static Properties
-        public static string Name { get; set; }
-        public static string ValidUserMail { get; set; }
-        public static string Passwords { get; set; }
-        public static string Pin { get; set; }
-        public static string Super_Agent { get; set; }
-        public static string Message { get; set; }
-        public static string Category { get; set; }
-        public static string CollectionPoint { get; set; }
+        // Backed by the persistent session. Every existing read across the five modules
+        // (MainPage.ValidUserMail, MainPage.Pin, MainPage.Name, MainPage.Category, …)
+        // keeps working and now survives process death.
+        public static string Name
+        {
+            get => SessionManager.Name;
+            set => SessionManager.Name = value;
+        }
+
+        public static string ValidUserMail
+        {
+            get => SessionManager.Email;
+            set => SessionManager.Email = value;
+        }
+
+        public static string Passwords
+        {
+            get => SessionManager.Password;
+            set => SessionManager.Password = value;
+        }
+
+        public static string Pin
+        {
+            get => SessionManager.Pin;
+            set => SessionManager.Pin = value;
+        }
+
+        public static string Super_Agent
+        {
+            get => SessionManager.SuperAgent;
+            set => SessionManager.SuperAgent = value;
+        }
+
+        public static string Message
+        {
+            get => SessionManager.Message;
+            set => SessionManager.Message = value;
+        }
+
+        public static string Category
+        {
+            get => SessionManager.Category;
+            set => SessionManager.Category = value;
+        }
+
+        public static string CollectionPoint
+        {
+            get => SessionManager.CollectionPoint;
+            set => SessionManager.CollectionPoint = value;
+        }
         #endregion
 
         #region Private Fields
@@ -93,6 +135,13 @@ namespace YIRS.Views
 
             try
             {
+                // A live session means this page should never be shown.
+                if (SessionManager.IsAuthenticated)
+                {
+                    Device.BeginInvokeOnMainThread(() => App.SetRoot(App.ResolveLandingPage()));
+                    return;
+                }
+
                 CheckLockoutStatus();
                 await AnimatePageAppearance();
                 await LoadSavedCredentials();
@@ -735,18 +784,22 @@ namespace YIRS.Views
                     bool rememberMe = RememberMeCheckbox.IsChecked;
                     await SecureStorageService.SaveCredentialsAsync(email, password, rememberMe);
 
-                    ValidUserMail = email;
-                    Passwords = result.agent.password ?? string.Empty;
-                    Name = result.agent.name ?? "Unknown";
-                    Category = result.agent.category;
-                    Pin = result.agent.pin ?? string.Empty;
-                    Super_Agent = result.agent.SuperAgent ?? string.Empty;
-                    CollectionPoint = result.agent.collectionPoint ?? string.Empty;
-                    Message = result.message ?? string.Empty;
-                    App.IsUserLoggedIn = true;
+                    bool sessionOpened = await SessionManager.SignInAsync(new SessionData
+                    {
+                        Email = email,
+                        Name = result.agent.name ?? "Unknown",
+                        Password = result.agent.password ?? string.Empty,
+                        Pin = result.agent.pin ?? string.Empty,
+                        Category = result.agent.category,
+                        CollectionPoint = result.agent.collectionPoint ?? string.Empty,
+                        SuperAgent = result.agent.SuperAgent ?? string.Empty,
+                        Message = result.message ?? string.Empty
+                    });
 
-                    // Start session monitoring
-                    SessionManager.Instance.StartSession();
+                    if (!sessionOpened)
+                    {
+                        ShowErrorToast("Signed in, but the session could not be saved on this device.");
+                    }
 
                     await ShowSuccessAnimation();
 

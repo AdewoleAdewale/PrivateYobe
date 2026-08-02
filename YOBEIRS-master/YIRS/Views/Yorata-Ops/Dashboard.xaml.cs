@@ -801,13 +801,14 @@ namespace YIRS.Views.Yorata_Ops
                     if (!result) return;
                 }
 
-                App.IsUserLoggedIn = false;
                 SessionManager.Instance.StopSession();
+                await SecureStorageService.ClearCredentialsAsync();
+
                 cashoutBalance = null;
                 agent = null;
                 superAgent = null;
 
-                await Navigation.PopToRootAsync();
+                Device.BeginInvokeOnMainThread(() => App.SetRoot(new Views.MainPage()));
             }
             catch (Exception ex)
             {
