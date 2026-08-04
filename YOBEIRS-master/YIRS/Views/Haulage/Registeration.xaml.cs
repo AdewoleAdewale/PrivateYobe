@@ -623,6 +623,7 @@ namespace YIRS.Views.Haulage
                 _result.Amount = FormatAmount(response.amount);
                 _result.DateRecorded = FormatDate(response.dateRecorded);
                 _result.ReferenceId = response.id > 0 ? response.id.ToString() : "—";
+                PublishToVerifyContext(response, request);
 
                 Device.BeginInvokeOnMainThread(() =>
                 {
@@ -755,7 +756,70 @@ namespace YIRS.Views.Haulage
         }
 
         // ───────────────────────── Helpers ─────────────────────────
+        /// <summary>
+        /// Copies the registration result into the Verify static context. Payments reads
+        /// exclusively from these fields, so this is what makes "register → pay" work
+        /// without altering the Verify or Payments modules.
+        /// </summary>
+        private static void PublishToVerifyContext(VechicleRegisterationResponse response,
+                                                   VechicleRegistrationObject request)
+        {
+            try
+            {
+                Verify.nameofDriverss = Fallback(response.nameofDriver, request.NameofDriver);
+                Verify.plateNumberss = Fallback(response.plateNumber, request.PlateNumber);
+                Verify.ownerPhoness = Fallback(response.ownerPhone, request.OwnerPhone);
+                Verify.statess = Fallback(response.state, "Yobe State");
+                Verify.lgass = Fallback(response.lga, request.LGA);
+                Verify.vehicleTypess = Fallback(response.vehicleType, request.VehicleType);
+                Verify.amountss = response.amount ?? string.Empty;
+                Verify.messagess = Fallback(response.message, "Vehicle registered successfully.");
+                Verify.recordedByss = Fallback(response.recordedBy, request.RecordedBy);
+                Verify.dateRecordedss = response.dateRecorded ?? string.Empty;
 
+                Verify.destinationFromss = Fallback(response.destinationFrom, request.DestinationFrom);
+                Verify.destinationToss = Fallback(response.destinationTo, request.DestinationTo);
+
+                // Deliberately NOT response.statusCode. On this endpoint "00" means the
+                // registration succeeded, but Verify renders statusCodess == "00" as the
+                // PAID badge — and this vehicle has not paid yet. Leaving it blank keeps
+                // the badge on PENDING until a payment actually goes through.
+                Verify.statusCodess = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Log("PublishToVerifyContext", ex);
+            }
+        }
+
+        /// <summary>
+        /// Route B: straight from the registration receipt into the payment page.
+        /// Route A (Verify → Payments) is unaffected.
+        /// </summary>
+        private async void proceedToPayment_Tapped(object sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Verify.plateNumberss))
+                {
+                    Toast("Registration details are not available for payment. Please verify the plate number instead.", 5);
+                    return;
+                }
+
+                sheetBehavior.IsOpen = false;
+                failedenumeration.IsOpen = false;
+
+                await Task.Delay(200);   // let the sheet finish closing before pushing
+
+                SessionManager.Instance.UpdateActivity();
+                await Navigation.PushAsync(new Views.Haulage.Payments());
+            }
+            catch (Exception ex)
+            {
+                Log("proceedToPayment_Tapped", ex);
+                Toast("Could not open the payment page. Please try from the Verify page.", 5);
+            }
+        }
         private static string SafeText(InputView entry)
         {
             try { return entry?.Text?.Trim() ?? string.Empty; }

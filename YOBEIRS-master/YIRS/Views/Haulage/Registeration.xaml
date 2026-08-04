@@ -518,21 +518,45 @@
                                 </StackLayout>
                             </yummy:PancakeView>
 
-                            <yummy:PancakeView BackgroundGradientStartColor="#004225"
-                                               BackgroundGradientEndColor="#00AA55"
-                                               BackgroundGradientAngle="90"
-                                               CornerRadius="14"
-                                               HeightRequest="52">
+                            <!-- PROCEED TO PAYMENT (new) -->
+                            <yummy:PancakeView BackgroundGradientStartColor="#00301B"
+                   BackgroundGradientEndColor="#00693A"
+                   BackgroundGradientAngle="90"
+                   CornerRadius="14"
+                   HeightRequest="54"
+                   Elevation="6">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Label Grid.Column="0" Text="+" FontSize="17"
+               TextColor="White" VerticalOptions="Center" Margin="18,0,0,0"/>
+                                    <Label Grid.Column="1"
+               Text="PROCEED TO PAYMENT"
+               FontSize="13" FontAttributes="Bold"
+               CharacterSpacing="0.8"
+               TextColor="White"
+               HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Label Grid.Column="2" Text="→" FontSize="17"
+               TextColor="White" VerticalOptions="Center" Margin="0,0,18,0"/>
+                                </Grid>
+                                <yummy:PancakeView.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="proceedToPayment_Tapped"/>
+                                </yummy:PancakeView.GestureRecognizers>
+                            </yummy:PancakeView>
+
+                            <yummy:PancakeView BackgroundGradientStartColor="#F1F6F2"
+                   BackgroundGradientEndColor="#E4EDE7"
+                   BackgroundGradientAngle="90"
+                   CornerRadius="14"
+                   HeightRequest="52">
                                 <Label Text="REGISTER ANOTHER VEHICLE  →"
-                                       FontSize="13" FontAttributes="Bold"
-                                       CharacterSpacing="0.8"
-                                       TextColor="White"
-                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+           FontSize="13" FontAttributes="Bold"
+           CharacterSpacing="0.8"
+           TextColor="#00693A"
+           HorizontalOptions="Center" VerticalOptions="Center"/>
                                 <yummy:PancakeView.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="tryagain_Clicked"/>
                                 </yummy:PancakeView.GestureRecognizers>
                             </yummy:PancakeView>
-
+                           
                             <Label Text="DONE"
                                    FontSize="12" FontAttributes="Bold"
                                    TextColor="#6B7B72"
