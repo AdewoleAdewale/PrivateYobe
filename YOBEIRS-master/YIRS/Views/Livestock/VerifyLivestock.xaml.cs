@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+
+namespace YIRS.Views.Livestock
+{
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class VerifyLivestock : ContentPage
+    {
+        public VerifyLivestock()
+        {
+            InitializeComponent();
+        }
+    }
+}
