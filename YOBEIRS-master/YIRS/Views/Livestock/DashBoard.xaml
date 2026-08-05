@@ -495,7 +495,7 @@
                                                                BackgroundColor="{Binding StatusTintColor}"
                                                                VerticalOptions="Center">
                                                 
-                                                <Image Source="goodone"  HeightRequest="25"
+                                                <Image Source="gooddone"  HeightRequest="25"
                                                        HorizontalOptions="Center"
                                                        VerticalOptions="Center"/>
                                             </yummy:PancakeView>

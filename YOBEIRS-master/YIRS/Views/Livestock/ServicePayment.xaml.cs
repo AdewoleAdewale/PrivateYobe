@@ -796,7 +796,6 @@ namespace YIRS.Views.Livestock
             return new ReceiptData
             {
                 StoreName = App.RevenueServiceName ?? "YOBE STATE INTERNAL REVENUE SERVICE",
-                StoreSubTitle = "LIVESTOCK COLLECTION",
                 StorePhone = "Contact us: 09070701616,07017639494",
                 ReceiptNumber = transactionNo,
                 AgentName = MainPage.Name ?? "N/A",

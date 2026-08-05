@@ -24,8 +24,8 @@
 
         <!-- ═══════════════ HEADER ═══════════════ -->
         <yummy:PancakeView Grid.Row="0"
-                           CornerRadius="0,0,24,24"
-                           Padding="18,105,18,20"
+                           CornerRadius="0,0,14,14"
+                           Padding="18,15,18,20"
                            HasShadow="True"
                            Elevation="8">
             <yummy:PancakeView.BackgroundGradientStops>
@@ -312,7 +312,7 @@
 
                 <yummy:PancakeView Grid.Column="1"
                                    x:Name="PayButton"
-                                   CornerRadius="26"
+                                   CornerRadius="16"
                                    Padding="28,14"
                                    BackgroundColor="#004225">
                     <yummy:PancakeView.GestureRecognizers>
@@ -334,7 +334,7 @@
               IsVisible="False">
 
             <yummy:PancakeView BackgroundColor="White"
-                               CornerRadius="22"
+                               CornerRadius="12"
                                Margin="20"
                                Padding="0"
                                VerticalOptions="Center">
@@ -372,8 +372,7 @@
                                     SelectedIndexChanged="OnPaymentMethodChanged">
                                 <Picker.Items>
                                     <x:String>Cash</x:String>
-                                    <x:String>Transfer</x:String>
-                                    <x:String>Card</x:String>
+                               
                                 </Picker.Items>
                             </Picker>
                         </yummy:PancakeView>
@@ -421,7 +420,7 @@
 
                             <yummy:PancakeView Grid.Column="0"
                                                BackgroundColor="#ECEFF1"
-                                               CornerRadius="24"
+                                               CornerRadius="14"
                                                Padding="0,14">
                                 <yummy:PancakeView.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnCancelConfirmTapped"/>
@@ -435,7 +434,7 @@
 
                             <yummy:PancakeView Grid.Column="1"
                                                BackgroundColor="#004225"
-                                               CornerRadius="24"
+                                               CornerRadius="14"
                                                Padding="0,14">
                                 <yummy:PancakeView.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnSubmitPaymentTapped"/>
