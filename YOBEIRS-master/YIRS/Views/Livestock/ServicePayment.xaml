@@ -25,7 +25,7 @@
         <!-- ═══════════════ HEADER ═══════════════ -->
         <yummy:PancakeView Grid.Row="0"
                            CornerRadius="0,0,24,24"
-                           Padding="18,45,18,20"
+                           Padding="18,105,18,20"
                            HasShadow="True"
                            Elevation="8">
             <yummy:PancakeView.BackgroundGradientStops>

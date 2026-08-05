@@ -1,27 +1,34 @@
 ﻿using Acr.UserDialogs;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
+using Xamarin.Essentials;
 using Xamarin.Forms;
+using Xamarin.Forms.PlatformConfiguration.WindowsSpecific;
 using Xamarin.Forms.Xaml;
 using YIRS.Services;
-using YIRS.Views.Yorata_Ops;
 
 namespace YIRS.Views.Livestock
 {
     /// <summary>
     /// Landing page for agents whose login category is "Damaturu" (livestock collection).
     ///
-    /// Two entry points, per the module spec:
-    ///   1. Livestock Collection  → <see cref="ServiceList"/> (select services, set quantities, pay, print)
-    ///   2. Dashboard utilities   → wallet balance and settings
+    /// Surfaces, in priority order for someone standing at a market gate:
+    ///   • who they are and which collection point they are posting to
+    ///   • wallet balance and what they have collected today
+    ///   • one large action to start a collection
+    ///   • verify, history, change PIN, change password
+    ///   • the five most recent transactions, tapping through to full history
     ///
-    /// Logout deliberately rebuilds the root as <c>Views.MainPage</c> rather than calling
-    /// PopToRootAsync — the Yorata-Ops and Default modules get this wrong and land the agent
-    /// back on a dashboard with a dead session.
+    /// Logout rebuilds the root as <c>Views.MainPage</c> rather than calling PopToRootAsync —
+    /// the Yorata-Ops and Default modules get this wrong and land the agent back on a
+    /// dashboard with a dead session.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DashBoard : ContentPage
@@ -52,6 +59,7 @@ namespace YIRS.Views.Livestock
             "https://yobe.osoftpay.net/api/singlecollections/getbalance";
 
         private bool _isBusy;
+        private bool _isRefreshing;
 
         // ══════════════════════════════════════════════════════════════
         //  LIFECYCLE
@@ -77,13 +85,18 @@ namespace YIRS.Views.Livestock
             try
             {
                 SessionManager.Instance.UpdateActivity();
-                BindAgentHeader();
 
-                // The session can only be gone if logout raced the page; bail out cleanly.
                 if (!SessionManager.IsAuthenticated)
                 {
                     Device.BeginInvokeOnMainThread(() => App.SetRoot(new Views.MainPage()));
+                    return;
                 }
+
+                BindAgentHeader();
+
+                // Refreshed on every appearance, not just the first, so returning from a
+                // payment immediately shows the transaction that was just taken.
+                Device.BeginInvokeOnMainThread(async () => await RefreshAllAsync());
             }
             catch (Exception ex)
             {
@@ -107,13 +120,23 @@ namespace YIRS.Views.Livestock
         {
             try
             {
+                AgentNameLabel.Text = string.IsNullOrWhiteSpace(MainPage.Name)
+                    ? "Agent"
+                    : MainPage.Name;
+
                 CollectionPointLabel.Text = string.IsNullOrWhiteSpace(MainPage.CollectionPoint)
                     ? "Unknown Collection Point"
                     : MainPage.CollectionPoint;
 
-                AgentNameLabel.Text = string.IsNullOrWhiteSpace(MainPage.Name)
-                    ? "Agent"
-                    : MainPage.Name;
+                string category = (MainPage.Category ?? string.Empty).Trim();
+                CategoryBadgeLabel.Text = string.IsNullOrWhiteSpace(category)
+                    ? "LIVESTOCK"
+                    : category.ToUpperInvariant();
+
+                int hour = DateTime.Now.Hour;
+                GreetingLabel.Text = hour < 12
+                    ? "Good morning"
+                    : (hour < 17 ? "Good afternoon" : "Good evening");
             }
             catch (Exception ex)
             {
@@ -122,50 +145,34 @@ namespace YIRS.Views.Livestock
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  NAVIGATION
+        //  REFRESH
         // ══════════════════════════════════════════════════════════════
 
-        private async void OnCollectTapped(object sender, EventArgs e)
+        private async void OnRefreshing(object sender, EventArgs e)
         {
-            if (_isBusy) return;
-            _isBusy = true;
-
-            try
-            {
-                SessionManager.Instance.UpdateActivity();
-                await CollectCard.ScaleTo(0.97, 80);
-                await CollectCard.ScaleTo(1.0, 80);
-
-                await Navigation.PushAsync(new ServiceList());
-            }
+            try { await RefreshAllAsync(); }
             catch (Exception ex)
             {
-                LogError("OnCollectTapped", ex);
-                await DisplayAlert("Error", "Unable to open the collection screen.", "OK");
-            }
-            finally
-            {
-                _isBusy = false;
+                LogError("OnRefreshing", ex);
+                refreshView.IsRefreshing = false;
             }
         }
 
-        private async void OnSettingsTapped(object sender, EventArgs e)
+        private async Task RefreshAllAsync()
         {
+            if (_isRefreshing) return;
+            _isRefreshing = true;
+
             try
             {
-                SessionManager.Instance.UpdateActivity();
-
-                string choice = await DisplayActionSheet(
-                    "Settings", "Cancel", null, "Change Password", "Change Transfer PIN");
-
-                if (choice == "Change Password")
-                    await Navigation.PushAsync(new ChangePassword());
-                else if (choice == "Change Transfer PIN")
-                    await Navigation.PushAsync(new ChangeTransferPIN());
+                // Balance and transactions are independent — run them together rather than
+                // making the agent wait for one before the other starts.
+                await Task.WhenAll(LoadBalanceAsync(), LoadRecentAsync());
             }
-            catch (Exception ex)
+            finally
             {
-                LogError("OnSettingsTapped", ex);
+                _isRefreshing = false;
+                MainThread.BeginInvokeOnMainThread(() => refreshView.IsRefreshing = false);
             }
         }
 
@@ -178,11 +185,22 @@ namespace YIRS.Views.Livestock
             try
             {
                 SessionManager.Instance.UpdateActivity();
+                await LoadBalanceAsync();
+            }
+            catch (Exception ex)
+            {
+                LogError("OnBalanceTapped", ex);
+            }
+        }
 
+        private async Task LoadBalanceAsync()
+        {
+            try
+            {
                 if (string.IsNullOrWhiteSpace(MainPage.Pin) ||
                     string.IsNullOrWhiteSpace(MainPage.ValidUserMail))
                 {
-                    await DisplayAlert("Session", "Please sign in again to view your balance.", "OK");
+                    BalanceLabel.Text = "Sign in again";
                     return;
                 }
 
@@ -196,7 +214,7 @@ namespace YIRS.Views.Livestock
                 using (var response = await Http.GetAsync(url, cts.Token))
                 {
                     string json = await response.Content.ReadAsStringAsync();
-                    System.Diagnostics.Debug.WriteLine("[LiveStock:Balance] " + json);
+                    System.Diagnostics.Debug.WriteLine("[Livestock:Balance] " + json);
 
                     if (!response.IsSuccessStatusCode || string.IsNullOrWhiteSpace(json))
                     {
@@ -216,8 +234,209 @@ namespace YIRS.Views.Livestock
             }
             catch (Exception ex)
             {
-                LogError("OnBalanceTapped", ex);
+                LogError("LoadBalanceAsync", ex);
                 BalanceLabel.Text = "Unavailable";
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  RECENT TRANSACTIONS + TODAY'S TOTALS
+        // ══════════════════════════════════════════════════════════════
+
+        private async Task LoadRecentAsync()
+        {
+            try
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    RecentLoadingCard.IsVisible = true;
+                    RecentEmptyCard.IsVisible = false;
+                });
+
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40)))
+                {
+                    // One call covers both panels: today's totals are derived from the same
+                    // 30-day window used for the recent list, so there is no second request.
+                    var response = await LivestockTransactionService.GetAsync(
+                        DateTime.Now.Date.AddDays(-30), DateTime.Now.Date, cts.Token);
+
+                    var all = response.Transactions ?? new List<Transaction>();
+
+                    var today = all
+                        .Where(t => t.ParsedDate.HasValue &&
+                                    t.ParsedDate.Value.Date == DateTime.Now.Date &&
+                                    t.IsSuccessful)
+                        .ToList();
+
+                    var recent = all.Take(5).ToList();
+
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        TodayAmountLabel.Text = string.Format("₦{0:N2}", today.Sum(t => t.Amount));
+                        TodayCountLabel.Text = today.Count.ToString();
+
+                        RecentLoadingCard.IsVisible = false;
+
+                        if (recent.Count == 0)
+                        {
+                            ShowRecentPlaceholder("🐄",
+                                "No collections in the last 30 days. Tap New Collection to start.");
+                        }
+                        else
+                        {
+                            RecentEmptyCard.IsVisible = false;
+                            RecentStack.IsVisible = true;
+                            BindableLayout.SetItemsSource(RecentStack, recent);
+                        }
+                    });
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ShowRecentPlaceholder("⏱", "Recent collections timed out. Pull down to retry.");
+            }
+            catch (HttpRequestException)
+            {
+                ShowRecentPlaceholder("📡", "No connection. Pull down to retry.");
+            }
+            catch (Exception ex)
+            {
+                LogError("LoadRecentAsync", ex);
+                ShowRecentPlaceholder("⚠", "Could not load recent collections.");
+            }
+        }
+
+        private void ShowRecentPlaceholder(string icon, string message)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                RecentLoadingCard.IsVisible = false;
+                RecentStack.IsVisible = false;
+                BindableLayout.SetItemsSource(RecentStack, null);
+
+                RecentEmptyIcon.Text = icon;
+                RecentEmptyLabel.Text = message;
+                RecentEmptyCard.IsVisible = true;
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  NAVIGATION
+        // ══════════════════════════════════════════════════════════════
+
+        private async void OnCollectTapped(object sender, EventArgs e)
+        {
+            if (_isBusy) return;
+            _isBusy = true;
+
+            try
+            {
+                SessionManager.Instance.UpdateActivity();
+                await CollectCard.ScaleTo(0.97, 80);
+                await CollectCard.ScaleTo(1.0, 80);
+
+                // Fully qualified on purpose: YIRS.Views.Yorata_Ops also has a ServiceList,
+                // and an unqualified name here silently opens the wrong module's page.
+                await Navigation.PushAsync(new YIRS.Views.Livestock.ServicePayment());
+            }
+            catch (Exception ex)
+            {
+                LogError("OnCollectTapped", ex);
+                await DisplayAlert("Error", "Unable to open the collection screen.", "OK");
+            }
+            finally
+            {
+                _isBusy = false;
+            }
+        }
+
+        private async void OnHistoryTapped(object sender, EventArgs e)
+        {
+            if (_isBusy) return;
+            _isBusy = true;
+
+            try
+            {
+                SessionManager.Instance.UpdateActivity();
+                await Navigation.PushAsync(new YIRS.Views.Livestock.History());
+            }
+            catch (Exception ex)
+            {
+                LogError("OnHistoryTapped", ex);
+            }
+            finally
+            {
+                _isBusy = false;
+            }
+        }
+
+        /// <summary>
+        /// A recent row opens the full history rather than a one-off detail page — the agent
+        /// is almost always reaching for the wider list anyway.
+        /// </summary>
+        private async void OnRecentTapped(object sender, EventArgs e)
+        {
+            if (_isBusy) return;
+            _isBusy = true;
+
+            try
+            {
+                SessionManager.Instance.UpdateActivity();
+                await Navigation.PushAsync(new History());
+            }
+            catch (Exception ex)
+            {
+                LogError("OnRecentTapped", ex);
+            }
+            finally
+            {
+                _isBusy = false;
+            }
+        }
+
+        private async void OnVerifyTapped(object sender, EventArgs e)
+        {
+            if (_isBusy) return;
+            _isBusy = true;
+
+            try
+            {
+                SessionManager.Instance.UpdateActivity();
+                await Navigation.PushAsync(new VerifyLivestock());
+            }
+            catch (Exception ex)
+            {
+                LogError("OnVerifyTapped", ex);
+            }
+            finally
+            {
+                _isBusy = false;
+            }
+        }
+
+        private async void OnChangePinTapped(object sender, EventArgs e)
+        {
+            try
+            {
+                SessionManager.Instance.UpdateActivity();
+                await Navigation.PushAsync(new ChangeTransferPIN());
+            }
+            catch (Exception ex)
+            {
+                LogError("OnChangePinTapped", ex);
+            }
+        }
+
+        private async void OnChangePasswordTapped(object sender, EventArgs e)
+        {
+            try
+            {
+                SessionManager.Instance.UpdateActivity();
+                await Navigation.PushAsync(new ChangePassword());
+            }
+            catch (Exception ex)
+            {
+                LogError("OnChangePasswordTapped", ex);
             }
         }
 
@@ -263,7 +482,7 @@ namespace YIRS.Views.Livestock
 
         private static void LogError(string scope, Exception ex)
             => System.Diagnostics.Debug.WriteLine(
-                string.Format("[LiveStock:Dashboard:{0}] {1}", scope, ex));
+                string.Format("[Livestock:Dashboard:{0}] {1}", scope, ex));
 
         // ══════════════════════════════════════════════════════════════
         //  MODELS

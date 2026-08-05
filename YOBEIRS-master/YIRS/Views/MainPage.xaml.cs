@@ -869,10 +869,11 @@ namespace YIRS.Views
                         agentType = "Haulage Agent";
                         break;
 
-                    case "damaturu":
+                    case "Damaturu":
                         targetPage = new Views.Livestock.DashBoard();
                         agentType = "Livestock Agent";
                         break;
+
                     default:
                         ShowErrorToast($"Unknown agent category: {agent.category}");
                         return;
