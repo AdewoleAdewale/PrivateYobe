@@ -842,7 +842,9 @@ namespace YIRS.Views
                 Page targetPage = null;
                 string agentType = string.Empty;
 
-                switch (agent.category?.ToLower())
+                // Trim: the API returns "Damaturu " with a trailing space.
+                // ToLowerInvariant: culture-independent, and the case labels below are all lowercase.
+                switch ((agent.category ?? string.Empty).Trim().ToLowerInvariant())
                 {
                     case "default":
                         targetPage = new Views.Default.DefaultDashboard();
@@ -869,9 +871,9 @@ namespace YIRS.Views
                         agentType = "Haulage Agent";
                         break;
 
-                    case "Damaturu":
+                    case "damaturu":                                        // ← lowercase
                         targetPage = new Views.Livestock.DashBoard();
-                        agentType = "Livestock Agent";
+                        agentType = "Damaturu LG Collection Agent";
                         break;
 
                     default:

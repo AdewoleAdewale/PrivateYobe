@@ -128,6 +128,9 @@ namespace YIRS.Views.Livestock
                     ? "Unknown Collection Point"
                     : MainPage.CollectionPoint;
 
+                string revHead = LivestockModule.RevenueHead;
+                CategoryBadgeLabel.Text = revHead.ToUpperInvariant();
+
                 string category = (MainPage.Category ?? string.Empty).Trim();
                 CategoryBadgeLabel.Text = string.IsNullOrWhiteSpace(category)
                     ? "LIVESTOCK"

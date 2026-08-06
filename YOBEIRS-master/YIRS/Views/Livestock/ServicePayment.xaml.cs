@@ -230,12 +230,9 @@ namespace YIRS.Views.Livestock
                     // rows that belong to this agent's revenue head; if nothing matches (a
                     // trailing-space or casing difference in revName), fall back to the full
                     // list rather than showing the agent an empty screen.
-                    string revHead = (MainPage.CollectionPoint ?? string.Empty).Trim();
-
+                    string revHead = LivestockModule.RevenueHead;
                     var mine = services
-                        .Where(s => !string.IsNullOrWhiteSpace(s.RevName) &&
-                                    string.Equals(s.RevName.Trim(), revHead,
-                                                  StringComparison.OrdinalIgnoreCase))
+                        .Where(s => LivestockModule.MatchesRevenueHead(s.RevName, revHead))
                         .ToList();
 
                     if (mine.Count == 0)
@@ -466,7 +463,7 @@ namespace YIRS.Views.Livestock
 
                 var request = new LiveStockPaymentRequest
                 {
-                    RevHead = (MainPage.CollectionPoint ?? string.Empty).Trim(),
+                    RevHead = LivestockModule.RevenueHead,
                     PaymentMethod = method,
                     Email = (MainPage.ValidUserMail ?? string.Empty).Trim(),
                     Pin = pin,
@@ -798,6 +795,7 @@ namespace YIRS.Views.Livestock
                 StoreName = App.RevenueServiceName ?? "YOBE STATE INTERNAL REVENUE SERVICE",
                 StorePhone = "Contact us: 09070701616,07017639494",
                 ReceiptNumber = transactionNo,
+                StoreSubTitle = LivestockModule.DisplayName,
                 AgentName = MainPage.Name ?? "N/A",
                 CollectionPoint = MainPage.CollectionPoint ?? "N/A",
                 SuperAgent = MainPage.Super_Agent ?? string.Empty,
