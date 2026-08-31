@@ -169,6 +169,7 @@
 
   <ItemGroup>
     <Folder Include="System\Net\" />
+    <Folder Include="Views\Water\" />
   </ItemGroup>
 
   <ItemGroup>

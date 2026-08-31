@@ -19,21 +19,22 @@ namespace YIRS.Views.Livestock
     /// </summary>
     public static class LivestockModule
     {
-        // ── Naming ────────────────────────────────────────────────────
-
+       
         /// <summary>Full name, used in page headers and on printed receipts.</summary>
         public const string DisplayName = "Damaturu Local Government Collection";
+
 
         /// <summary>Uppercase form for the dashboard badge.</summary>
         public const string BadgeText = "DAMATURU LG COLLECTION";
 
+
         /// <summary>Short form for tight spaces.</summary>
         public const string ShortName = "Damaturu LG Collection";
+
 
         /// <summary>Login category that routes an agent into this module, lowercased.</summary>
         public const string CategoryKey = "damaturu";
 
-        // ── Revenue head ──────────────────────────────────────────────
 
         /// <summary>
         /// The revenue head sent to the server as <c>revHead</c> and matched against
@@ -44,6 +45,8 @@ namespace YIRS.Views.Livestock
         /// for the case where the session somehow carries no collection point — better than
         /// posting an empty string.
         /// </summary>
+        
+
         public static string RevenueHead
         {
             get
