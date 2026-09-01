@@ -10,14 +10,14 @@ namespace YIRS.Views.Water
     public partial class WaterPaymentPage : ContentPage
     {
         private readonly WaterService _waterService;
-        private readonly WaterReceiptPrintService _printService;
+        private readonly WaterPrintSDK _printService;
         private WaterConnectionStatusResponse _currentConnection;
 
         public WaterPaymentPage()
         {
             InitializeComponent();
             _waterService = new WaterService();
-            _printService = new WaterReceiptPrintService();
+            _printService = new WaterPrintSDK();
         }
 
         private async void OnLookupClicked(object sender, EventArgs e)
@@ -110,7 +110,7 @@ namespace YIRS.Views.Water
                 var receipt = await _waterService.GetReceiptAsync(res.transactionNo); //[cite: 2]
                 if (receipt != null && receipt.respondCode == "00") //[cite: 2]
                 {
-                    await _printService.PrintWaterReceiptAsync(receipt, months);
+                    await _printService.PrintPaymentReceiptAsync(receipt, months);
                 }
 
                 await Navigation.PopAsync();

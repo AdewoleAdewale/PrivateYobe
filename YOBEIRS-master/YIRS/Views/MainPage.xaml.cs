@@ -876,9 +876,9 @@ namespace YIRS.Views
                         agentType = "Damaturu LG Collection Agent";
                         break;
 
-                    case "Water Corporation":                                        // ← lowercase
-                        targetPage = new Views.Water.WaterDashBoard();
-                        agentType = "Water Corporation Agent";
+                    case "water resource":                                        // ← lowercase
+                        targetPage = new Views.Water.WaterDashboard();
+                        agentType = "Water Resource Agent";
                         break;
                 
                     default:

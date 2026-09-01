@@ -272,6 +272,8 @@ namespace YIRS.Services
             catch { return false; }
         }
 
+
+     
         // =====================================================================
         //  IPrinterService  –  PrintReceiptAsync  (with PrintRetryPolicy)
         // =====================================================================
@@ -1056,7 +1058,57 @@ namespace YIRS.Services
             ClearActiveJob();
             GC.SuppressFinalize(this);
         }
+
+        public async Task<bool> PrintRawBytesAsync(byte[] data)
+        {
+            // Pseudocode:
+            // 1. Reject null or empty data.
+            // 2. Request Bluetooth permissions and validate the adapter/printer.
+            // 3. Open a Bluetooth socket with the existing connection fallback logic.
+            // 4. Send the original bytes without converting them to text.
+            // 5. Dispose the socket and return whether printing succeeded.
+
+            if (data == null || data.Length == 0)
+                return false;
+
+            BluetoothSocket socket = null;
+            CancellationTokenSource cts = null;
+
+            try
+            {
+                await RequireBluetoothPermissionsAsync();
+                EnsureBluetoothReady();
+
+                var device = FindPrinterDevice(BluetoothAdapter.DefaultAdapter);
+                if (device == null)
+                    return false;
+
+                cts = new CancellationTokenSource();
+                cts.CancelAfter(PRINT_TIMEOUT_MS);
+
+                socket = await OpenSocketAsync(device, cts.Token);
+                await SendChunkedAsync(socket.OutputStream, data, cts.Token);
+                await Task.Delay(FLUSH_SETTLE_MS, cts.Token);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log(string.Format("Raw print failed: {0}", ex.Message));
+                return false;
+            }
+            finally
+            {
+                if (cts != null)
+                    cts.Dispose();
+
+                SafeDispose(socket);
+            }
+        }
+
     }
+
+
 
     // =========================================================================
     //  STREAM EXTENSIONS

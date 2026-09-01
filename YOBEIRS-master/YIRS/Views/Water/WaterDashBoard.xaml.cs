@@ -10,13 +10,13 @@ namespace YIRS.Views.Water
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class WaterDashboard : ContentPage
     {
-        private readonly WaterReceiptPrintService _printService;
+        private readonly WaterPrintSDK _printService;
         private readonly WaterService _waterService;
 
-        public WaterDashBoard()
+        public WaterDashboard()
         {
             InitializeComponent();
-            _printService = new WaterReceiptPrintService();
+            _printService = new WaterPrintSDK();
             _waterService = new WaterService();
         }
 

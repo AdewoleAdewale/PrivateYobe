@@ -30,7 +30,7 @@
                             <Grid ColumnDefinitions="Auto, *, Auto">
 
                                 <Frame Grid.Column="0" BackgroundColor="#E0F5EE" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" VerticalOptions="Center">
-                                    <Label Text="💧" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Image Source="add"   HorizontalOptions="Center" VerticalOptions="Center" Margin="10"/>
                                 </Frame>
 
                                 <StackLayout Grid.Column="1" Margin="10,0,0,0" VerticalOptions="Center" Spacing="2">

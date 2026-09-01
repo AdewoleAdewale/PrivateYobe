@@ -12,7 +12,7 @@
             <Frame BackgroundColor="White" CornerRadius="12" Padding="16" HasShadow="False" BorderColor="#ECECEC">
                 <StackLayout Spacing="10">
                     <Label Text="LOOKUP CONNECTION" TextColor="#063E2A" FontAttributes="Bold" FontSize="12"/>
-                    <Entry x:Name="ConnectionNoEntry" Placeholder="Enter Connection ID (e.g. DTR/WTC/00002)" TextColor="#222"/>
+                    <Entry x:Name="ConnectionNoEntry" Placeholder="Enter Connection ID (e.g. DTR/WTC/00002)" TextColor="#222" FontSize="15" />
                     <Button Text="Verify Connection" BackgroundColor="#063E2A" TextColor="White" 
                             FontAttributes="Bold" CornerRadius="8" HeightRequest="45" Clicked="OnLookupClicked"/>
                 </StackLayout>

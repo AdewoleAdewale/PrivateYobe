@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="YIRS.Views.Water.WaterDashBoard"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             x:Class="YIRS.Views.Water.WaterDashboard"
              NavigationPage.HasNavigationBar="False"
              BackgroundColor="#F7F9FA">
 
@@ -12,27 +12,28 @@
             <StackLayout Spacing="0">
 
                 <!-- Dark Green Top Header Section -->
-                <Frame BackgroundColor="#063E2A" CornerRadius="0" Padding="20,40,20,25" HasShadow="False">
+                <yummy:PancakeView BackgroundColor="#063E2A" CornerRadius="0" Padding="20,40,20,25" HasShadow="False">
+                  
                     <StackLayout Spacing="16">
 
                         <!-- User / Location Row -->
                         <Grid ColumnDefinitions="Auto, *, Auto, Auto" VerticalOptions="Center">
-                            <Frame Grid.Column="0" BackgroundColor="#1F5742" CornerRadius="20" HeightRequest="40" WidthRequest="40" Padding="0" HasShadow="False">
+                            <Frame Grid.Column="0" BackgroundColor="#1F5742" CornerRadius="10" HeightRequest="40" WidthRequest="40" Padding="0" HasShadow="False">
                                 <Label Text="WC" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
                             </Frame>
                             <StackLayout Grid.Column="1" Margin="10,0,0,0" VerticalOptions="Center">
                                 <Label Text="Good day," TextColor="#A3C7B9" FontSize="11"/>
                                 <Label x:Name="AgentNameLabel" Text="Water Revenue Agent" TextColor="White" FontAttributes="Bold" FontSize="15"/>
                             </StackLayout>
-                            <Frame Grid.Column="2" BackgroundColor="#1F5742" CornerRadius="18" HeightRequest="36" WidthRequest="36" Padding="0" HasShadow="False">
+                            <Frame Grid.Column="2" BackgroundColor="#1F5742" CornerRadius="10" HeightRequest="36" WidthRequest="36" Padding="0" HasShadow="False">
                                 <Label Text="•••" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontSize="14"/>
                             </Frame>
-                            <Frame Grid.Column="3" BackgroundColor="#8B1E1E" CornerRadius="18" HeightRequest="36" WidthRequest="36" Padding="0" HasShadow="False" Margin="6,0,0,0">
-                                <Label Text="⏻" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontSize="14">
-                                    <Label.GestureRecognizers>
+                            <Frame Grid.Column="3" BackgroundColor="#8B1E1E" CornerRadius="10" HeightRequest="36" WidthRequest="36" Padding="0" HasShadow="False" Margin="6,0,0,0">
+                                <Image Source="shutdown"  HeightRequest="17" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Image.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnLogoutTapped"/>
-                                    </Label.GestureRecognizers>
-                                </Label>
+                                    </Image.GestureRecognizers>
+                                </Image>
                             </Frame>
                         </Grid>
 
@@ -77,7 +78,7 @@
                         </Grid>
 
                     </StackLayout>
-                </Frame>
+                    </yummy:PancakeView>
 
                 <!-- Status Chips & Main Action Banner -->
                 <StackLayout Padding="16,14" Spacing="14">
@@ -92,10 +93,16 @@
                     </StackLayout>
 
                     <!-- New Payment Banner Card -->
-                    <Frame BackgroundColor="#063E2A" CornerRadius="14" Padding="16" HasShadow="True">
-                        <Frame.GestureRecognizers>
+                    <yummy:PancakeView BackgroundColor="#063E2A" CornerRadius="14" Padding="16" HasShadow="True">
+                        <yummy:PancakeView.BackgroundGradientStops>
+                            <yummy:GradientStopCollection>
+                                <yummy:GradientStop Color="#063E2A" Offset="0"/>
+                                <yummy:GradientStop Color="#00713F" Offset="1"/>
+                            </yummy:GradientStopCollection>
+                        </yummy:PancakeView.BackgroundGradientStops>
+                        <yummy:PancakeView.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnNewPaymentTapped"/>
-                        </Frame.GestureRecognizers>
+                            </yummy:PancakeView.GestureRecognizers>
                         <Grid ColumnDefinitions="*, Auto">
                             <StackLayout Grid.Column="0">
                                 <Label Text="New water payment" TextColor="White" FontAttributes="Bold" FontSize="16"/>
@@ -103,7 +110,7 @@
                             </StackLayout>
                             <Label Grid.Column="1" Text="➔" TextColor="White" FontSize="20" VerticalOptions="Center"/>
                         </Grid>
-                    </Frame>
+                        </yummy:PancakeView>
 
                     <!-- 4 Rounded Action Tabs -->
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
@@ -114,7 +121,7 @@
                             </Frame.GestureRecognizers>
                             <StackLayout HorizontalOptions="Center" Spacing="6">
                                 <Frame BackgroundColor="#E0F5EE" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" HorizontalOptions="Center">
-                                    <Label Text="E" TextColor="#063E2A" FontAttributes="Bold" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Image Source="add"  HeightRequest="25" HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Frame>
                                 <Label Text="Enumerate" FontSize="11" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
                             </StackLayout>
@@ -127,7 +134,7 @@
                             </Frame.GestureRecognizers>
                             <StackLayout HorizontalOptions="Center" Spacing="6">
                                 <Frame BackgroundColor="#E5F0FF" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" HorizontalOptions="Center">
-                                    <Label Text="H" TextColor="#1B60C4" FontAttributes="Bold" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Image Source="tenementlist"  HeightRequest="25" HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Frame>
                                 <Label Text="History" FontSize="11" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
                             </StackLayout>
@@ -140,7 +147,7 @@
                             </Frame.GestureRecognizers>
                             <StackLayout HorizontalOptions="Center" Spacing="6">
                                 <Frame BackgroundColor="#FDF0DF" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" HorizontalOptions="Center">
-                                    <Label Text="T" TextColor="#C47314" FontAttributes="Bold" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Image Source="viewshop"  HeightRequest="25"  HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Frame>
                                 <Label Text="Test print" FontSize="11" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
                             </StackLayout>
@@ -153,7 +160,7 @@
                             </Frame.GestureRecognizers>
                             <StackLayout HorizontalOptions="Center" Spacing="6">
                                 <Frame BackgroundColor="#F0EBFC" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" HorizontalOptions="Center">
-                                    <Label Text="S" TextColor="#6E44BA" FontAttributes="Bold" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    <Image Source="gooddone"  HeightRequest="25"  HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Frame>
                                 <Label Text="Settings" FontSize="11" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
                             </StackLayout>
@@ -176,45 +183,45 @@
         </ScrollView>
 
         <!-- Modern Bottom Navigation Bar -->
-        <Frame Grid.Row="1" BackgroundColor="White" CornerRadius="22" Margin="14,0,14,12" Padding="14,8" HasShadow="True" BorderColor="#EEEEEE">
+        <Frame Grid.Row="1" BackgroundColor="White" CornerRadius="10" Margin="14,0,14,12" Padding="14,8" HasShadow="True" BorderColor="#EEEEEE">
             <Grid ColumnDefinitions="*,*,*,*,*">
                 <!-- Home -->
                 <StackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="⌂" FontSize="19" TextColor="#4A3AFF" HorizontalOptions="Center"/>
-                    <Label Text="Home" FontSize="10" TextColor="#4A3AFF" FontAttributes="Bold" HorizontalOptions="Center"/>
-                    <BoxView HeightRequest="3" WidthRequest="4" BackgroundColor="#4A3AFF" CornerRadius="2" HorizontalOptions="Center"/>
+                    <Label Text="⌂" FontSize="19" TextColor="#063E2A" HorizontalOptions="Center"/>
+                    <Label Text="Home" FontSize="10" TextColor="#063E2A" FontAttributes="Bold" HorizontalOptions="Center"/>
+                    <BoxView HeightRequest="3" WidthRequest="4" BackgroundColor="#063E2A" CornerRadius="2" HorizontalOptions="Center"/>
                 </StackLayout>
                 <!-- Enumerate -->
                 <StackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
                     <StackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnEnumerateTapped"/>
                     </StackLayout.GestureRecognizers>
-                    <Label Text="⊕" FontSize="18" TextColor="#8E92BC" HorizontalOptions="Center"/>
-                    <Label Text="Enumerate" FontSize="10" TextColor="#8E92BC" HorizontalOptions="Center"/>
+                    <Label Text="⊕" FontSize="18" TextColor="#063E2A" HorizontalOptions="Center"/>
+                    <Label Text="Enumerate" FontSize="10" TextColor="#063E2A" HorizontalOptions="Center"/>
                 </StackLayout>
                 <!-- Pay -->
                 <StackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
                     <StackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnNewPaymentTapped"/>
                     </StackLayout.GestureRecognizers>
-                    <Label Text="◫" FontSize="18" TextColor="#8E92BC" HorizontalOptions="Center"/>
-                    <Label Text="Pay" FontSize="10" TextColor="#8E92BC" HorizontalOptions="Center"/>
+                    <Label Text="◫" FontSize="18" TextColor="#063E2A" HorizontalOptions="Center"/>
+                    <Label Text="Pay" FontSize="10" TextColor="#063E2A" HorizontalOptions="Center"/>
                 </StackLayout>
                 <!-- History -->
                 <StackLayout Grid.Column="3" HorizontalOptions="Center" Spacing="2">
                     <StackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnHistoryTapped"/>
                     </StackLayout.GestureRecognizers>
-                    <Label Text="☷" FontSize="18" TextColor="#8E92BC" HorizontalOptions="Center"/>
-                    <Label Text="History" FontSize="10" TextColor="#8E92BC" HorizontalOptions="Center"/>
+                    <Label Text="☷" FontSize="18" TextColor="#063E2A" HorizontalOptions="Center"/>
+                    <Label Text="History" FontSize="10" TextColor="#063E2A" HorizontalOptions="Center"/>
                 </StackLayout>
                 <!-- Profile / Settings -->
                 <StackLayout Grid.Column="4" HorizontalOptions="Center" Spacing="2">
                     <StackLayout.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnSettingsTapped"/>
                     </StackLayout.GestureRecognizers>
-                    <Label Text="👤" FontSize="18" TextColor="#8E92BC" HorizontalOptions="Center"/>
-                    <Label Text="Profile" FontSize="10" TextColor="#8E92BC" HorizontalOptions="Center"/>
+                    <Label Text="👤" FontSize="18" TextColor="#063E2A" HorizontalOptions="Center"/>
+                    <Label Text="Profile" FontSize="10" TextColor="#063E2A" HorizontalOptions="Center"/>
                 </StackLayout>
             </Grid>
         </Frame>
