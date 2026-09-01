@@ -156,13 +156,13 @@
                         <!-- Settings -->
                         <Frame Grid.Column="3" BackgroundColor="White" CornerRadius="16" Padding="8" HasShadow="True" BorderColor="#EFEFEF">
                             <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnSettingsTapped"/>
+                                <TapGestureRecognizer Tapped="OnVerifyClicked"/>
                             </Frame.GestureRecognizers>
                             <StackLayout HorizontalOptions="Center" Spacing="6">
                                 <Frame BackgroundColor="#F0EBFC" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" HorizontalOptions="Center">
                                     <Image Source="gooddone"  HeightRequest="25"  HorizontalOptions="Center" VerticalOptions="Center"/>
                                 </Frame>
-                                <Label Text="Settings" FontSize="11" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
+                                <Label Text="Verify" FontSize="11" FontAttributes="Bold" TextColor="#333" HorizontalOptions="Center"/>
                             </StackLayout>
                         </Frame>
                     </Grid>
