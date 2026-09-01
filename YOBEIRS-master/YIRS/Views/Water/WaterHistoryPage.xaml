@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Water.WaterHistoryPage"
+             Title="Water Payment History"
+             BackgroundColor="#F7F9FA">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Filter / Search Header -->
+        <Frame Grid.Row="0" BackgroundColor="White" Padding="14,10" CornerRadius="0" HasShadow="True" BorderColor="#ECECEC">
+            <Frame BackgroundColor="#F4F6F8" CornerRadius="10" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                <SearchBar x:Name="HistorySearchBar" Placeholder="Search connection no, occupant..." 
+                           TextChanged="OnSearchTextChanged" BackgroundColor="Transparent"/>
+            </Frame>
+        </Frame>
+
+        <!-- Payments ListView -->
+        <ListView Grid.Row="1" x:Name="HistoryListView" 
+                  HasUnevenRows="True" 
+                  SelectionMode="None"
+                  ItemTapped="OnHistoryItemTapped"
+                  IsPullToRefreshEnabled="True"
+                  Refreshing="OnHistoryRefreshing"
+                  SeparatorVisibility="None">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Frame Margin="0,5" Padding="14,12" CornerRadius="14" HasShadow="False" BackgroundColor="White" BorderColor="#EFEFEF">
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+
+                                <Frame Grid.Column="0" BackgroundColor="#E0F5EE" CornerRadius="12" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False" VerticalOptions="Center">
+                                    <Label Text="💧" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Frame>
+
+                                <StackLayout Grid.Column="1" Margin="10,0,0,0" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding occupant}" FontAttributes="Bold" TextColor="#1F1F1F" FontSize="13"/>
+                                    <Label Text="{Binding connectionNo}" TextColor="#063E2A" FontAttributes="Bold" FontSize="11"/>
+                                    <Label Text="{Binding lastPaymentDate, StringFormat='{0:dd MMM yyyy, hh:mm tt}'}" TextColor="#888" FontSize="10"/>
+                                </StackLayout>
+
+                                <StackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding lastPaymentAmount, StringFormat='₦{0:N2}'}" FontAttributes="Bold" TextColor="#063E2A" FontSize="13" HorizontalTextAlignment="End"/>
+                                    <Frame BackgroundColor="#E3F7EF" CornerRadius="6" Padding="6,2" HasShadow="False" HorizontalOptions="End">
+                                        <Label Text="PAID" TextColor="#0E8A57" FontSize="9" FontAttributes="Bold"/>
+                                    </Frame>
+                                </StackLayout>
+                            </Grid>
+                        </Frame>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</ContentPage>

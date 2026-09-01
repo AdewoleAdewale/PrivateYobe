@@ -120,7 +120,8 @@ namespace YIRS
                     case "business premise": return new Views.Home.HomeDashboard();
                     case "state line": return new Views.StateLine.StateLineDashboard();
                     case "hulage": return new Views.Haulage.Dashboard();
-                    case "damaturu": return new Views.Livestock.DashBoard(); 
+                    case "damaturu": return new Views.Livestock.DashBoard();
+                    case "Water": return new Views.Water.WaterDashBoard();
 
                     default:
                         // Unknown or missing category — the session is not usable, so drop

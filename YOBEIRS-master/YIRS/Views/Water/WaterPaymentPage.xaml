@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Water.WaterPaymentPage"
+             Title="Water Bill Payment"
+             BackgroundColor="#F7F9FA">
+
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="16">
+
+            <!-- Connection Lookup Frame -->
+            <Frame BackgroundColor="White" CornerRadius="12" Padding="16" HasShadow="False" BorderColor="#ECECEC">
+                <StackLayout Spacing="10">
+                    <Label Text="LOOKUP CONNECTION" TextColor="#063E2A" FontAttributes="Bold" FontSize="12"/>
+                    <Entry x:Name="ConnectionNoEntry" Placeholder="Enter Connection ID (e.g. DTR/WTC/00002)" TextColor="#222"/>
+                    <Button Text="Verify Connection" BackgroundColor="#063E2A" TextColor="White" 
+                            FontAttributes="Bold" CornerRadius="8" HeightRequest="45" Clicked="OnLookupClicked"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Dynamic Verification and Billing Details Card -->
+            <Frame x:Name="DetailsFrame" IsVisible="False" BackgroundColor="White" CornerRadius="14" Padding="18" HasShadow="True" BorderColor="#ECECEC">
+                <StackLayout Spacing="14">
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <StackLayout Grid.Column="0">
+                            <Label x:Name="OccupantLbl" Text="Customer Name" FontAttributes="Bold" FontSize="16" TextColor="#111"/>
+                            <Label x:Name="AddressLbl" Text="Address here" TextColor="#666" FontSize="12"/>
+                            <Label x:Name="TariffLbl" Text="Tariff: -" TextColor="#063E2A" FontAttributes="Bold" FontSize="13"/>
+                        </StackLayout>
+                        <Frame Grid.Column="1" x:Name="StatusBadge" CornerRadius="8" Padding="10,4" HasShadow="False" VerticalOptions="Start">
+                            <Label x:Name="StatusLbl" Text="Status" FontSize="11" FontAttributes="Bold"/>
+                        </Frame>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#EFEFEF"/>
+
+                    <!-- Backlog and Rate Calculation -->
+                    <Grid ColumnDefinitions="*,*">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Monthly Charge" FontSize="11" TextColor="#888"/>
+                            <Label x:Name="MonthlyChargeLbl" Text="₦0.00" FontAttributes="Bold" FontSize="14" TextColor="#222"/>
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Outstanding Backlog" FontSize="11" TextColor="#888"/>
+                            <Label x:Name="BacklogLbl" Text="₦0.00" FontAttributes="Bold" FontSize="14" TextColor="#C41C1C"/>
+                        </StackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#EFEFEF"/>
+
+                    <!-- Payment Inputs -->
+                    <Label Text="Months to Pay For" TextColor="#444" FontSize="12" FontAttributes="Bold"/>
+                    <Entry x:Name="MonthsToPayEntry" Text="1" Keyboard="Numeric" TextChanged="OnMonthsChanged"/>
+
+                    <Label Text="Agent Wallet PIN" TextColor="#444" FontSize="12" FontAttributes="Bold"/>
+                    <Entry x:Name="PinEntry" Placeholder="Enter 4-digit PIN" IsPassword="True" Keyboard="Numeric"/>
+
+                    <Frame BackgroundColor="#F0F8F5" CornerRadius="8" Padding="12">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Total Debit Amount:" VerticalOptions="Center" FontAttributes="Bold" TextColor="#063E2A"/>
+                            <Label Grid.Column="1" x:Name="TotalChargeLabel" Text="₦0.00" FontAttributes="Bold" FontSize="16" TextColor="#063E2A"/>
+                        </Grid>
+                    </Frame>
+
+                    <!-- Pay and Auto-Print -->
+                    <Button Text="Pay Bill &amp; Print Receipt" BackgroundColor="#063E2A" TextColor="White" 
+                            FontAttributes="Bold" CornerRadius="10" HeightRequest="50" Clicked="OnPayClicked"/>
+                </StackLayout>
+            </Frame>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

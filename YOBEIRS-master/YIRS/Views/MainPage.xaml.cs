@@ -876,6 +876,11 @@ namespace YIRS.Views
                         agentType = "Damaturu LG Collection Agent";
                         break;
 
+                    case "Water Corporation":                                        // ← lowercase
+                        targetPage = new Views.Water.WaterDashBoard();
+                        agentType = "Water Corporation Agent";
+                        break;
+                
                     default:
                         ShowErrorToast($"Unknown agent category: {agent.category}");
                         return;

@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Water.WaterRegistration"
+             Title="New Water Registration"
+             BackgroundColor="#F4F6F8">
+
+    <ScrollView>
+        <StackLayout Padding="16,20" Spacing="16">
+
+            <!-- Hero Header Banner -->
+            <Frame BackgroundColor="#063E2A" CornerRadius="16" Padding="18,16" HasShadow="True">
+                <Grid ColumnDefinitions="Auto, *">
+                    <Frame Grid.Column="0" BackgroundColor="#1F5742" CornerRadius="22" HeightRequest="44" WidthRequest="44" Padding="0" HasShadow="False">
+                        <Label Text="💧" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Frame>
+                    <StackLayout Grid.Column="1" Margin="12,0,0,0" VerticalOptions="Center">
+                        <Label Text="Water Consumer Enumeration" TextColor="White" FontAttributes="Bold" FontSize="15"/>
+                        <Label Text="Register property &amp; generate customer connection ID" TextColor="#B0D5C7" FontSize="11"/>
+                    </StackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- Card 1: Consumer Information -->
+            <Frame BackgroundColor="White" CornerRadius="14" Padding="16" HasShadow="False" BorderColor="#E5E9EB">
+                <StackLayout Spacing="12">
+                    <StackLayout Orientation="Horizontal" Spacing="6">
+                        <BoxView BackgroundColor="#063E2A" WidthRequest="3" HeightRequest="14" VerticalOptions="Center"/>
+                        <Label Text="CONSUMER / OCCUPANT INFO" TextColor="#063E2A" FontAttributes="Bold" FontSize="12"/>
+                    </StackLayout>
+
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Entry x:Name="OccupantEntry" Placeholder="Full Name *" TextColor="#222" FontSize="13"/>
+                    </Frame>
+
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Entry x:Name="PhoneEntry" Placeholder="Phone Number *" Keyboard="Telephone" TextColor="#222" FontSize="13"/>
+                    </Frame>
+
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Entry x:Name="EmailEntry" Placeholder="Email Address (Optional)" Keyboard="Email" TextColor="#222" FontSize="13"/>
+                    </Frame>
+                </StackLayout>
+            </Frame>
+
+            <!-- Card 2: Property Location -->
+            <Frame BackgroundColor="White" CornerRadius="14" Padding="16" HasShadow="False" BorderColor="#E5E9EB">
+                <StackLayout Spacing="12">
+                    <StackLayout Orientation="Horizontal" Spacing="6">
+                        <BoxView BackgroundColor="#063E2A" WidthRequest="3" HeightRequest="14" VerticalOptions="Center"/>
+                        <Label Text="PROPERTY LOCATION" TextColor="#063E2A" FontAttributes="Bold" FontSize="12"/>
+                    </StackLayout>
+
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Entry x:Name="AddressEntry" Placeholder="Street Address *" TextColor="#222" FontSize="13"/>
+                    </Frame>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <Frame Grid.Column="0" BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                            <Entry x:Name="FlatNoEntry" Placeholder="Flat / Unit No" TextColor="#222" FontSize="13"/>
+                        </Frame>
+                        <Frame Grid.Column="1" BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                            <Entry x:Name="LgaEntry" Placeholder="LGA" TextColor="#222" FontSize="13"/>
+                        </Frame>
+                    </Grid>
+
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="12,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Entry x:Name="LocationEntry" Placeholder="Landmark / Description" TextColor="#222" FontSize="13"/>
+                    </Frame>
+                </StackLayout>
+            </Frame>
+
+            <!-- Card 3: Area & Tariff Plan -->
+            <Frame BackgroundColor="White" CornerRadius="14" Padding="16" HasShadow="False" BorderColor="#E5E9EB">
+                <StackLayout Spacing="12">
+                    <StackLayout Orientation="Horizontal" Spacing="6">
+                        <BoxView BackgroundColor="#063E2A" WidthRequest="3" HeightRequest="14" VerticalOptions="Center"/>
+                        <Label Text="AREA &amp; TARIFF PLAN" TextColor="#063E2A" FontAttributes="Bold" FontSize="12"/>
+                    </StackLayout>
+
+                    <Label Text="Resource Area *" FontSize="11" TextColor="#666"/>
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="10,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Picker x:Name="AreaPicker" ItemDisplayBinding="{Binding name}" Title="Select Area" TextColor="#222"/>
+                    </Frame>
+
+                    <Label Text="Tariff Service Plan *" FontSize="11" TextColor="#666"/>
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="10,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Picker x:Name="ServicePicker" ItemDisplayBinding="{Binding serviceName}" Title="Select Tariff Plan" SelectedIndexChanged="OnServiceSelected" TextColor="#222"/>
+                    </Frame>
+
+                    <Label x:Name="EstimatedRateLabel" Text="Estimated Rate: ₦0.00 / month" TextColor="#0E8A57" FontAttributes="Bold" FontSize="12"/>
+                </StackLayout>
+            </Frame>
+
+            <!-- Submit Button & Activity Indicator -->
+            <ActivityIndicator x:Name="LoadingSpinner" IsRunning="False" IsVisible="False" Color="#063E2A"/>
+            <Button x:Name="SubmitBtn" Text="Register &amp; Print Slip" BackgroundColor="#063E2A" TextColor="White" 
+                    FontAttributes="Bold" CornerRadius="12" HeightRequest="52" Margin="0,4,0,20"
+                    Clicked="OnSubmitRegistrationClicked"/>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
