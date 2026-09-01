@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Xml;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using YIRS.Services;
@@ -17,15 +16,14 @@ namespace YIRS.Views.Water
 
         private void LoadUserData()
         {
-            // Populate from SessionManager/SecureStorageService
-            var session = SessionManager.GetSession(); 
+            var session = SessionManager.GetSession();
             if (session != null)
             {
-                NameLabel.Text = !string.IsNullOrEmpty(session.FullName) ? session.FullName : "Revenue Agent";
-                EmailLabel.Text = !string.IsNullOrEmpty(session.Email) ? session.Email : "agent@watercorp.gov.ng";
-                PhoneLabel.Text = !string.IsNullOrEmpty(session.Phone) ? session.Phone : "N/A";
-                StationLabel.Text = !string.IsNullOrEmpty(session.Station) ? session.Station : "Damaturu / Potiskum";
-                PasswordLabel.Text = !string.IsNullOrEmpty(session.Password) ? session.Password : "••••••••";
+                NameLabel.Text = !string.IsNullOrWhiteSpace(session.FullName) ? session.FullName : "Revenue Agent";
+                EmailLabel.Text = !string.IsNullOrWhiteSpace(session.Email) ? session.Email : "adewatercorporation@gmail.com";
+                PhoneLabel.Text = !string.IsNullOrWhiteSpace(session.Phone) ? session.Phone : "N/A";
+                StationLabel.Text = !string.IsNullOrWhiteSpace(session.Station) ? session.Station : "Unknown";
+                PasswordLabel.Text = !string.IsNullOrWhiteSpace(session.Password) ? session.Password : "••••••••";
             }
         }
 

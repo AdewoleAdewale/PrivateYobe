@@ -1,11 +1,24 @@
 ﻿using System;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
+using static Android.Media.Session.MediaSession;
+using static System.Collections.Specialized.BitVector32;
 
 namespace YIRS.Services
 {
+    public class UserSessionModel
+    {
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Station { get; set; }
+        public string Password { get; set; }
+        public string Token { get; set; }
+        public string Role { get; set; }
+    }
 
     public class SessionManager
     {
@@ -28,6 +41,13 @@ namespace YIRS.Services
 
         private SessionManager() { }
 
+
+
+        public static string FullName { get; set; } = "Revenue Agent";
+        public static string Phone { get; set; } = "08012345678";
+        public static string Station { get; set; } = "Damaturu / Potiskum";
+        public static string Token { get; set; } = "";
+        public static string Role { get; set; } = "Agent";
         // ── Storage keys ──────────────────────────────────────────────────────
         private const string KeyActive = "yirs.session.active";
         private const string KeyEmail = "yirs.session.email";
@@ -414,6 +434,49 @@ namespace YIRS.Services
 
         private static void Log(string scope, Exception ex)
             => System.Diagnostics.Debug.WriteLine($"[Session:{scope}] {ex?.GetType().Name}: {ex?.Message}");
+
+
+        public static UserSessionModel GetSession()
+        {
+            return new UserSessionModel
+            {
+                FullName = FullName,
+                Email = Email,
+                Phone = Phone,
+                Station = Station,
+                Password = Password,
+                Token = Token,
+                Role = Role
+            };
+        }
+
+        /// <summary>
+        /// Saves or updates the current active session
+        /// </summary>
+        public static void SetSession(string email, string fullName = "", string phone = "", string station = "", string password = "", string token = "", string role = "")
+        {
+            Email = email;
+            if (!string.IsNullOrEmpty(fullName)) FullName = fullName;
+            if (!string.IsNullOrEmpty(phone)) Phone = phone;
+            if (!string.IsNullOrEmpty(station)) Station = station;
+            if (!string.IsNullOrEmpty(password)) Password = password;
+            if (!string.IsNullOrEmpty(token)) Token = token;
+            if (!string.IsNullOrEmpty(role)) Role = role;
+        }
+
+        /// <summary>
+        /// Clears the session on logout
+        /// </summary>
+        public static void ClearSession()
+        {
+            FullName = "";
+            Email = "";
+            Phone = "";
+            Station = "";
+            Password = "";
+            Token = "";
+            Role = "";
+        }
     }
 
     /// <summary>Transport object for opening a session.</summary>
@@ -428,4 +491,8 @@ namespace YIRS.Services
         public string Pin { get; set; }
         public string Password { get; set; }
     }
+
+
 }
+
+  

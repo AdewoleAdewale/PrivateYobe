@@ -9,9 +9,9 @@
             <StackLayout Spacing="14">
 
                 <!-- Avatar & Role -->
-                <Frame BackgroundColor="#063E2A" CornerRadius="30" HeightRequest="60" WidthRequest="60" 
+                <Frame BackgroundColor="#063E2A" CornerRadius="10" HeightRequest="60" WidthRequest="60" 
                        Padding="0" HasShadow="False" HorizontalOptions="Center">
-                    <Label Text="👤" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" TextColor="White"/>
+                    <Image Source="yobe"  HorizontalOptions="Center" VerticalOptions="Center"  Margin="5"/>
                 </Frame>
 
                 <Label Text="Logged-in Profile" FontAttributes="Bold" FontSize="18" TextColor="#063E2A" HorizontalTextAlignment="Center"/>
