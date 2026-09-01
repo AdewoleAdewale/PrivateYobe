@@ -91,11 +91,19 @@ namespace YIRS.Views.Water
         {
             await Navigation.PushModalAsync(new UserProfileModal());
         }
-        private async void OnHistoryTapped(object sender, EventArgs e)
-    => await Navigation.PushAsync(new WaterHistoryPage());
+
 
         private async void OnEnumerateTapped(object sender, EventArgs e)
             => await Navigation.PushAsync(new WaterRegistration());
+
+        private async void OnVerifyClicked(object sender, EventArgs e)
+    => await Navigation.PushAsync(new WaterVerifyConnectionPage());
+
+        private async void OnHistoryTapped(object sender, EventArgs e)
+            => await Navigation.PushAsync(new WaterEnumerationHistoryPage());
+
+
+
         private async void OnTestPrintTapped(object sender, EventArgs e)
         {
             PrinterStatusLabel.Text = "Printing...";

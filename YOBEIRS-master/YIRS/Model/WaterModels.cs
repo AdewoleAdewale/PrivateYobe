@@ -105,4 +105,43 @@ namespace YIRS.Models
         public string debitRef { get; set; }
         public string performedBy { get; set; }
     }
+
+
+    public class WaterEnumerationItem
+    {
+        public string connectionNo { get; set; }
+        public string occupant { get; set; }
+        public string address { get; set; }
+        public string areaOffice { get; set; }
+        public string tarifPlan { get; set; }
+        public decimal amount { get; set; }
+        public string phone { get; set; }
+        public string recordedBy { get; set; }
+        public DateTime? dateRecorded { get; set; }
+        public DateTime? dueDate { get; set; }
+    }
+
+    public class WaterEnumerationHistoryResponse
+    {
+        public string respondCode { get; set; }
+        public string message { get; set; }
+        public List<WaterEnumerationItem> connections { get; set; }
+    }
+
+    // --- Client Payment History Models ---
+    public class WaterPaymentHistoryItem
+    {
+        public string transactionId { get; set; }
+        public decimal amount { get; set; }
+        public DateTime datelIst { get; set; }
+        public string debitRef { get; set; }
+        public string performedBy { get; set; }
+    }
+
+    public class WaterPaymentHistoryResponse
+    {
+        public string respondCode { get; set; }
+        public string message { get; set; }
+        public List<WaterPaymentHistoryItem> payments { get; set; }
+    }
 }

@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Water.WaterVerifyConnectionPage"
+             Title="Verify Connection"
+             BackgroundColor="#F4F6F8">
+
+    <ScrollView>
+        <StackLayout Padding="16,20" Spacing="16">
+
+            <!-- Search Lookup Box -->
+            <Frame BackgroundColor="White" CornerRadius="14" Padding="14" HasShadow="True" BorderColor="#ECECEC">
+                <StackLayout Spacing="10">
+                    <Label Text="CLIENT CONNECTION NUMBER" TextColor="#063E2A" FontAttributes="Bold" FontSize="11"/>
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="10,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Entry x:Name="ConnectionEntry" Placeholder="e.g. DTR/WTC/00002" TextColor="#222" FontSize="13"   />
+                    </Frame>
+                    <Button Text="Search &amp; Verify" BackgroundColor="#063E2A" TextColor="White" 
+                            FontAttributes="Bold" CornerRadius="8" HeightRequest="45" Clicked="OnVerifyClicked"/>
+                </StackLayout>
+            </Frame>
+
+            <ActivityIndicator x:Name="LoadingSpinner" IsRunning="False" IsVisible="False" Color="#063E2A"/>
+
+            <!-- Status Details Card -->
+            <Frame x:Name="StatusCard" IsVisible="False" BackgroundColor="White" CornerRadius="14" Padding="16" HasShadow="True" BorderColor="#ECECEC">
+                <StackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <StackLayout Grid.Column="0">
+                            <Label x:Name="OccupantNameLabel" Text="-" FontAttributes="Bold" FontSize="16" TextColor="#111"/>
+                            <Label x:Name="AddressLabel" Text="-" TextColor="#666" FontSize="12"/>
+                            <Label x:Name="TariffLabel" Text="Tariff: -" TextColor="#063E2A" FontAttributes="Bold" FontSize="12"/>
+                        </StackLayout>
+                        <Frame Grid.Column="1" x:Name="StatusBadge" CornerRadius="8" Padding="10,4" HasShadow="False" VerticalOptions="Start">
+                            <Label x:Name="StatusLabel" Text="Status" FontSize="11" FontAttributes="Bold"/>
+                        </Frame>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#ECECEC"/>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Monthly Charge" FontSize="11" TextColor="#888"/>
+                            <Label x:Name="MonthlyAmountLabel" Text="₦0.00" FontAttributes="Bold" FontSize="13" TextColor="#222"/>
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Backlog Owed" FontSize="11" TextColor="#888"/>
+                            <Label x:Name="BacklogAmountLabel" Text="₦0.00" FontAttributes="Bold" FontSize="13" TextColor="#C41C1C"/>
+                        </StackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="Current Due Date" FontSize="11" TextColor="#888"/>
+                            <Label x:Name="DueDateLabel" Text="-" FontAttributes="Bold" FontSize="12" TextColor="#444"/>
+                        </StackLayout>
+                        <StackLayout Grid.Column="1">
+                            <Label Text="Months Owed/Ahead" FontSize="11" TextColor="#888"/>
+                            <Label x:Name="MonthsLabel" Text="0" FontAttributes="Bold" FontSize="12" TextColor="#063E2A"/>
+                        </StackLayout>
+                    </Grid>
+                </StackLayout>
+            </Frame>
+
+            <!-- Client Payment History Section -->
+            <StackLayout x:Name="PaymentHistorySection" IsVisible="False" Spacing="10">
+                <Label Text="Payment Transactions" FontAttributes="Bold" FontSize="15" TextColor="#063E2A"/>
+                <StackLayout x:Name="PaymentHistoryContainer" Spacing="8"/>
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

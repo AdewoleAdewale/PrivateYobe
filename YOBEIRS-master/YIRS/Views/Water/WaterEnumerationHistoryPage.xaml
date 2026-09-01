@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Water.WaterEnumerationHistoryPage"
+             Title="Enumeration History"
+             BackgroundColor="#F4F6F8">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Search Bar -->
+        <Frame Grid.Row="0" BackgroundColor="White" Padding="14,10" CornerRadius="0" HasShadow="True" BorderColor="#ECECEC">
+            <Frame BackgroundColor="#F4F6F8" CornerRadius="10" Padding="10,0" HasShadow="False" BorderColor="#E0E0E0">
+                <SearchBar x:Name="HistorySearchBar" Placeholder="Search connection, occupant, address..."  FontSize="15"
+                           TextChanged="OnSearchTextChanged" BackgroundColor="Transparent"/>
+            </Frame>
+        </Frame>
+
+        <!-- Connections List -->
+        <ListView Grid.Row="1" x:Name="EnumerationListView"
+                  HasUnevenRows="True"
+                  SelectionMode="None"
+                  ItemTapped="OnItemTapped"
+                  IsPullToRefreshEnabled="True"
+                  Refreshing="OnRefreshing"
+                  SeparatorVisibility="None">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <Frame Margin="0,5" Padding="14,12" CornerRadius="12" HasShadow="False" BackgroundColor="White" BorderColor="#E5E9EB">
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+
+                                <Frame Grid.Column="0" BackgroundColor="#E0F5EE" CornerRadius="10" HeightRequest="40" WidthRequest="40" Padding="0" HasShadow="False" VerticalOptions="Center">
+                                    <Image Source="add"   HorizontalOptions="Center" VerticalOptions="Center" Margin="10"/>
+                                </Frame>
+
+                                <StackLayout Grid.Column="1" Margin="10,0,0,0" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding occupant}" FontAttributes="Bold" TextColor="#111" FontSize="13"/>
+                                    <Label Text="{Binding connectionNo}" TextColor="#063E2A" FontAttributes="Bold" FontSize="11"/>
+                                    <Label Text="{Binding address}" TextColor="#666" FontSize="11"/>
+                                    <Label Text="{Binding tarifPlan, StringFormat='Plan: {0}'}" TextColor="#777" FontSize="10"/>
+                                </StackLayout>
+
+                                <StackLayout Grid.Column="2" HorizontalOptions="End" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding amount, StringFormat='₦{0:N2}'}" FontAttributes="Bold" TextColor="#0E8A57" FontSize="12" HorizontalTextAlignment="End"/>
+                                    <Label Text="{Binding dateRecorded, StringFormat='{0:dd MMM yyyy}'}" TextColor="#888" FontSize="10" HorizontalTextAlignment="End"/>
+                                    <Frame BackgroundColor="#F0F3F4" CornerRadius="6" Padding="6,2" HasShadow="False" HorizontalOptions="End">
+                                        <Label Text="Details ➔" TextColor="#063E2A" FontSize="9" FontAttributes="Bold"/>
+                                    </Frame>
+                                </StackLayout>
+                            </Grid>
+                        </Frame>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</ContentPage>

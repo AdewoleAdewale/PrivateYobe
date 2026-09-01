@@ -14,7 +14,6 @@ namespace YIRS.Services
 
         public WaterService()
         {
-            // Initialize HttpClient using the custom SSL-bypassing handler
             var handler = SslHandler.GetInsecureHandler();
             _client = new HttpClient(handler)
             {
@@ -23,6 +22,7 @@ namespace YIRS.Services
             };
         }
 
+        // 1. Get Area Offices
         public async Task<WaterAreaResponse> GetAreasAsync()
         {
             var res = await _client.GetAsync("areas");
@@ -30,6 +30,7 @@ namespace YIRS.Services
             return JsonConvert.DeserializeObject<WaterAreaResponse>(json);
         }
 
+        // 2. Get Tariff Services
         public async Task<WaterServicesResponse> GetServicesAsync()
         {
             var res = await _client.GetAsync("services");
@@ -37,6 +38,7 @@ namespace YIRS.Services
             return JsonConvert.DeserializeObject<WaterServicesResponse>(json);
         }
 
+        // 3. Enumerate New Connection
         public async Task<WaterEnumerateResponse> EnumerateAsync(WaterEnumerateRequest payload)
         {
             var body = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
@@ -45,6 +47,15 @@ namespace YIRS.Services
             return JsonConvert.DeserializeObject<WaterEnumerateResponse>(json);
         }
 
+        // 4. Get Live Enumeration History
+        public async Task<WaterEnumerationHistoryResponse> GetEnumerationHistoryAsync()
+        {
+            var res = await _client.GetAsync("EnumerationHistory");
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<WaterEnumerationHistoryResponse>(json);
+        }
+
+        // 5. Connection Status
         public async Task<WaterConnectionStatusResponse> GetConnectionStatusAsync(string connectionNo)
         {
             var res = await _client.GetAsync($"GetConnectionStatus?connectionNo={Uri.EscapeDataString(connectionNo)}");
@@ -52,6 +63,15 @@ namespace YIRS.Services
             return JsonConvert.DeserializeObject<WaterConnectionStatusResponse>(json);
         }
 
+        // 6. Client Specific Payment History
+        public async Task<WaterPaymentHistoryResponse> GetClientPaymentHistoryAsync(string connectionNo)
+        {
+            var res = await _client.GetAsync($"History?connectionNo={Uri.EscapeDataString(connectionNo)}");
+            var json = await res.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<WaterPaymentHistoryResponse>(json);
+        }
+
+        // 7. Make Payment
         public async Task<WaterPaymentResponse> MakePaymentAsync(WaterPaymentRequest payload)
         {
             var body = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
@@ -60,6 +80,7 @@ namespace YIRS.Services
             return JsonConvert.DeserializeObject<WaterPaymentResponse>(json);
         }
 
+        // 8. Get Single Receipt
         public async Task<WaterReceiptResponse> GetReceiptAsync(string transactionId)
         {
             var res = await _client.GetAsync($"receipt/{transactionId}");
