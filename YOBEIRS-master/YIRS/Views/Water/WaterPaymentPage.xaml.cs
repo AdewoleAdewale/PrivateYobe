@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.NetworkInformation;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using YIRS.Models;
@@ -81,43 +82,63 @@ namespace YIRS.Views.Water
 
         private async void OnPayClicked(object sender, EventArgs e)
         {
-            if (!int.TryParse(MonthsToPayEntry.Text, out int months) || months < 1) //[cite: 2]
-            {
-                await DisplayAlert("Validation", "Please enter a valid number of months (minimum 1).", "OK"); //[cite: 2]
-                return;
+            if (!int.TryParse(MonthsToPayEntry.Text, out int months) || months < 1) 
+    {
+                await Navigation.PushModalAsync(new WaterFailureSheet("Invalid Months", "Please enter a valid number of months (minimum 1).")); 
+        return;
             }
 
             if (string.IsNullOrWhiteSpace(PinEntry.Text))
             {
-                await DisplayAlert("Validation", "Please enter your agent wallet PIN.", "OK");
+                await Navigation.PushModalAsync(new WaterFailureSheet("Missing PIN", "Please enter your agent wallet PIN."));
                 return;
             }
 
-            var req = new WaterPaymentRequest
+            try
             {
-                payer = _currentConnection.connectionNo, //[cite: 2]
-                monthsToPay = months, //[cite: 2]
-                pin = PinEntry.Text.Trim(), //[cite: 2]
-                email = "adewatercorporation@gmail.com" // Replace with AppSession.UserEmail
-            };
-
-            var res = await _waterService.MakePaymentAsync(req);
-            if (res != null && res.respondCode == "00") //[cite: 2]
-            {
-                await DisplayAlert("Payment Successful", $"Transaction No: {res.transactionNo}\nMonths Paid: {res.monthsPaid}", "OK"); //[cite: 2]
-
-                // Fetch receipt details and automatically send to Bluetooth Thermal Printer
-                var receipt = await _waterService.GetReceiptAsync(res.transactionNo); //[cite: 2]
-                if (receipt != null && receipt.respondCode == "00") //[cite: 2]
+                var req = new WaterPaymentRequest
                 {
-                    await _printService.PrintPaymentReceiptAsync(receipt, months);
-                }
+                    payer = _currentConnection.connectionNo,
+                  
+        
+                    monthsToPay = months,
+                  
+        
+                    pin = PinEntry.Text.Trim(),
+                   
+        
+                    email = SessionManager.GetSession()?.Email ?? "agent@watercorp.gov.ng"
+                };
 
-                await Navigation.PopAsync();
+                var res = await _waterService.MakePaymentAsync(req);
+
+                if (res != null && res.respondCode == "00") 
+        {
+                    var receipt = await _waterService.GetReceiptAsync(res.transactionNo); 
+
+            await Navigation.PushModalAsync(new WaterSuccessSheet(
+                "Payment Successful",
+                $"Payment recorded for {res.monthsPaid} month(s).", 
+                res.transactionNo,
+                $"₦{res.totalAmount:N2}", 
+                async () =>
+                {
+                    if (receipt != null)
+                    {
+                        await _printService.PrintPaymentReceiptAsync(receipt, months);
+                    }
+                }));
+
+                    PinEntry.Text = "";
+                }
+        else
+                {
+                    await Navigation.PushModalAsync(new WaterFailureSheet("Payment Failed", res?.message ?? "Unable to complete transaction."));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await DisplayAlert("Payment Failed", res?.message ?? "An error occurred during payment.", "OK");
+                await Navigation.PushModalAsync(new WaterFailureSheet("Payment Error", ex.Message));
             }
         }
     }

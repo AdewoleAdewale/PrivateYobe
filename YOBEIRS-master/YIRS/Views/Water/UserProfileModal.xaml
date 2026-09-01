@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="YIRS.Views.Water.UserProfileModal"
+             BackgroundColor="#80000000">
+
+    <Grid VerticalOptions="Center" Padding="20">
+        <Frame BackgroundColor="White" CornerRadius="20" Padding="20" HasShadow="True">
+            <StackLayout Spacing="14">
+
+                <!-- Avatar & Role -->
+                <Frame BackgroundColor="#063E2A" CornerRadius="30" HeightRequest="60" WidthRequest="60" 
+                       Padding="0" HasShadow="False" HorizontalOptions="Center">
+                    <Label Text="👤" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" TextColor="White"/>
+                </Frame>
+
+                <Label Text="Logged-in Profile" FontAttributes="Bold" FontSize="18" TextColor="#063E2A" HorizontalTextAlignment="Center"/>
+                <Label Text="Active Water Revenue Session" FontSize="11" TextColor="#888" HorizontalTextAlignment="Center"/>
+
+                <BoxView HeightRequest="1" BackgroundColor="#ECECEC"/>
+
+                <!-- User Info Rows -->
+                <StackLayout Spacing="8">
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Text="Full Name:" FontAttributes="Bold" FontSize="12" TextColor="#444"/>
+                        <Label Grid.Column="1" x:Name="NameLabel" Text="Water Revenue Agent" FontSize="12" TextColor="#222" HorizontalTextAlignment="End"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Text="Email/User:" FontAttributes="Bold" FontSize="12" TextColor="#444"/>
+                        <Label Grid.Column="1" x:Name="EmailLabel" Text="agent@watercorp.gov.ng" FontSize="12" TextColor="#222" HorizontalTextAlignment="End"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Text="Phone:" FontAttributes="Bold" FontSize="12" TextColor="#444"/>
+                        <Label Grid.Column="1" x:Name="PhoneLabel" Text="080XXXXXXXX" FontSize="12" TextColor="#222" HorizontalTextAlignment="End"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Text="Station/Area:" FontAttributes="Bold" FontSize="12" TextColor="#444"/>
+                        <Label Grid.Column="1" x:Name="StationLabel" Text="Damaturu Central Post" FontSize="12" TextColor="#222" HorizontalTextAlignment="End"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Text="Password:" FontAttributes="Bold" FontSize="12" TextColor="#444"/>
+                        <Label Grid.Column="1" x:Name="PasswordLabel" Text="••••••••" FontSize="12" TextColor="#063E2A" FontAttributes="Bold" HorizontalTextAlignment="End"/>
+                    </Grid>
+                </StackLayout>
+
+                <BoxView HeightRequest="1" BackgroundColor="#ECECEC"/>
+
+                <Button Text="Close Profile" BackgroundColor="#063E2A" TextColor="White" 
+                        FontAttributes="Bold" CornerRadius="10" HeightRequest="45" Clicked="OnCloseClicked"/>
+            </StackLayout>
+        </Frame>
+    </Grid>
+</ContentPage>

@@ -14,7 +14,13 @@ namespace YIRS.Services
 
         public WaterService()
         {
-            _client = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+            // Initialize HttpClient using the custom SSL-bypassing handler
+            var handler = SslHandler.GetInsecureHandler();
+            _client = new HttpClient(handler)
+            {
+                BaseAddress = new Uri(BaseUrl),
+                Timeout = TimeSpan.FromSeconds(30)
+            };
         }
 
         public async Task<WaterAreaResponse> GetAreasAsync()

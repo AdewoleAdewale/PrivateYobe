@@ -1,10 +1,11 @@
 ﻿using Android.Locations;
 using System;
+using System.Net;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using YIRS.Models;
 using YIRS.Services;
-using static Android.Hardware.Camera;
 
 namespace YIRS.Views.Water
 {
@@ -62,7 +63,7 @@ namespace YIRS.Views.Water
             if (string.IsNullOrWhiteSpace(OccupantEntry.Text) || string.IsNullOrWhiteSpace(PhoneEntry.Text) ||
                 string.IsNullOrWhiteSpace(AddressEntry.Text) || selectedArea == null || selectedService == null)
             {
-                await DisplayAlert("Validation Error", "Please fill in all required fields (*).", "OK");
+                await Navigation.PushModalAsync(new WaterFailureSheet("Validation Error", "Please fill in all required fields (*)."));
                 return;
             }
 
@@ -70,51 +71,75 @@ namespace YIRS.Views.Water
             LoadingSpinner.IsVisible = true;
             LoadingSpinner.IsRunning = true;
 
-            var req = new WaterEnumerateRequest
+            try
             {
-                occupant = OccupantEntry.Text.Trim(),
-              
-                phone = PhoneEntry.Text.Trim(),
-             
-                email = EmailEntry.Text?.Trim() ?? "",
-              
-                address = AddressEntry.Text.Trim(),
-              
-                flatNo = FlatNoEntry.Text?.Trim() ?? "",
-        
-                lga = LgaEntry.Text?.Trim() ?? "",
-             
-                location = LocationEntry.Text?.Trim() ?? "",
-             
-                areaId = selectedArea.id,
-            
-                serviceId = selectedService.id,
-               
-                recordedBy = "adewatercorporation@gmail.com" // Replace with SessionManager email[cite: 1, 2]
-            };
-
-            var res = await _waterService.EnumerateAsync(req);
-
-            LoadingSpinner.IsVisible = false;
-            LoadingSpinner.IsRunning = false;
-            SubmitBtn.IsEnabled = true;
-
-            if (res != null && res.respondCode == "00") 
-            {
-                await DisplayAlert("Registration Complete", $"Customer ID: {res.connectionNo}\nMonthly Due: ₦{res.amount:N2}", "Print Slip"); 
-
-                // Print Registration Slip via SDK
-                bool printed = await _printSDK.PrintRegistrationReceiptAsync(res, req, selectedArea.name, selectedService.serviceName);
-                if (!printed)
+                var req = new WaterEnumerateRequest
                 {
-                    await DisplayAlert("Printer Notice", "Registration saved, but Bluetooth printer was unavailable.", "OK");
-                }
+                    occupant = OccupantEntry.Text.Trim(),
+                   
+        
+                    phone = PhoneEntry.Text.Trim(),
+                  
+        
+                    email = EmailEntry.Text?.Trim() ?? "",
+                  
+        
+                    address = AddressEntry.Text.Trim(),
+                 
+        
+                    flatNo = FlatNoEntry.Text?.Trim() ?? "",
+                  
+        
+                    lga = LgaEntry.Text?.Trim() ?? "",
+                  
+        
+                    location = LocationEntry.Text?.Trim() ?? "",
+                  
+        
+                    areaId = selectedArea.id,
+                   
+        
+                    serviceId = selectedService.id,
+                  
+        
+                    recordedBy = SessionManager.GetSession()?.Email ?? "agent@watercorp.gov.ng"
+                };
 
-                await Navigation.PopAsync();
+                var res = await _waterService.EnumerateAsync(req);
+
+                if (res != null && res.respondCode == "00") 
+        {
+                    await Navigation.PushModalAsync(new WaterSuccessSheet(
+                        "Registration Successful",
+                        "Customer connection has been created.",
+                        res.connectionNo, 
+        
+                        $"₦{res.amount:N2} / mo",
+        
+                        async () =>
+                        {
+                            await _printSDK.PrintRegistrationReceiptAsync(res, req, selectedArea.name, selectedService.serviceName);
+                        }));
+
+                    // Clear inputs
+                    OccupantEntry.Text = "";
+                    PhoneEntry.Text = "";
+                    AddressEntry.Text = "";
+                }
+        else
+                {
+                    await Navigation.PushModalAsync(new WaterFailureSheet("Registration Failed", res?.message ?? "Failed to save registration."));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await DisplayAlert("Registration Failed", res?.message ?? "Failed to save registration.", "OK");
+                await Navigation.PushModalAsync(new WaterFailureSheet("Network/SSL Error", ex.Message));
+            }
+            finally
+            {
+                LoadingSpinner.IsVisible = false;
+                LoadingSpinner.IsRunning = false;
+                SubmitBtn.IsEnabled = true;
             }
         }
     }

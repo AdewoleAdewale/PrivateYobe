@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Net.Security;
 
 namespace YIRS.Services
@@ -36,5 +37,14 @@ namespace YIRS.Services
                 SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             // ============ End TLS version update ============
         }
+
+        public static HttpClientHandler GetInsecureHandler()
+        {
+            var handler = new HttpClientHandler();
+            // Bypass SSL certificate validation errors
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+            return handler;
+        }
+
     }
 }

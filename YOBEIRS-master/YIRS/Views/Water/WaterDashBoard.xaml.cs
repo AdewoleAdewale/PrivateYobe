@@ -86,8 +86,11 @@ namespace YIRS.Views.Water
         }
 
         private async void OnNewPaymentTapped(object sender, EventArgs e) => await Navigation.PushAsync(new WaterPaymentPage());
-        private async void OnSettingsTapped(object sender, EventArgs e) => await Navigation.PushAsync(new ChangePassword());
-
+       
+        private async void OnSettingsTapped(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new UserProfileModal());
+        }
         private async void OnHistoryTapped(object sender, EventArgs e)
     => await Navigation.PushAsync(new WaterHistoryPage());
 

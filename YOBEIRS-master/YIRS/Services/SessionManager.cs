@@ -6,35 +6,7 @@ using Xamarin.Forms;
 
 namespace YIRS.Services
 {
-    /// <summary>
-    /// Persistent user session.
-    ///
-    /// This replaces the previous inactivity-timeout implementation. The session now survives
-    /// sleep, minimise, force-close, crash, reboot and app update, and is destroyed by exactly
-    /// two things: <see cref="StopSession"/> / <see cref="SignOutAsync"/> (i.e. the user logging
-    /// out), or the user clearing app data from Android Settings.
-    ///
-    /// API compatibility
-    /// ─────────────────
-    /// Every public member of the old class is preserved so the ~40 existing call sites
-    /// (StateLine, Default, Home, Yorata-Ops, MainPage) compile without modification:
-    ///
-    ///   • StartSession()            — now marks the session live and persists it
-    ///   • StopSession()             — now the logout path: wipes memory and disk
-    ///   • UpdateActivity()          — stamps last-seen; no longer triggers logout
-    ///   • ResetSession()            — alias of UpdateActivity()
-    ///   • GetRemainingSessionTime() — always returns double.MaxValue (no expiry)
-    ///   • IsSessionExpiringSoon()   — always false
-    ///
-    /// Storage strategy
-    /// ────────────────
-    ///   • SecureStorage (Keystore/Keychain) → PIN and password
-    ///   • Preferences (SharedPreferences)   → email, name, category, collection point, etc.
-    ///   • Both persist across process death. Neither is cleared by an app update.
-    ///
-    /// SecureStorage throws on a small number of Android devices with a damaged keystore, so
-    /// every access is guarded and falls back to Preferences rather than locking the agent out.
-    /// </summary>
+
     public class SessionManager
     {
         // ── Singleton (unchanged shape) ───────────────────────────────────────
