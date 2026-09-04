@@ -1,7 +1,6 @@
-﻿using Android.Locations;
-using System;
-using System.Net;
-using Xamarin.Essentials;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using YIRS.Models;
@@ -13,13 +12,13 @@ namespace YIRS.Views.Water
     public partial class WaterRegistration : ContentPage
     {
         private readonly WaterService _waterService;
-        private readonly WaterPrintSDK _printSDK;
+        private readonly BluetoothPrinterService _printerService;
 
         public WaterRegistration()
         {
             InitializeComponent();
             _waterService = new WaterService();
-            _printSDK = new WaterPrintSDK();
+            _printerService = new BluetoothPrinterService(use80mm: false);
             LoadDropdowns();
         }
 
@@ -31,14 +30,14 @@ namespace YIRS.Views.Water
             try
             {
                 var areaRes = await _waterService.GetAreasAsync();
-                if (areaRes?.respondCode == "00") AreaPicker.ItemsSource = areaRes.areas; 
+                if (areaRes?.respondCode == "00") AreaPicker.ItemsSource = areaRes.areas;
 
                 var serviceRes = await _waterService.GetServicesAsync();
-                if (serviceRes?.respondCode == "00") ServicePicker.ItemsSource = serviceRes.services; 
+                if (serviceRes?.respondCode == "00") ServicePicker.ItemsSource = serviceRes.services;
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", "Could not load areas or tariff plans: " + ex.Message, "OK");
+                await DisplayAlert("Error", ex.Message, "OK");
             }
             finally
             {
@@ -51,7 +50,7 @@ namespace YIRS.Views.Water
         {
             if (ServicePicker.SelectedItem is WaterServiceTariff selected)
             {
-                EstimatedRateLabel.Text = $"Estimated Rate: ₦{selected.amount:N2} / month"; 
+                EstimatedRateLabel.Text = $"Estimated Rate: ₦{selected.amount:N2} / month";
             }
         }
 
@@ -73,67 +72,66 @@ namespace YIRS.Views.Water
 
             try
             {
+                string agentEmail = SessionManager.GetSession()?.Email ?? "agent@watercorp.gov.ng";
+
                 var req = new WaterEnumerateRequest
                 {
                     occupant = OccupantEntry.Text.Trim(),
-                   
-        
                     phone = PhoneEntry.Text.Trim(),
-                  
-        
                     email = EmailEntry.Text?.Trim() ?? "",
-                  
-        
                     address = AddressEntry.Text.Trim(),
-                 
-        
                     flatNo = FlatNoEntry.Text?.Trim() ?? "",
-                  
-        
                     lga = LgaEntry.Text?.Trim() ?? "",
-                  
-        
                     location = LocationEntry.Text?.Trim() ?? "",
-                  
-        
                     areaId = selectedArea.id,
-                   
-        
                     serviceId = selectedService.id,
-                  
-        
-                    recordedBy = SessionManager.GetSession()?.Email ?? "agent@watercorp.gov.ng"
+                    recordedBy = agentEmail
                 };
 
                 var res = await _waterService.EnumerateAsync(req);
 
-                if (res != null && res.respondCode == "00") 
-        {
+                if (res != null && res.respondCode == "00")
+                {
                     await Navigation.PushModalAsync(new WaterSuccessSheet(
                         "Registration Successful",
                         "Customer connection has been created.",
-                        res.connectionNo, 
-        
+                        res.connectionNo,
                         $"₦{res.amount:N2} / mo",
-        
                         async () =>
                         {
-                            await _printSDK.PrintRegistrationReceiptAsync(res, req, selectedArea.name, selectedService.serviceName);
+                            // 1. Build ReceiptData required by your BluetoothPrinterService
+                            var receiptData = new ReceiptData
+                            {
+                                StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
+                                StoreSubTitle = "ENUMERATION SLIP",
+                                ReceiptNumber = res.connectionNo,
+                                AgentName = agentEmail,
+                                CollectionPoint = MainPage.CollectionPoint,
+                                AmountPaid = res.amount,
+                                Items = new List<ReceiptItem>
+                                {
+                                    new ReceiptItem { Description = "Occupant", SubText = req.occupant, Amount = 0 },
+                                    new ReceiptItem { Description = "Phone", SubText = req.phone, Amount = 0 },
+                                    new ReceiptItem { Description = "Tariff", SubText = selectedService.serviceName, Amount = res.amount }
+                                },
+                                FooterLine1 = "KEEP THIS CONNECTION NUMBER",
+                                FooterLine2 = "POWERED BY OSOFTPAY"
+                            };
+
+                            // 2. Print using existing Service
+                            await _printerService.PrintReceiptAsync(receiptData, "Logo.png", "YOBE IRS", null, null, default(CancellationToken));
                         }));
 
-                    // Clear inputs
-                    OccupantEntry.Text = "";
-                    PhoneEntry.Text = "";
-                    AddressEntry.Text = "";
+                    OccupantEntry.Text = ""; PhoneEntry.Text = ""; AddressEntry.Text = ""; FlatNoEntry.Text = "";
                 }
-        else
+                else
                 {
                     await Navigation.PushModalAsync(new WaterFailureSheet("Registration Failed", res?.message ?? "Failed to save registration."));
                 }
             }
             catch (Exception ex)
             {
-                await Navigation.PushModalAsync(new WaterFailureSheet("Network/SSL Error", ex.Message));
+                await Navigation.PushModalAsync(new WaterFailureSheet("Error", ex.Message));
             }
             finally
             {
