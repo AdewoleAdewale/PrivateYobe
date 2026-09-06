@@ -24,7 +24,7 @@ namespace YIRS.Views.Water
 
         private async void OnLookupClicked(object sender, EventArgs e)
         {
-            // Same lookup logic as previous responses...
+            SessionManager.Instance.UpdateActivity();
             string connectionNo = ConnectionNoEntry.Text?.Trim();
             if (string.IsNullOrEmpty(connectionNo)) { await DisplayAlert("Error", "Enter connection number.", "OK"); return; }
 
@@ -66,6 +66,7 @@ namespace YIRS.Views.Water
 
         private async void OnPayClicked(object sender, EventArgs e)
         {
+            SessionManager.Instance.UpdateActivity();
             if (!int.TryParse(MonthsToPayEntry.Text, out int months) || months < 1)
             {
                 await Navigation.PushModalAsync(new WaterFailureSheet("Invalid Months", "Minimum 1 month required."));
@@ -111,15 +112,15 @@ namespace YIRS.Views.Water
                                     StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
                                     StoreSubTitle = "OFFICIAL WATER RECEIPT",
                                     ReceiptNumber = receiptInfo.transactionId,
-                                    AgentName = receiptInfo.performedBy,
+                                    AgentName = MainPage.Name,
                                     CollectionPoint = MainPage.CollectionPoint,
                                     AmountPaid = receiptInfo.amount,
                                     BarcodeLabel = $"https://yobeirs.gov.ng/receipt?tx={receiptInfo.transactionId}",
                                     Items = new List<ReceiptItem>
                                     {
-                                        new ReceiptItem { Description = "Connection", SubText = receiptInfo.payer, Amount = 0 },
-                                        new ReceiptItem { Description = "Occupant", SubText = receiptInfo.occupant, Amount = 0 },
-                                        new ReceiptItem { Description = "Months Paid", SubText = $"{months} Month(s)", Amount = receiptInfo.amount }
+                                        new ReceiptItem { Description = "CONNECTION ID", SubText = receiptInfo.payer, Amount = 0 },
+                                        new ReceiptItem { Description = "NAME", SubText = receiptInfo.occupant, Amount = 0 },
+                                        new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTHS(S)", Amount = receiptInfo.amount }
                                     },
                                     FooterLine1 = "Thank you for your payment!",
                                     FooterLine2 = "POWERED BY OSOFTPAY"

@@ -48,6 +48,7 @@ namespace YIRS.Views.Water
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
+            SessionManager.Instance.UpdateActivity();
             string keyword = e.NewTextValue?.Trim().ToLower() ?? "";
             if (string.IsNullOrEmpty(keyword) || _allConnections == null)
             {
@@ -66,7 +67,7 @@ namespace YIRS.Views.Water
         {
             if (e.Item is WaterEnumerationItem selected)
             {
-                // Open Verify & Payment History page for this connection
+                SessionManager.Instance.UpdateActivity();
                 await Navigation.PushAsync(new WaterVerifyConnectionPage(selected.connectionNo));
             }
         }

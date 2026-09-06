@@ -24,6 +24,13 @@ namespace YIRS.Views.Water
 
         protected override void OnAppearing()
         {
+            SessionManager.Instance.UpdateActivity();
+
+            if (!SessionManager.IsAuthenticated)
+            {
+                Device.BeginInvokeOnMainThread(() => App.SetRoot(new Views.MainPage()));
+                return;
+            }
             base.OnAppearing();
             LoadDashboardData();
         }
@@ -67,11 +74,36 @@ namespace YIRS.Views.Water
             }
         }
 
-        private async void OnNewPaymentTapped(object sender, EventArgs e) => await Navigation.PushAsync(new WaterPaymentPage());
-        private async void OnEnumerateTapped(object sender, EventArgs e) => await Navigation.PushAsync(new WaterRegistration());
-        private async void OnHistoryTapped(object sender, EventArgs e) => await Navigation.PushAsync(new WaterEnumerationHistoryPage());
-        private async void OnSettingsTapped(object sender, EventArgs e) => await Navigation.PushModalAsync(new UserProfileModal());
-        private async void OnVerifyClicked(object sender, EventArgs e) => await Navigation.PushModalAsync(new WaterVerifyConnectionPage());
+        private async void OnNewPaymentTapped(object sender, EventArgs e)
+        {
+            SessionManager.Instance.UpdateActivity();
+            await Navigation.PushAsync(new WaterPaymentPage());
+        }
+            
+          
+        private async void OnEnumerateTapped(object sender, EventArgs e)
+        {
+            SessionManager.Instance.UpdateActivity();
+            await Navigation.PushAsync(new WaterRegistration());
+        }
+        private async void OnHistoryTapped(object sender, EventArgs e)
+        {
+            SessionManager.Instance.UpdateActivity();
+            await Navigation.PushAsync(new WaterEnumerationHistoryPage());
+        }
+        
+        private async void OnSettingsTapped(object sender, EventArgs e)
+        {
+            SessionManager.Instance.UpdateActivity();
+            await Navigation.PushModalAsync(new UserProfileModal());
+        }
+        
+        private async void OnVerifyClicked(object sender, EventArgs e)
+        {
+            SessionManager.Instance.UpdateActivity();
+            await Navigation.PushModalAsync(new WaterVerifyConnectionPage());
+        }
+        
 
         private async void OnTestPrintTapped(object sender, EventArgs e)
         {

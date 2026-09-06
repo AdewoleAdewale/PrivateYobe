@@ -48,6 +48,7 @@ namespace YIRS.Views.Water
 
         private void OnServiceSelected(object sender, EventArgs e)
         {
+
             if (ServicePicker.SelectedItem is WaterServiceTariff selected)
             {
                 EstimatedRateLabel.Text = $"Estimated Rate: ₦{selected.amount:N2} / month";
@@ -56,6 +57,7 @@ namespace YIRS.Views.Water
 
         private async void OnSubmitRegistrationClicked(object sender, EventArgs e)
         {
+            SessionManager.Instance.UpdateActivity();
             var selectedArea = AreaPicker.SelectedItem as WaterArea;
             var selectedService = ServicePicker.SelectedItem as WaterServiceTariff;
 
@@ -104,15 +106,15 @@ namespace YIRS.Views.Water
                             {
                                 StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
                                 StoreSubTitle = "ENUMERATION SLIP",
-                                ReceiptNumber = res.connectionNo,
-                                AgentName = agentEmail,
+                                AgentName = MainPage.Name,
                                 CollectionPoint = MainPage.CollectionPoint,
                                 AmountPaid = res.amount,
                                 Items = new List<ReceiptItem>
                                 {
-                                    new ReceiptItem { Description = "Occupant", SubText = req.occupant, Amount = 0 },
-                                    new ReceiptItem { Description = "Phone", SubText = req.phone, Amount = 0 },
-                                    new ReceiptItem { Description = "Tariff", SubText = selectedService.serviceName, Amount = res.amount }
+                                    new ReceiptItem { Description = "NAME", SubText = req.occupant, Amount = 0 },
+                                    new ReceiptItem { Description = "PHONE", SubText = req.phone, Amount = 0 },
+                                    new ReceiptItem { Description = "SERVICE", SubText = selectedService.serviceName, Amount = res.amount },
+                                    new ReceiptItem { Description = "CONNECTION ID", SubText = res.connectionNo }
                                 },
                                 FooterLine1 = "KEEP THIS CONNECTION NUMBER",
                                 FooterLine2 = "POWERED BY OSOFTPAY"

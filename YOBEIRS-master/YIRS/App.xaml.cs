@@ -121,7 +121,7 @@ namespace YIRS
                     case "state line": return new Views.StateLine.StateLineDashboard();
                     case "hulage": return new Views.Haulage.Dashboard();
                     case "damaturu": return new Views.Livestock.DashBoard();
-                    case "Water Resource": return new Views.Water.WaterDashboard();
+                    case "water resource": return new Views.Water.WaterDashboard();
 
                     default:
                         // Unknown or missing category — the session is not usable, so drop

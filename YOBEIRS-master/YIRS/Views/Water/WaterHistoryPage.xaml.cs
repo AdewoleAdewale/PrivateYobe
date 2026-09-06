@@ -39,6 +39,7 @@ namespace YIRS.Views.Water
 
         private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
         {
+            SessionManager.Instance.UpdateActivity();
             string keyword = e.NewTextValue?.Trim().ToLower() ?? "";
             if (string.IsNullOrEmpty(keyword))
             {
@@ -54,6 +55,7 @@ namespace YIRS.Views.Water
 
         private async void OnHistoryItemTapped(object sender, ItemTappedEventArgs e)
         {
+            SessionManager.Instance.UpdateActivity();
             if (e.Item is WaterConnectionStatusResponse selected)
             {
                 bool answer = await DisplayAlert("Receipt Options", $"Connection: {selected.connectionNo}\nOccupant: {selected.occupant}\nAmount: ₦{selected.lastPaymentAmount:N2}", "Re-Print Slip", "Close");

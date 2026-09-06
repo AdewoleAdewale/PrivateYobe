@@ -33,6 +33,7 @@ namespace YIRS.Views.Water
 
         private async void OnVerifyClicked(object sender, EventArgs e)
         {
+            SessionManager.Instance.UpdateActivity();
             string connNo = ConnectionEntry.Text?.Trim();
             if (string.IsNullOrWhiteSpace(connNo))
             {
@@ -105,34 +106,7 @@ namespace YIRS.Views.Water
                         var right = new StackLayout { Spacing = 4, HorizontalOptions = LayoutOptions.End, VerticalOptions = LayoutOptions.Center };
                         right.Children.Add(new Label { Text = $"₦{item.amount:N2}", FontAttributes = FontAttributes.Bold, FontSize = 13, TextColor = Color.FromHex("#0E8A57"), HorizontalTextAlignment = TextAlignment.End });
 
-                        var printBtn = new Button
-                        {
-                            Text = "🖨 Reprint",
-                            BackgroundColor = Color.FromHex("#F0F3F4"),
-                            TextColor = Color.FromHex("#333"),
-                            FontSize = 10,
-                            HeightRequest = 32,
-                            Padding = new Thickness(6, 0),
-                            CornerRadius = 6
-                        };
-                        printBtn.Clicked += async (s, args) =>
-                        {
-                            var mockReceipt = new WaterReceiptResponse
-                            {
-                                transactionId = item.transactionId,
-                                payer = connNo,
-                                occupant = statusRes.occupant,
-                               
-                                address = statusRes.address,
-                              
-                                amount = item.amount,
-                                datelIst = item.datelIst,
-                                debitRef = item.debitRef,
-                                performedBy = item.performedBy
-                            };
-                            await _printSDK.PrintPaymentReceiptAsync(mockReceipt, 1);
-                        };
-                        right.Children.Add(printBtn);
+                   
 
                         grid.Children.Add(left, 0, 0);
                         grid.Children.Add(right, 1, 0);
