@@ -51,7 +51,24 @@
 
                     <!-- Payment Inputs -->
                     <Label Text="Months to Pay For" TextColor="#444" FontSize="12" FontAttributes="Bold"/>
-                    <Entry x:Name="MonthsToPayEntry" Text="1" Keyboard="Numeric" TextChanged="OnMonthsChanged"/>
+                    <Frame BackgroundColor="#FAFAFA" CornerRadius="8" Padding="10,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Picker x:Name="MonthsToPayPicker" Title="Select Months" SelectedIndexChanged="OnMonthsChanged" TextColor="#222">
+                            <Picker.Items>
+                                <x:String>1 Month</x:String>
+                                <x:String>2 Months</x:String>
+                                <x:String>3 Months</x:String>
+                                <x:String>4 Months</x:String>
+                                <x:String>5 Months</x:String>
+                                <x:String>6 Months</x:String>
+                                <x:String>7 Months</x:String>
+                                <x:String>8 Months</x:String>
+                                <x:String>9 Months</x:String>
+                                <x:String>10 Months</x:String>
+                                <x:String>11 Months</x:String>
+                                <x:String>12 Months</x:String>
+                            </Picker.Items>
+                        </Picker>
+                    </Frame>
 
                     <Label Text="Agent Wallet PIN" TextColor="#444" FontSize="12" FontAttributes="Bold"/>
                     <Entry x:Name="PinEntry" Placeholder="Enter 4-digit PIN" IsPassword="True" Keyboard="Numeric"/>

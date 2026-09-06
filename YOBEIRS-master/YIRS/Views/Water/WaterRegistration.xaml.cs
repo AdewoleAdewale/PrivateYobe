@@ -48,7 +48,6 @@ namespace YIRS.Views.Water
 
         private void OnServiceSelected(object sender, EventArgs e)
         {
-
             if (ServicePicker.SelectedItem is WaterServiceTariff selected)
             {
                 EstimatedRateLabel.Text = $"Estimated Rate: ₦{selected.amount:N2} / month";
@@ -57,7 +56,6 @@ namespace YIRS.Views.Water
 
         private async void OnSubmitRegistrationClicked(object sender, EventArgs e)
         {
-            SessionManager.Instance.UpdateActivity();
             var selectedArea = AreaPicker.SelectedItem as WaterArea;
             var selectedService = ServicePicker.SelectedItem as WaterServiceTariff;
 
@@ -74,7 +72,7 @@ namespace YIRS.Views.Water
 
             try
             {
-                string agentEmail = SessionManager.GetSession()?.Email ?? "agent@watercorp.gov.ng";
+                string agentEmail = !string.IsNullOrWhiteSpace(SessionManager.Email) ? SessionManager.Email : "agent@watercorp.gov.ng";
 
                 var req = new WaterEnumerateRequest
                 {
@@ -101,26 +99,27 @@ namespace YIRS.Views.Water
                         $"₦{res.amount:N2} / mo",
                         async () =>
                         {
-                            // 1. Build ReceiptData required by your BluetoothPrinterService
+                            // Print the Enumeration Slip using BluetoothPrinterService
                             var receiptData = new ReceiptData
                             {
                                 StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
-                                StoreSubTitle = "ENUMERATION SLIP",
+                                StoreSubTitle = "CONSUMER ENUMERATION SLIP",
+                            
                                 AgentName = MainPage.Name,
                                 CollectionPoint = MainPage.CollectionPoint,
-                                AmountPaid = res.amount,
+                                AmountPaid = res.amount, // Or 0 if this is just registration
+                                BarcodeLabel = $"https://yobeirs.gov.ng/verify?conn={res.connectionNo}",
                                 Items = new List<ReceiptItem>
                                 {
-                                    new ReceiptItem { Description = "NAME", SubText = req.occupant, Amount = 0 },
+                                    new ReceiptItem { Description = "CONNECTION NO", SubText = res.connectionNo, Amount = 0 },
+                                    new ReceiptItem { Description = "OCCUPANT", SubText = req.occupant, Amount = 0 },
                                     new ReceiptItem { Description = "PHONE", SubText = req.phone, Amount = 0 },
-                                    new ReceiptItem { Description = "SERVICE", SubText = selectedService.serviceName, Amount = res.amount },
-                                    new ReceiptItem { Description = "CONNECTION ID", SubText = res.connectionNo }
+                                    new ReceiptItem { Description = "SERVICES", SubText = selectedService.serviceName, Amount = res.amount }
                                 },
                                 FooterLine1 = "KEEP THIS CONNECTION NUMBER",
-                                FooterLine2 = "POWERED BY OSOFTPAY"
+                                FooterLine2 = "REQUIRED FOR BILL PAYMENTS"
                             };
 
-                            // 2. Print using existing Service
                             await _printerService.PrintReceiptAsync(receiptData, "Logo.png", "YOBE IRS", null, null, default(CancellationToken));
                         }));
 

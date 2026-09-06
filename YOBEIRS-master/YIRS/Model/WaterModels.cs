@@ -83,13 +83,27 @@ namespace YIRS.Models
     public class WaterPaymentResponse
     {
         public string respondCode { get; set; }
-        public string transactionNo { get; set; }
         public string message { get; set; }
+
+        // --- Added fields based on the new Postman response image ---
+        public string connectionNo { get; set; }
+        public string occupant { get; set; }
+        public string address { get; set; }
+        public string tarifPlan { get; set; }
+        public decimal monthlyAmount { get; set; }
+        public DateTime? dueDate { get; set; }
+        public DateTime? lastPaymentDate { get; set; }
+        public decimal? lastPaymentAmount { get; set; }
+        public string status { get; set; }
+        public int monthsOwedOrAhead { get; set; }
+        public decimal backlogAmount { get; set; }
+
+        // --- Kept for backward compatibility in case they are returned by other endpoints ---
+        public string transactionNo { get; set; }
         public string payerName { get; set; }
         public decimal totalAmount { get; set; }
         public string serviceName { get; set; }
         public int monthsPaid { get; set; }
-        public string connectionNo { get; set; }
     }
 
     public class WaterReceiptResponse
@@ -105,7 +119,6 @@ namespace YIRS.Models
         public string debitRef { get; set; }
         public string performedBy { get; set; }
     }
-
 
     public class WaterEnumerationItem
     {
@@ -128,7 +141,6 @@ namespace YIRS.Models
         public List<WaterEnumerationItem> connections { get; set; }
     }
 
-    // --- Client Payment History Models ---
     public class WaterPaymentHistoryItem
     {
         public string transactionId { get; set; }

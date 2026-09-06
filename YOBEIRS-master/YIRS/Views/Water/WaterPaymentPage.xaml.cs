@@ -20,6 +20,7 @@ namespace YIRS.Views.Water
             InitializeComponent();
             _waterService = new WaterService();
             _printerService = new BluetoothPrinterService(use80mm: false);
+            MonthsToPayPicker.SelectedIndex = 0; // Default to 1 month
         }
 
         private async void OnLookupClicked(object sender, EventArgs e)
@@ -55,19 +56,27 @@ namespace YIRS.Views.Water
             else { await DisplayAlert("Not Found", res?.message, "OK"); }
         }
 
-        private void OnMonthsChanged(object sender, TextChangedEventArgs e) => RecalculateTotal();
+        private void OnMonthsChanged(object sender, EventArgs e) => RecalculateTotal();
 
         private void RecalculateTotal()
         {
-            if (_currentConnection != null && int.TryParse(MonthsToPayEntry.Text, out int months) && months > 0)
+            if (_currentConnection != null && MonthsToPayPicker.SelectedIndex >= 0)
+            {
+                int months = MonthsToPayPicker.SelectedIndex + 1; // Index 0 = 1 Month
                 TotalChargeLabel.Text = $"₦{(_currentConnection.monthlyAmount * months):N2}";
-            else TotalChargeLabel.Text = "₦0.00";
+            }
+            else
+            {
+                TotalChargeLabel.Text = "₦0.00";
+            }
         }
 
         private async void OnPayClicked(object sender, EventArgs e)
         {
             SessionManager.Instance.UpdateActivity();
-            if (!int.TryParse(MonthsToPayEntry.Text, out int months) || months < 1)
+
+            int months = MonthsToPayPicker.SelectedIndex + 1;
+            if (months < 1)
             {
                 await Navigation.PushModalAsync(new WaterFailureSheet("Invalid Months", "Minimum 1 month required."));
                 return;
@@ -81,7 +90,7 @@ namespace YIRS.Views.Water
 
             try
             {
-                string agentEmail = SessionManager.GetSession()?.Email ?? "agent@watercorp.gov.ng";
+                string agentEmail = !string.IsNullOrWhiteSpace(SessionManager.Email) ? SessionManager.Email : "agent@watercorp.gov.ng";
 
                 var req = new WaterPaymentRequest
                 {
@@ -106,7 +115,7 @@ namespace YIRS.Views.Water
                         {
                             if (receiptInfo != null)
                             {
-                                // 1. Map API Receipt to BluetoothPrinterService ReceiptData
+                                // Print using the built-in BluetoothPrinterService
                                 var receiptData = new ReceiptData
                                 {
                                     StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
@@ -118,15 +127,16 @@ namespace YIRS.Views.Water
                                     BarcodeLabel = $"https://yobeirs.gov.ng/receipt?tx={receiptInfo.transactionId}",
                                     Items = new List<ReceiptItem>
                                     {
-                                        new ReceiptItem { Description = "CONNECTION ID", SubText = receiptInfo.payer, Amount = 0 },
+                                        new ReceiptItem { Description = "CONNECTION NO", SubText = receiptInfo.payer, Amount = 0 },
                                         new ReceiptItem { Description = "NAME", SubText = receiptInfo.occupant, Amount = 0 },
-                                        new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTHS(S)", Amount = receiptInfo.amount }
+                                          new ReceiptItem { Description = "SERVICES", SubText = res.tarifPlan, Amount = 0 },
+                                        new ReceiptItem { Description = "MONTHLY RATE", SubText = "", Amount = _currentConnection.monthlyAmount },
+                                        new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTH(S)", Amount = receiptInfo.amount }
                                     },
                                     FooterLine1 = "Thank you for your payment!",
                                     FooterLine2 = "POWERED BY OSOFTPAY"
                                 };
 
-                                // 2. Trigger Print
                                 await _printerService.PrintReceiptAsync(receiptData, "Logo.png", "YOBE IRS", null, null, default(CancellationToken));
                             }
                         }));
