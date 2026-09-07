@@ -29,6 +29,7 @@ namespace YIRS.Views.Water
                 return;
             }
             base.OnAppearing();
+            AgentNameLabel.Text = SessionManager.FullName;
             LoadDashboardData();
         }
 

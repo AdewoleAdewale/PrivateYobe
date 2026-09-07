@@ -23,7 +23,7 @@
                             </Frame>
                             <StackLayout Grid.Column="1" Margin="10,0,0,0" VerticalOptions="Center">
                                 <Label Text="Good day," TextColor="#A3C7B9" FontSize="11"/>
-                                <Label x:Name="AgentNameLabel" Text="Water Revenue Agent" TextColor="White" FontAttributes="Bold" FontSize="15"/>
+                                <Label x:Name="AgentNameLabel"  TextColor="White" FontAttributes="Bold" FontSize="15"/>
                             </StackLayout>
                             <Frame Grid.Column="2" BackgroundColor="#1F5742" CornerRadius="10" HeightRequest="36" WidthRequest="36" Padding="0" HasShadow="False">
                                 <Label Text="•••" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" FontSize="14"/>
