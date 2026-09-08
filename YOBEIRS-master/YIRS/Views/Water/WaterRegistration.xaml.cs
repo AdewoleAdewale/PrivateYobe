@@ -104,7 +104,7 @@ namespace YIRS.Views.Water
                             {
                                 StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
                                 StoreSubTitle = "CONSUMER ENUMERATION SLIP",
-                            
+                                StorePhone = "Contact us:  08101029977",
                                 AgentName = MainPage.Name,
                                 CollectionPoint = MainPage.CollectionPoint,
                                 AmountPaid = res.amount, // Or 0 if this is just registration
@@ -117,7 +117,7 @@ namespace YIRS.Views.Water
                                     new ReceiptItem { Description = "SERVICES", SubText = selectedService.serviceName, Amount = res.amount }
                                 },
                                 FooterLine1 = "KEEP THIS CONNECTION NUMBER",
-                                FooterLine2 = "REQUIRED FOR BILL PAYMENTS"
+                                FooterLine2 = "POWERED BY OSOFTPAY"
                             };
 
                             await _printerService.PrintReceiptAsync(receiptData, "Logo.png", "YOBE IRS", null, null, default(CancellationToken));

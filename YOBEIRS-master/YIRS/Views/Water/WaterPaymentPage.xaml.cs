@@ -120,6 +120,7 @@ namespace YIRS.Views.Water
                                 {
                                     StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
                                     StoreSubTitle = "OFFICIAL WATER RECEIPT",
+                                    StorePhone = "Contact us:  08101029977",
                                     ReceiptNumber = receiptInfo.transactionId,
                                     AgentName = MainPage.Name,
                                     CollectionPoint = MainPage.CollectionPoint,
@@ -133,7 +134,7 @@ namespace YIRS.Views.Water
                                         new ReceiptItem { Description = "MONTHLY RATE", SubText = "", Amount = _currentConnection.monthlyAmount },
                                         new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTH(S)", Amount = receiptInfo.amount }
                                     },
-                                    FooterLine1 = "Thank you for your payment!",
+                                    FooterLine1 = "THANK YOU FOR MAKING PAYMENTS",
                                     FooterLine2 = "POWERED BY OSOFTPAY"
                                 };
 
