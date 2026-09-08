@@ -2,114 +2,54 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns:yummy="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
-             xmlns:renderers11="clr-namespace:YIRS.Renderers"
+             xmlns:renderers="clr-namespace:YIRS.Renderers"
              x:Class="YIRS.Views.ChangeTransferPIN"   
-             BackgroundColor="#004225"
-     NavigationPage.HasNavigationBar="True">
+          BackgroundColor="#80000000">
 
+    <Grid VerticalOptions="Center" Padding="20">
+        <!-- Main Card -->
+        <Frame BackgroundColor="White" CornerRadius="20" Padding="20,24" HasShadow="True">
+            <StackLayout Spacing="16">
 
-    <StackLayout >
+                <!-- Header Icon -->
+                <Frame BackgroundColor="#FDF0DF" CornerRadius="30" HeightRequest="60" WidthRequest="60" 
+                       Padding="0" HasShadow="False" HorizontalOptions="Center">
+                    <Label Text="🔢" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Frame>
 
-        <Grid Margin="0,0,0,0">
-            <StackLayout Margin="20,10,20,0" Spacing="20">
+                <Label Text="Reset Transaction PIN" FontAttributes="Bold" FontSize="18" TextColor="#063E2A" HorizontalTextAlignment="Center"/>
+                <Label Text="Update your 4-digit PIN for processing payments." FontSize="12" TextColor="#666" HorizontalTextAlignment="Center"/>
 
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="20"
-                    Text="RESET TRANSACTION  PIN"
-                    TextColor="White"
-                    VerticalOptions="CenterAndExpand" />
-            </StackLayout>
+                <!-- Input Fields -->
+                <StackLayout Spacing="12" Margin="0,10,0,0">
+                    <StackLayout Spacing="4">
+                        <Label Text="Current PIN" FontSize="12" FontAttributes="Bold" TextColor="#444"/>
+                        <Frame BackgroundColor="#F9FAFB" CornerRadius="10" Padding="14,2" HasShadow="False" BorderColor="#E8EBED">
+                            <renderers:BorderlessEntry x:Name="OldPINEntry" Placeholder="Enter 4-digit current PIN" 
+                                                       FontSize="14" IsPassword="True" MaxLength="4" Keyboard="Numeric" TextColor="#222" ClearButtonVisibility="WhileEditing"/>
+                        </Frame>
+                    </StackLayout>
 
-            <Image
-                    HorizontalOptions="EndAndExpand"
-                    Source="yobe.png"
-                    WidthRequest="150" />
-
-        </Grid>
-
-        <yummy:PancakeView
-            Margin="0,20,0,0"
-            Padding="30,50,30,30"
-            BackgroundColor="White"
-            CornerRadius="20,20,0,0"
-            VerticalOptions="FillAndExpand">
-            <StackLayout Spacing="15">
-
-
-                <StackLayout Spacing="10">
-                    <Label
-                        Margin="10,0,0,0"
-                        FontSize="15"
-                            FontAttributes="Bold"
-                        Text="CURRENT PIN"
-                        TextColor="#004225" />
-                    <yummy:PancakeView
-                        Padding="10,0,0,0"
-                        BackgroundColor="White"
-                        BorderThickness="1"
-                        CornerRadius="10"
-                        Elevation="3"                            
-                        HeightRequest="50">
-                        <renderers11:BorderlessEntry
-                            FontSize="15"
-                            MaxLength="4"
-                            ClearButtonVisibility="WhileEditing"
-                            IsPassword="True"                              
-                            TextColor="Black"
-                            Keyboard="Numeric"
-                                x:Name="OldPINEntry"/>
-                    </yummy:PancakeView>
+                    <StackLayout Spacing="4">
+                        <Label Text="New PIN" FontSize="12" FontAttributes="Bold" TextColor="#444"/>
+                        <Frame BackgroundColor="#F9FAFB" CornerRadius="10" Padding="14,2" HasShadow="False" BorderColor="#E8EBED">
+                            <renderers:BorderlessEntry x:Name="ConfirmPIN" Placeholder="Enter 4-digit new PIN" 
+                                                       FontSize="14" IsPassword="True" MaxLength="4" Keyboard="Numeric" TextColor="#222" ClearButtonVisibility="WhileEditing"/>
+                        </Frame>
+                    </StackLayout>
                 </StackLayout>
 
-                <StackLayout Spacing="10">
-                    <Label
-                        Margin="10,0,0,0"
-                        FontSize="15"
-                            FontAttributes="Bold"
-                        Text=" NEW PIN"
-                        TextColor="#004225" />
-                    <yummy:PancakeView
-                        Padding="10,0,0,0"
-                        BackgroundColor="White"
-                        BorderThickness="1"
-                        CornerRadius="10"
-                        Elevation="3"
-                        HeightRequest="50">
-                        <renderers11:BorderlessEntry
-                            FontSize="15"
-                            Keyboard="Numeric"
-                             ClearButtonVisibility="WhileEditing"
-                            IsPassword="True"
-                            MaxLength="4"
-                            TextColor="Black" 
-                                x:Name="ConfirmPIN"/>
-                    </yummy:PancakeView>
-                </StackLayout>
-                <yummy:PancakeView
-                    BackgroundColor="#004225"
-                     BorderThickness="5"
-                    CornerRadius="15"
-                        HasShadow="True"
-                        BorderColor="White"
-                    Elevation="3"
-                    HeightRequest="60"
-                    HorizontalOptions="FillAndExpand"
-                    WidthRequest="150">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="15"
-                        HorizontalOptions="CenterAndExpand"
-                        Text="UPDATE PIN"
-                        TextColor="White"
-                        VerticalOptions="CenterAndExpand" >
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped_1" ></TapGestureRecognizer>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </yummy:PancakeView>
-            </StackLayout>
-        </yummy:PancakeView>
-    </StackLayout>
+                <BoxView HeightRequest="1" BackgroundColor="#ECECEC" Margin="0,10"/>
 
+                <!-- Action Buttons -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                    <Button Grid.Column="0" Text="Cancel" BackgroundColor="#F0F3F4" TextColor="#333" 
+                            FontAttributes="Bold" CornerRadius="10" HeightRequest="48" Clicked="OnCancelClicked"/>
+                    <Button Grid.Column="1" Text="Update PIN" BackgroundColor="#063E2A" TextColor="White" 
+                            FontAttributes="Bold" CornerRadius="10" HeightRequest="48" Clicked="OnUpdatePinClicked"/>
+                </Grid>
+
+            </StackLayout>
+        </Frame>
+    </Grid>
 </ContentPage>

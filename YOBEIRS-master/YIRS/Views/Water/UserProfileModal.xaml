@@ -48,7 +48,12 @@
                 </StackLayout>
 
                 <BoxView HeightRequest="1" BackgroundColor="#ECECEC"/>
-
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Grid.Column="0" Text="Change PIN" BackgroundColor="#F0F3F4" TextColor="#333" 
+                            FontAttributes="Bold" FontSize="12" CornerRadius="8" HeightRequest="45" Clicked="OnChangePinClicked"/>
+                    <Button Grid.Column="1" Text="Change PWD" BackgroundColor="#F0F3F4" TextColor="#333" 
+                            FontAttributes="Bold" FontSize="12" CornerRadius="8" HeightRequest="45" Clicked="OnChangePasswordClicked"/>
+                </Grid>
                 <Button Text="Close Profile" BackgroundColor="#063E2A" TextColor="White" 
                         FontAttributes="Bold" CornerRadius="10" HeightRequest="45" Clicked="OnCloseClicked"/>
             </StackLayout>

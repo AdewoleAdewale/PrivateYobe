@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using YIRS.Services;
+using YIRS.Views.Water;
 
 namespace YIRS.Views
 {
@@ -16,7 +17,8 @@ namespace YIRS.Views
         public ChangePassword()
         {
             InitializeComponent();
-            TrackUserActivity();
+       
+
         }
 
         private void TrackUserActivity()
@@ -26,74 +28,75 @@ namespace YIRS.Views
             tapGesture.Tapped += (s, e) => SessionManager.Instance.UpdateActivity();
             this.Content.GestureRecognizers.Add(tapGesture);
         }
-        private async void TapGestureRecognizer_Tapped_1(object sender, EventArgs e)
-        {
-            //change password
-            SessionManager.Instance.UpdateActivity();
-            using (UserDialogs.Instance.Loading("Connecting to Service, Please Wait...", null, null, true))
-            {
-                await Task.Delay(2000);
 
-                //Connect to cloud and retrieve email and password combination
-                string url = "https://yobe.osoftpay.net/api/TaskPayers/ChangePassword?UserName=" + MainPage.ValidUserMail + "&NewPassword=" + ConfirmPassword.Text;
+
+        private async void OnCancelClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopModalAsync();
+        }
+
+        private async void OnUpdatePasswordClicked(object sender, EventArgs e)
+        {
+            SessionManager.Instance.UpdateActivity();
+
+            if (string.IsNullOrWhiteSpace(ConfirmPassword.Text) || string.IsNullOrWhiteSpace(OldPasswordEntry.Text))
+            {
+                await Navigation.PushModalAsync(new WaterFailureSheet("Validation Error", "Please fill in all password fields."));
+                return;
+            }
+
+            using (UserDialogs.Instance.Loading("Verifying...", null, null, true))
+            {
+                await Task.Delay(1000);
+
+                string url = $"https://yobe.osoftpay.net/api/TaskPayers/ChangePassword?UserName={MainPage.ValidUserMail}&NewPassword={ConfirmPassword.Text}";
 
                 try
                 {
-
                     using (var httpClientHandler = new HttpClientHandler())
                     {
-                        // CRITICAL FIX: Add this for new SSL certificate validation
-                        httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-                        {
-                            // Allow connection to new SSL certificate
-                            return true;
-                        };
+                        httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 
                         using (HttpClient client = new HttpClient(httpClientHandler))
                         {
                             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-                            using (HttpResponseMessage response = client.GetAsync(url).Result)
+                            using (HttpResponseMessage response = await client.GetAsync(url))
                             {
-                                using (HttpContent content = response.Content)
+                                var json = await response.Content.ReadAsStringAsync();
+                                var result = JsonConvert.DeserializeObject<InterfacePass>(json);
+
+                                if (result != null && result.status == "00")
                                 {
-                                    var json = content.ReadAsStringAsync().Result;
-                                    InterfacePass result = JsonConvert.DeserializeObject<InterfacePass>
-                                        (json);
+                                    App.IsUserLoggedIn = false;
 
-                                    if (result != null)
-                                    {
-                                        if (result.status == "00")
+                                    // Show Success Sheet and redirect to Login on close
+                                    await Navigation.PushModalAsync(new WaterSuccessSheet(
+                                        "Password Updated",
+                                        "Your password was changed successfully. Please login again.",
+                                        "PWD-UPDATE",
+                                        "Successful",
+                                        async () =>
                                         {
-                                            App.IsUserLoggedIn = false;
-                                            await DisplayAlert("NOTIFICATION", "Password Change Successful. Please Login Again!", "OKAY");
+                                            // Action when user clicks "Done" on success sheet
                                             Application.Current.MainPage = new NavigationPage(new Views.MainPage());
-                                        }
-                                        else
-                                        {
-                                            await DisplayAlert("NOTIFICATION", "Error, Password was not changed!", "OKAY");
-
-                                        }
-                                    }
-                                    else
-                                    {
-                                        await DisplayAlert("NOTIFICATION", "Connection Failed", "OKAY");
-                                    }
+                                        }));
+                                }
+                                else
+                                {
+                                    await Navigation.PushModalAsync(new WaterFailureSheet("Update Failed", "Error, Password was not changed!"));
                                 }
                             }
                         }
-
                     }
                 }
-                catch (Exception exe)
+                catch (Exception ex)
                 {
-                    await DisplayAlert("NOTIFICATION", "Check your Internet", "OKAY");
-                    exe.ToString();
+                    await Navigation.PushModalAsync(new WaterFailureSheet("Network Error", "Check your internet connection."));
                 }
-
             }
         }
     }
+
 
 
     internal class InterfacePass

@@ -105,13 +105,14 @@ namespace YIRS.Views.Water
                 if (res != null && res.respondCode == "00")
                 {
                     var receiptInfo = await _waterService.GetReceiptAsync(res.transactionNo);
-
-                    await Navigation.PushModalAsync(new WaterSuccessSheet(
-                        "Payment Successful",
-                        $"Payment recorded for {res.monthsPaid} month(s).",
-                        res.transactionNo,
-                        $"₦{res.totalAmount:N2}",
-                        async () =>
+                    decimal paidAmount = res.lastPaymentAmount ?? (_currentConnection.monthlyAmount * months);
+                    string txRef = !string.IsNullOrEmpty(res.transactionNo) ? res.transactionNo : "WTR-" + DateTime.Now.ToString("yyMMddHHmmss");
+                         await Navigation.PushModalAsync(new WaterSuccessSheet(
+                             "Payment Successful",
+                             $"Payment recorded for {months} month(s).",
+                             txRef,
+                             $"₦{paidAmount:N2}",
+                             async () =>
                         {
                             if (receiptInfo != null)
                             {
@@ -121,19 +122,18 @@ namespace YIRS.Views.Water
                                     StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
                                     StoreSubTitle = "OFFICIAL WATER RECEIPT",
                                     StorePhone = "Contact us:  08101029977",
-                                    ReceiptNumber = receiptInfo.transactionId,
+                                    ReceiptNumber = txRef,
                                     AgentName = MainPage.Name,
                                     CollectionPoint = MainPage.CollectionPoint,
-                                    AmountPaid = receiptInfo.amount,
-                                    BarcodeLabel = $"https://yobeirs.gov.ng/receipt?tx={receiptInfo.transactionId}",
+                                    AmountPaid = paidAmount,
+                                    BarcodeLabel = $"https://yobeirs.gov.ng/receipt?tx={txRef}",
                                     Items = new List<ReceiptItem>
-                                    {
-                                        new ReceiptItem { Description = "CONNECTION NO", SubText = receiptInfo.payer, Amount = 0 },
-                                        new ReceiptItem { Description = "NAME", SubText = receiptInfo.occupant, Amount = 0 },
-                                          new ReceiptItem { Description = "SERVICES", SubText = res.tarifPlan, Amount = 0 },
-                                        new ReceiptItem { Description = "MONTHLY RATE", SubText = "", Amount = _currentConnection.monthlyAmount },
-                                        new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTH(S)", Amount = receiptInfo.amount }
-                                    },
+                                {
+                                    new ReceiptItem { Description = "CONNECTION NO", SubText = res.connectionNo ?? _currentConnection.connectionNo, Amount = 0 },
+                                    new ReceiptItem { Description = "NAME", SubText = res.occupant ?? _currentConnection.occupant, Amount = 0 },
+                                    new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTH(S)", Amount = 0 },
+                                    new ReceiptItem { Description = "TOTAL CHARGE", SubText = "", Amount = paidAmount }
+                                },
                                     FooterLine1 = "THANK YOU FOR MAKING PAYMENTS",
                                     FooterLine2 = "POWERED BY OSOFTPAY"
                                 };
@@ -142,6 +142,9 @@ namespace YIRS.Views.Water
                             }
                         }));
                     PinEntry.Text = "";
+                    MonthsToPayPicker.SelectedIndex = 0;
+                    DetailsFrame.IsVisible = false;
+                    ConnectionNoEntry.Text = "";
                 }
                 else
                 {

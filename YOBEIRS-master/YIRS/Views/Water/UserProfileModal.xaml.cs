@@ -27,6 +27,18 @@ namespace YIRS.Views.Water
             }
         }
 
+        private async void OnChangePinClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopModalAsync();
+            await Application.Current.MainPage.Navigation.PushAsync(new ChangeTransferPIN());
+        }
+
+        private async void OnChangePasswordClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopModalAsync();
+            await Application.Current.MainPage.Navigation.PushAsync(new ChangePassword());
+        }
+
         private async void OnCloseClicked(object sender, EventArgs e)
         {
             await Navigation.PopModalAsync();

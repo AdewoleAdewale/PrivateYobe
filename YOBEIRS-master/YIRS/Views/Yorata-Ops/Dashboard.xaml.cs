@@ -748,6 +748,8 @@ namespace YIRS.Views.Yorata_Ops
                             await LogoutAsync();
                             break;
                         case "CHANGE PASSWORD":
+                            await Navigation.PushAsync(new Views.ChangePassword());
+                            break;
                         case "CHANGE PIN":
                             await Navigation.PushAsync(new Views.ChangeTransferPIN());
                             break;

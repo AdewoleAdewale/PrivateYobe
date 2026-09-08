@@ -92,6 +92,7 @@ namespace YIRS.Views.Water
 
                 if (res != null && res.respondCode == "00")
                 {
+                    string txRef = !string.IsNullOrEmpty(res.connectionNo) ? res.connectionNo : "REG-" + DateTime.Now.ToString("yyMMddHHmmss");
                     await Navigation.PushModalAsync(new WaterSuccessSheet(
                         "Registration Successful",
                         "Customer connection has been created.",
@@ -105,6 +106,7 @@ namespace YIRS.Views.Water
                                 StoreName = "YOBE STATE INTERNAL REVENUE SERVICE",
                                 StoreSubTitle = "CONSUMER ENUMERATION SLIP",
                                 StorePhone = "Contact us:  08101029977",
+                                ReceiptNumber = txRef,
                                 AgentName = MainPage.Name,
                                 CollectionPoint = MainPage.CollectionPoint,
                                 AmountPaid = res.amount, // Or 0 if this is just registration
