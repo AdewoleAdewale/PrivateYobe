@@ -312,8 +312,9 @@ namespace YIRS.Views.Home
         private ReceiptData BuildReceiptData(StateCollectionResponseObject response, decimal amount)
         {
             string verifyUrl =
-                $"https://yobe.osoftpay.net/singlecollections/verify" +
+                $"https://yobe.osoftpay.net/Api/Singlecollections/VerifyTransaction" +
                 $"?TransactId={Uri.EscapeDataString(response.TransactionNo ?? "")}";
+
 
             var items = new List<ReceiptItem>
             {

@@ -62,7 +62,7 @@ namespace YIRS.Views.Water
         {
             if (_currentConnection != null && MonthsToPayPicker.SelectedIndex >= 0)
             {
-                int months = MonthsToPayPicker.SelectedIndex + 1; // Index 0 = 1 Month
+                int months = MonthsToPayPicker.SelectedIndex + 1;
                 TotalChargeLabel.Text = $"₦{(_currentConnection.monthlyAmount * months):N2}";
             }
             else
@@ -70,12 +70,11 @@ namespace YIRS.Views.Water
                 TotalChargeLabel.Text = "₦0.00";
             }
         }
-
         private async void OnPayClicked(object sender, EventArgs e)
         {
             SessionManager.Instance.UpdateActivity();
-
             int months = MonthsToPayPicker.SelectedIndex + 1;
+
             if (months < 1)
             {
                 await Navigation.PushModalAsync(new WaterFailureSheet("Invalid Months", "Minimum 1 month required."));
@@ -92,10 +91,18 @@ namespace YIRS.Views.Water
             {
                 string agentEmail = !string.IsNullOrWhiteSpace(SessionManager.Email) ? SessionManager.Email : "agent@watercorp.gov.ng";
 
+                // Get Year from Picker
+                int selectedYear = 2026;
+                if (YearPicker.SelectedIndex >= 0)
+                {
+                    int.TryParse(YearPicker.SelectedItem.ToString(), out selectedYear);
+                }
+
                 var req = new WaterPaymentRequest
                 {
-                    payer = _currentConnection.connectionNo,
+                    connectionno = _currentConnection.connectionNo, // Updated field
                     monthsToPay = months,
+                    year = selectedYear, // New field
                     pin = PinEntry.Text.Trim(),
                     email = agentEmail
                 };
@@ -126,12 +133,12 @@ namespace YIRS.Views.Water
                                     AgentName = MainPage.Name,
                                     CollectionPoint = MainPage.CollectionPoint,
                                     AmountPaid = paidAmount,
-                                    BarcodeLabel = $"https://yobeirs.gov.ng/receipt?tx={txRef}",
+                                    BarcodeLabel = $"https://yobe.osoftpay.net/Api/Singlecollections/VerifyTransaction?TransactId={txRef}",
                                     Items = new List<ReceiptItem>
                                 {
                                     new ReceiptItem { Description = "CONNECTION NO", SubText = res.connectionNo ?? _currentConnection.connectionNo, Amount = 0 },
                                     new ReceiptItem { Description = "NAME", SubText = res.occupant ?? _currentConnection.occupant, Amount = 0 },
-                                    new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTH(S)", Amount = 0 },
+                                    new ReceiptItem { Description = "MONTHS PAID", SubText = $"{months} MONTH(S) ({selectedYear})", Amount = 0 },
                                     new ReceiptItem { Description = "TOTAL CHARGE", SubText = "", Amount = paidAmount }
                                 },
                                     FooterLine1 = "THANK YOU FOR MAKING PAYMENTS",
@@ -143,6 +150,7 @@ namespace YIRS.Views.Water
                         }));
                     PinEntry.Text = "";
                     MonthsToPayPicker.SelectedIndex = 0;
+                    YearPicker.SelectedIndex = 0;
                     DetailsFrame.IsVisible = false;
                     ConnectionNoEntry.Text = "";
                 }

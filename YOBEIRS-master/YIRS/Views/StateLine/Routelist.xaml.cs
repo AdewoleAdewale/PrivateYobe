@@ -573,9 +573,10 @@ namespace YIRS.Views.StateLine
         private ReceiptData BuildReceiptData(PaymentResponse response)
         {
             string verifyUrl =
-                $"https://yobe.osoftpay.net/singlecollections/verify" +
+                $"https://yobe.osoftpay.net/Api/Singlecollections/VerifyTransaction" +
                 $"?TransactId={Uri.EscapeDataString(response.transactionNo ?? "")}";
 
+   
             var items = new List<ReceiptItem>
             {
                 new ReceiptItem

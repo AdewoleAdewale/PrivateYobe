@@ -110,9 +110,10 @@ namespace YIRS.Views.Water
                                 AgentName = MainPage.Name,
                                 CollectionPoint = MainPage.CollectionPoint,
                                 AmountPaid = res.amount, // Or 0 if this is just registration
-                                BarcodeLabel = $"https://yobeirs.gov.ng/verify?conn={res.connectionNo}",
+                                BarcodeLabel = null,
                                 Items = new List<ReceiptItem>
                                 {
+
                                     new ReceiptItem { Description = "CONNECTION NO", SubText = res.connectionNo, Amount = 0 },
                                     new ReceiptItem { Description = "OCCUPANT", SubText = req.occupant, Amount = 0 },
                                     new ReceiptItem { Description = "PHONE", SubText = req.phone, Amount = 0 },

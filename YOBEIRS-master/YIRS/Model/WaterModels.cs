@@ -75,9 +75,10 @@ namespace YIRS.Models
     {
         public string email { get; set; }
         public string pin { get; set; }
-        public string payer { get; set; }
+        public string connectionno { get; set; } // Changed from 'payer' to match your payload
         public string vehicleNo { get; set; } = "";
         public int monthsToPay { get; set; }
+        public int year { get; set; } // Added year parameter
     }
 
     public class WaterPaymentResponse

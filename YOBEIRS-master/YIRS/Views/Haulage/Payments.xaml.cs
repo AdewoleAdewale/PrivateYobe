@@ -655,7 +655,7 @@ namespace YIRS.Views.Haulage
                 var amount = resp != null && resp.TotalAmount > 0 ? resp.TotalAmount : _expectedAmount;
                 var reference = FirstNonEmpty(resp?.TransactionNo, resp?.TId, "N/A");
 
-                var verifyUrl = $"{BaseUrl}/singlecollections/verify?TransactId={Uri.EscapeDataString(reference)}";
+                var verifyUrl = $"{BaseUrl}/Singlecollections/VerifyTransaction?TransactId={Uri.EscapeDataString(reference)}";
 
                 var items = new List<ReceiptItem>
                 {

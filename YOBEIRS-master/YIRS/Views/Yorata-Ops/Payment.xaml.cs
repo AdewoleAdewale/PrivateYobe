@@ -541,8 +541,10 @@ namespace YIRS.Views.Yorata_Ops
 
             // Verification URL encoded into the QR barcode
             string verifyUrl =
-                $"https://yobe.osoftpay.net/singlecollections/verify" +
+                $" https://yobe.osoftpay.net/Api/Singlecollections/VerifyTransaction" +
                 $"?TransactId={Uri.EscapeDataString(transactionNo)}";
+
+       
 
             var items = new List<ReceiptItem>();
 

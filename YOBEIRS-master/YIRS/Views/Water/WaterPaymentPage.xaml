@@ -70,6 +70,17 @@
                         </Picker>
                     </Frame>
 
+                    <Frame Grid.Column="1" BackgroundColor="#FAFAFA" CornerRadius="8" Padding="10,0" HasShadow="False" BorderColor="#E0E0E0">
+                        <Picker x:Name="YearPicker" Title="Select Year" SelectedIndex="0" TextColor="#222">
+                            <Picker.Items>
+                                <x:String>2026</x:String>
+                                <x:String>2027</x:String>
+                                <x:String>2028</x:String>
+                                <x:String>2029</x:String>
+                                <x:String>2030</x:String>
+                            </Picker.Items>
+                        </Picker>
+                    </Frame>
                     <Label Text="Agent Wallet PIN" TextColor="#444" FontSize="12" FontAttributes="Bold"/>
                     <Entry x:Name="PinEntry" Placeholder="Enter 4-digit PIN" IsPassword="True" Keyboard="Numeric"/>
 

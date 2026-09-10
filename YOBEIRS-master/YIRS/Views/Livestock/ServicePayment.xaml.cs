@@ -53,7 +53,7 @@ namespace YIRS.Views.Livestock
             "https://yobe.osoftpay.net/api/Agents/LiveStockPayment";
 
         private const string VerifyUrlBase =
-            "https://yobe.osoftpay.net/singlecollections/verify?TransactId=";
+            "https://yobe.osoftpay.net/Api/Singlecollections/VerifyTransaction?TransactId=";
 
         // ══════════════════════════════════════════════════════════════
         //  HTTP  (one static instance for the whole app — Android will

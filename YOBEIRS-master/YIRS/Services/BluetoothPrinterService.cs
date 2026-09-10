@@ -1162,7 +1162,8 @@ namespace YIRS.Services
         /// Set to null or empty to skip the QR block entirely.
         /// </summary>
         public string BarcodeLabel { get; set; } =
-            "https://yobe.osoftpay.net/singlecollections/verify?TransactId=";
+            " https://yobe.osoftpay.net/Api/Singlecollections/VerifyTransaction?TransactId=";
+       
     }
 
     public sealed class ReceiptItem

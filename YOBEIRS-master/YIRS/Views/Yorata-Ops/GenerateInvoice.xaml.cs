@@ -617,11 +617,7 @@ namespace YIRS.Views.Yorata_Ops
 
         private ReceiptData BuildReceiptData(InvoiceResponse invoice)
         {
-            // QR code encodes a payment URL that the payer/verifier can scan
-            string verifyUrl =
-                $"https://yobe.osoftpay.net/singlecollections/verify" +
-                $"?InvoiceNo={Uri.EscapeDataString(invoice.invoice_number ?? string.Empty)}";
-
+        
             var items = new List<ReceiptItem>
             {
                 // Customer block (amount = 0 → printed as label:value rows)
